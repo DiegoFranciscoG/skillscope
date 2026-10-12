@@ -450,8 +450,8 @@ class YouTube(SocialSource):
                     "order": "date",
                     "maxResults": 25,
                     "publishedAfter": iso(since),
-                    "key": key,
                 },
+                headers={"X-Goog-Api-Key": key},
                 conditional=False,
             )
             for item in (result.data or {}).get("items", []):
@@ -464,7 +464,8 @@ class YouTube(SocialSource):
                 self.VIDEOS_URL,
                 source=self.id,
                 budget=budget,
-                params={"part": "snippet,statistics", "id": ",".join(ids[:50]), "key": key},
+                params={"part": "snippet,statistics", "id": ",".join(ids[:50])},
+                headers={"X-Goog-Api-Key": key},
                 conditional=False,
             )
             for video in (result.data or {}).get("items", []):

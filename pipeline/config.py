@@ -54,6 +54,8 @@ class Settings:
 
 _REPO_RE = re.compile(r"^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$")
 LOCAL_SITE_URL = "http://localhost:8080/"
+# The offline build talks to the in-memory sample API: no real quota is spent.
+OFFLINE_BUDGETS = Budgets(rest=500, graphql=500, search=200, code_search=50, npm=50)
 
 
 def _int(env: Mapping[str, str], key: str, default: int, low: int, high: int) -> int:
@@ -89,7 +91,7 @@ def load_settings(
     out_dir: Path | None = None,
 ) -> Settings:
     """Read settings from ``env``. Online builds need a token and a public site URL."""
-    token = _opt(env, "GITHUB_TOKEN")
+    token = None if offline else _opt(env, "GITHUB_TOKEN")
     site = _opt(env, "SKILLSCOPE_SITE_URL")
     if not offline:
         missing = [k for k, v in (("GITHUB_TOKEN", token), ("SKILLSCOPE_SITE_URL", site)) if not v]
@@ -103,27 +105,37 @@ def load_settings(
     if repository and not _REPO_RE.match(repository):
         raise ConfigError(f"SKILLSCOPE_REPOSITORY debe tener la forma owner/repo: {repository!r}")
 
-    budgets = Budgets(
-        rest=_int(env, "SKILLSCOPE_BUDGET_REST", 140, 0, 5000),
-        graphql=_int(env, "SKILLSCOPE_BUDGET_GRAPHQL", 120, 0, 5000),
-        search=_int(env, "SKILLSCOPE_BUDGET_SEARCH", 24, 0, 300),
-        code_search=_int(env, "SKILLSCOPE_BUDGET_CODE_SEARCH", 5, 0, 100),
-        npm=_int(env, "SKILLSCOPE_BUDGET_NPM", 30, 0, 500),
+    mode = "sample" if offline else "live"
+    budgets = (
+        OFFLINE_BUDGETS
+        if offline
+        else Budgets(
+            rest=_int(env, "SKILLSCOPE_BUDGET_REST", 140, 0, 5000),
+            graphql=_int(env, "SKILLSCOPE_BUDGET_GRAPHQL", 120, 0, 5000),
+            search=_int(env, "SKILLSCOPE_BUDGET_SEARCH", 24, 0, 300),
+            code_search=_int(env, "SKILLSCOPE_BUDGET_CODE_SEARCH", 5, 0, 100),
+            npm=_int(env, "SKILLSCOPE_BUDGET_NPM", 30, 0, 500),
+        )
     )
-    social = SocialCredentials(
-        stackexchange_key=_opt(env, "STACKEXCHANGE_KEY"),
-        reddit_client_id=_opt(env, "REDDIT_CLIENT_ID"),
-        reddit_client_secret=_opt(env, "REDDIT_CLIENT_SECRET"),
-        reddit_user_agent=_opt(env, "REDDIT_USER_AGENT"),
-        bluesky_handle=_opt(env, "BLUESKY_HANDLE"),
-        bluesky_app_password=_opt(env, "BLUESKY_APP_PASSWORD"),
-        youtube_api_key=_opt(env, "YOUTUBE_API_KEY"),
+    # Offline builds never read credentials: they only talk to the in-memory sample API.
+    social = (
+        SocialCredentials()
+        if offline
+        else SocialCredentials(
+            stackexchange_key=_opt(env, "STACKEXCHANGE_KEY"),
+            reddit_client_id=_opt(env, "REDDIT_CLIENT_ID"),
+            reddit_client_secret=_opt(env, "REDDIT_CLIENT_SECRET"),
+            reddit_user_agent=_opt(env, "REDDIT_USER_AGENT"),
+            bluesky_handle=_opt(env, "BLUESKY_HANDLE"),
+            bluesky_app_password=_opt(env, "BLUESKY_APP_PASSWORD"),
+            youtube_api_key=_opt(env, "YOUTUBE_API_KEY"),
+        )
     )
     return Settings(
         offline=offline,
         site_url=site_url,
-        state_dir=root / "data" / "state",
-        raw_dir=root / "data" / "raw",
+        state_dir=root / "data" / "state" / mode,
+        raw_dir=root / "data" / "raw" / mode,
         out_dir=out_dir or root / "site",
         samples_dir=root / "data" / "samples",
         config_dir=root / "config",
