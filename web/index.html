@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skillscope · skills y plugins para agentes de código</title>
+    <meta
+      name="description"
+      content="Directorio que descubre, analiza y puntúa skills y plugins para Claude Code publicados en GitHub: qué hacen, cuándo usarlos, cómo instalarlos y qué riesgos tienen."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f7f7f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121214" media="(prefers-color-scheme: dark)" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="Skillscope (RSS)" href="./feed.xml" />
+    <link rel="alternate" type="application/feed+json" title="Skillscope (JSON Feed)" href="./feed.json" />
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <a class="skip" href="#view">Saltar a los resultados</a>
+    <header class="top">
+      <div class="brand">
+        <a class="logo" href="./" aria-label="Skillscope, inicio">Skillscope</a>
+        <p class="status" id="status" role="status">Cargando el índice…</p>
+      </div>
+      <form class="search" id="search-form" role="search" action="./" method="get">
+        <label class="visually-hidden" for="q">¿Qué necesitas hacer?</label>
+        <input
+          id="q"
+          name="q"
+          type="search"
+          maxlength="200"
+          autocomplete="off"
+          spellcheck="false"
+          enterkeyhint="search"
+          placeholder="¿Qué necesitas? p. ej. revisar pull requests"
+          aria-describedby="search-hint"
+        />
+        <kbd class="key" aria-hidden="true">/</kbd>
+        <p class="visually-hidden" id="search-hint">
+          Escribe lo que necesitas en lenguaje natural. Atajos: barra para buscar, j y k para moverse,
+          Enter para abrir y Escape para cerrar.
+        </p>
+      </form>
+    </header>
+
+    <p class="lead" id="lead">
+      Skillscope descubre por su cuenta las skills, plugins, marketplaces y servidores MCP para Claude
+      Code publicados en GitHub, explica qué hace cada uno, cuándo usarlo, cómo instalarlo y qué riesgos
+      tiene. El índice se reconstruye cada ~30 minutos y el puntaje es público y auditable.
+    </p>
+
+    <nav class="tabs" aria-label="Listas" id="tabs" role="tablist"></nav>
+
+    <div class="layout">
+      <main class="main" id="main">
+        <div class="toolbar" id="toolbar" hidden>
+          <form class="filters" id="filters" aria-label="Filtros">
+            <label>Tipo <select name="type" id="f-type"><option value="">Todos</option></select></label>
+            <label>Categoría <select name="category" id="f-category"><option value="">Todas</option></select></label>
+            <label
+              >Riesgo
+              <select name="risk" id="f-risk">
+                <option value="">Cualquiera</option>
+                <option value="0">Sin banderas</option>
+                <option value="1">Bajo</option>
+                <option value="2">Medio</option>
+                <option value="3">Alto</option>
+              </select></label
+            >
+            <label
+              >Orden
+              <select name="sort" id="f-sort">
+                <option value="score">Puntaje</option>
+                <option value="stars">Estrellas</option>
+                <option value="recent">Actividad reciente</option>
+                <option value="new">Recién indexados</option>
+              </select></label
+            >
+          </form>
+          <button type="button" class="button filters-open" id="filters-open">Filtros</button>
+          <p class="count" id="count" aria-live="polite"></p>
+        </div>
+        <section id="view" class="view" tabindex="-1" aria-busy="true" aria-label="Resultados">
+          <ul class="list skeleton" aria-hidden="true">
+            <li class="row ghost"></li>
+            <li class="row ghost"></li>
+            <li class="row ghost"></li>
+            <li class="row ghost"></li>
+            <li class="row ghost"></li>
+            <li class="row ghost"></li>
+            <li class="row ghost"></li>
+            <li class="row ghost"></li>
+          </ul>
+        </section>
+      </main>
+      <aside class="drawer" id="drawer" role="dialog" aria-modal="false" aria-labelledby="drawer-title" hidden></aside>
+    </div>
+
+    <dialog class="sheet" id="filters-sheet" aria-label="Filtros">
+      <div class="sheet-body" id="sheet-body"></div>
+      <button type="button" class="button" id="filters-close">Listo</button>
+    </dialog>
+
+    <footer class="foot">
+      <p>
+        Las recomendaciones son siempre repositorios de GitHub; las redes sociales solo aportan la señal de
+        cuánto se habla de cada uno. Un análisis automático no reemplaza tu revisión: lee el código antes de
+        instalar.
+      </p>
+      <nav aria-label="Proyecto">
+        <a href="https://github.com/DiegoFranciscoG/skillscope/blob/main/docs/algoritmo.md" rel="noopener noreferrer" target="_blank">Cómo se calcula el puntaje</a>
+        <a href="./data/index.json">API pública (index.json)</a>
+        <a href="./feed.xml">RSS</a>
+        <a href="https://github.com/DiegoFranciscoG/skillscope/blob/main/docs/fuentes.md" rel="noopener noreferrer" target="_blank">Fuentes y licencias</a>
+        <a href="https://github.com/DiegoFranciscoG/skillscope/issues/new?template=opt-out.yml" rel="noopener noreferrer" target="_blank">Retirar mi repositorio</a>
+        <a href="https://github.com/DiegoFranciscoG/skillscope" rel="noopener noreferrer" target="_blank">Código fuente</a>
+      </nav>
+      <details class="sources" id="sources">
+        <summary>Estado de las fuentes</summary>
+        <ul id="sources-list"></ul>
+      </details>
+    </footer>
+    <p class="visually-hidden" id="live" aria-live="polite"></p>
+  </body>
+</html>
