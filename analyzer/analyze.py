@@ -3,6 +3,7 @@ risks, own summary and the collection graph (marketplaces and awesome lists)."""
 
 from __future__ import annotations
 
+import json
 import re
 from collections import Counter, defaultdict
 from collections.abc import Iterable
@@ -11,7 +12,7 @@ from datetime import datetime
 
 from analyzer.copyguard import overlaps
 from analyzer.detect import layout
-from analyzer.install import build_install, marketplace_install
+from analyzer.install import SAFE_PACKAGE, build_install, marketplace_install
 from analyzer.language import detect
 from analyzer.model import Artifact, MarketplaceEntry, RepoAnalysis
 from analyzer.risk import RiskInput, scan
@@ -69,6 +70,20 @@ def _keywords(fields: Iterable[tuple[str, float]], limit: int = 12) -> list[str]
             first_seen.setdefault(key, len(first_seen))
     ranked = sorted(counts, key=lambda k: (-counts[k], first_seen[k]))
     return [surface[k] for k in ranked[:limit]]
+
+
+def _npm_package(repo_type: str, package_json: str | None) -> str | None:
+    """Published npm name of an MCP server (adoption factor a4 uses its downloads)."""
+    if repo_type != "mcp_server" or not package_json:
+        return None
+    try:
+        data = json.loads(package_json)
+    except json.JSONDecodeError:
+        return None
+    name = data.get("name") if isinstance(data, dict) else None
+    if not isinstance(name, str) or data.get("private") or not SAFE_PACKAGE.match(name):
+        return None
+    return name
 
 
 def analyze_snapshot(snapshot: RepoSnapshot, now: datetime) -> RepoAnalysis | None:
@@ -266,7 +281,7 @@ def analyze_snapshot(snapshot: RepoSnapshot, now: datetime) -> RepoAnalysis | No
         summary_facts=static_facts(tools, meta.license),
         included=included,
         when=when,
-        npm_package=snapshot.npm_package,
+        npm_package=snapshot.npm_package or _npm_package(repo_type, package_json),
         npm_downloads=snapshot.npm_downloads,
         source_text=source_text,
     )

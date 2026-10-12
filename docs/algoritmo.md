@@ -107,7 +107,7 @@ Validación con 115 repositorios reales (2026-10-12): tras estas reglas, 33 sin 
 | Más seguras | `R` ascendente entre repos con artefactos y total ≥ 40 | total |
 | Más riesgosas | `R` descendente | estrellas |
 
-**Huecos del ecosistema**: las preguntas de demanda se agrupan de forma voraz y determinista (en orden de fecha, cada pregunta entra al primer tema cuyo centroide LSA tenga coseno ≥ 0,5; si no, abre un tema nuevo). La etiqueta del tema son sus 3 palabras más frecuentes. Oferta del tema = repos con coseno ≥ 0,35 y total ≥ 40. **HUECO** = demanda ponderada ≥ 2 y oferta = 0.
+**Huecos del ecosistema**: las preguntas de demanda se agrupan de forma voraz y determinista (en orden de fecha, cada pregunta entra al tema más parecido si el coseno con su centroide es ≥ 0,3; si no, abre un tema nuevo). Se agrupan con el vocabulario TF-IDF **de las propias preguntas**, no con el espacio LSA de los repos: un hueco es justo un tema que los repos no cubren, así que su vocabulario no podría representarlo. Los **asuntos** del tema son las etiquetas de las preguntas (curadas por la comunidad), sin las que solo dicen que hay un agente de por medio (`claude-code`, `ai`, `llm`…); si no hay etiquetas, sus 3 palabras más frecuentes. **Oferta** = repos con total ≥ 40 que contienen al menos la mitad de los asuntos (una skill genérica de revisión no cubre «revisión de ABAP»: necesita también `abap`). **HUECO** = demanda ponderada ≥ 2 y oferta = 0.
 
 ## 3. Clasificación, resumen y búsqueda
 

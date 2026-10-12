@@ -34,11 +34,15 @@ class Context:
         self.http.client.close()
 
 
-def open_context(settings: Settings, clock: Clock | None = None) -> Context:
+def open_context(
+    settings: Settings, clock: Clock | None = None, sample_api: SampleApi | None = None
+) -> Context:
     clock = clock or (InstantClock() if settings.offline else SystemClock())
-    sample_api: SampleApi | None = None
-    if settings.offline:
-        sample_api = SampleApi(settings.samples_dir, clock)
+    if settings.offline and sample_api is None:
+        sample_api = SampleApi(
+            settings.samples_dir, clock, limits={"search": 1000, "code_search": 1000}
+        )
+    if settings.offline and sample_api is not None:
         transport: httpx.BaseTransport = sample_api.transport()
         settings = replace(settings, github_token=OFFLINE_TOKEN)
     else:

@@ -51,14 +51,17 @@ def load_sample_repos(samples_dir: Path, now: datetime) -> list[dict[str, Any]]:
     repos = []
     for path in sorted((samples_dir / "repos").glob("*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
-        repos.append(resolve_dates(data, now))
+        # The fake commit id depends on the *relative* date, so it is stable across builds.
+        seed = f"{data['meta']['id']}|{data['meta'].get('pushed_at')}"
+        resolved = resolve_dates(data, now)
+        resolved["oid_seed"] = seed
+        repos.append(resolved)
     return repos
 
 
 def head_oid(repo: dict[str, Any]) -> str:
-    meta = repo["meta"]
-    seed = f"{meta['id']}|{meta['pushed_at']}".encode()
-    return hashlib.sha1(seed, usedforsecurity=False).hexdigest()
+    seed = str(repo.get("oid_seed") or f"{repo['meta']['id']}|{repo['meta']['pushed_at']}")
+    return hashlib.sha1(seed.encode(), usedforsecurity=False).hexdigest()
 
 
 class SampleApi:

@@ -13,6 +13,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from collector.run import collect_github
+from pipeline.build import run_build
 from pipeline.config import ConfigError, load_settings
 from pipeline.context import open_context
 from pipeline.stages import analyze_pending
@@ -26,6 +27,9 @@ def _parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
     collect = sub.add_parser("collect", help="discover and snapshot repositories from GitHub")
     collect.add_argument("--offline", action="store_true", help="use data/samples instead of APIs")
+    build = sub.add_parser("build", help="collect, analyze and write the static site data")
+    build.add_argument("--offline", action="store_true", help="use data/samples instead of APIs")
+    build.add_argument("--out", type=Path, default=None, help="output folder (default: site/)")
     return parser
 
 
@@ -35,8 +39,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             stream.reconfigure(encoding="utf-8")
     args = _parser().parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    # httpx logs full URLs at INFO; some APIs take keys as query parameters, so keep it quiet.
+    for noisy in ("httpx", "httpcore"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
     try:
-        settings = load_settings(os.environ, offline=args.offline, root=ROOT)
+        out = getattr(args, "out", None)
+        settings = load_settings(os.environ, offline=args.offline, root=ROOT, out_dir=out)
     except ConfigError as exc:
         print(f"Configuración inválida: {exc}", file=sys.stderr)
         return 2
@@ -52,6 +60,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             report = result.report.to_dict() | {"analysis": asdict(analyzed)}
             print(json.dumps(report, ensure_ascii=False, indent=2))
             return 0 if result.report.status != "failed" else 1
+        if args.command == "build":
+            built = run_build(ctx, ctx.settings.out_dir, ROOT)
+            summary = {
+                "build_id": built.build_id,
+                "published": built.published,
+                "catalog": built.catalog,
+                "duration_s": built.duration_s,
+                "sources": {s["id"]: s.get("status", "ok") for s in built.sources},
+            }
+            print(json.dumps(summary, ensure_ascii=False, indent=2))
+            return 0
     finally:
         ctx.close()
     return 0
