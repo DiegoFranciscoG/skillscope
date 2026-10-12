@@ -33,14 +33,14 @@
  {
   "input": "documentación de APIs",
   "tokens": [
-   "docs",
+   "doc",
    "api"
   ]
  },
  {
   "input": "base de datos SQL lenta",
   "tokens": [
-   "database",
+   "databas",
    "sql",
    "slow"
   ]
@@ -48,7 +48,7 @@
  {
   "input": "Writing tests, testing flaky tests",
   "tokens": [
-   "write",
+   "writ",
    "test",
    "test",
    "flaky",
@@ -69,6 +69,22 @@
    "cpp",
    "csharp",
    "helper"
+  ]
+ },
+ {
+  "input": "Revisión de código: running reviewers",
+  "tokens": [
+   "review",
+   "cod",
+   "run",
+   "review"
+  ]
+ },
+ {
+  "input": "Ignore THE docs!!! 123 a b",
+  "tokens": [
+   "ignor",
+   "doc"
   ]
  },
  {
