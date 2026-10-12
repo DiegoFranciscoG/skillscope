@@ -1,0 +1,29 @@
+{
+  "name": "skillscope-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static front end of Skillscope: list, filters, detail panel and in-browser search.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "e2e": "playwright test",
+    "scan:bundle": "node scripts/scan-bundle.mjs ../site"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0",
+    "@vitest/coverage-v8": "5.0.4",
+    "happy-dom": "21.0.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.4",
+    "vitest": "5.0.4"
+  }
+}

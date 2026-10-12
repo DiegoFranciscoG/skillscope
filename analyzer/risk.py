@@ -137,6 +137,12 @@ CREDENTIAL_READS = re.compile(
     r"|\bsecurity\s+find-generic-password\b",
     re.I,
 )
+SECRET_LIKE = re.compile(
+    r"gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AIza[0-9A-Za-z_-]{30,}"
+    r"|(?:AKIA|ASIA)[0-9A-Z]{16}|xox[abprs]-[0-9A-Za-z-]{10,}|sk-[A-Za-z0-9_-]{20,}"
+    r"|eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]+"
+    r"|-----BEGIN [A-Z ]*PRIVATE KEY-----"
+)
 QUOTES = frozenset("\"'“”‘’«»`(")
 OBFUSCATION = [
     re.compile(p, re.I)
@@ -183,8 +189,13 @@ class RiskInput:
 
 
 def visible(text: str) -> str:
-    """Make invisible characters explicit and keep the fragment short (≤ 100 chars)."""
+    """Make invisible characters explicit, hide credentials and keep the fragment short.
+
+    Evidence is republished on the site, so a token leaked in someone else's repository
+    must never be copied into it.
+    """
     shown = INVISIBLE.sub(lambda m: f"⟨U+{ord(m.group(0)):04X}⟩", text)
+    shown = SECRET_LIKE.sub("[secreto oculto]", shown)
     shown = re.sub(r"\s+", " ", shown).strip()
     return shown if len(shown) <= 100 else shown[:99] + "…"
 

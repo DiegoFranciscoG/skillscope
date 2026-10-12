@@ -19,6 +19,7 @@ import numpy as np
 from analyzer.analyze import link_collections
 from analyzer.lexicon import CATEGORY_LABELS, TYPE_LABELS
 from analyzer.model import RepoAnalysis
+from analyzer.risk import SECRET_LIKE
 from analyzer.scoring import (
     Score,
     SignalInput,
@@ -279,6 +280,13 @@ def index_item(entry: Entry, now: datetime) -> dict[str, Any]:
     }
 
 
+def _redacted(flag: dict[str, Any]) -> dict[str, Any]:
+    """Defence in depth: evidence cached by an older analyzer is redacted again on output."""
+    for evidence in flag.get("evidence", []):
+        evidence["snippet"] = SECRET_LIKE.sub("[secreto oculto]", str(evidence.get("snippet", "")))
+    return flag
+
+
 def detail_item(entry: Entry, data: SiteData, now: datetime) -> dict[str, Any]:
     a = entry.analysis
     meta = a.meta
@@ -288,7 +296,7 @@ def detail_item(entry: Entry, data: SiteData, now: datetime) -> dict[str, Any]:
         "what": a.what(now),
         "when": a.when,
         "install": a.install.to_dict(),
-        "risks": [r.to_dict() for r in a.risks],
+        "risks": [_redacted(r.to_dict()) for r in a.risks],
         "score": entry.score.to_dict(),
         "artifacts": [x.public() for x in a.artifacts[:50]],
         "tools": a.tools,

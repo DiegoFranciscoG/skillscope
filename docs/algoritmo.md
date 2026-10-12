@@ -135,8 +135,10 @@ En el navegador: vector de la consulta = `Σ peso_tf-idf(t) · V_t` y coseno con
 3. **Semántica**: coseno LSA.
 4. Mezcla: `final = 0,45 · sem + 0,35 · lex + 0,20 · total/100`, con `lex = BM25 / BM25 máximo` y `sem = max(0, coseno)`.
 5. Bloques:
-   - **Resuelve exactamente eso**: `lex ≥ 0,5` y `sem ≥ 0,25` (hasta 8).
-   - **Se le parece**: el resto con `sem ≥ 0,20` o `lex ≥ 0,3` (hasta 8).
+   - **Resuelve exactamente eso**: `lex ≥ 0,5`, `sem ≥ 0,25` y **cobertura ≥ 0,5** (hasta 8).
+   - **Se le parece**: el resto con cobertura ≥ 1/3 y (`sem ≥ 0,20` o `lex ≥ 0,2`), o `sem ≥ 0,4` (hasta 8).
+
+   *Cobertura* = términos distintos de la consulta que contiene el repo ÷ términos de la consulta. Hace falta porque BM25 se normaliza por el mejor resultado: sin cobertura, una consulta que solo comparte una palabra genérica («trabajo») produciría un 1,0 falso. Lo detectó la prueba end-to-end «migrar trabajos COBOL», que ahora devuelve correctamente «nadie ha publicado una skill para esto».
    - **Se usan junto con eso**: repos que comparten colecciones con los 3 primeros resultados (hasta 6).
 6. Si los dos primeros bloques quedan vacíos: «Nadie ha publicado una skill para esto» con enlace a la plantilla oficial para crearla.
 
