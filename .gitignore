@@ -1,0 +1,43 @@
+# ---- Secretos y entorno
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# ---- Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# ---- Node / Vite / Playwright / Lighthouse
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.lighthouseci/
+npm-debug.log*
+
+# ---- Datos generados (se reconstruyen con el pipeline)
+data/raw/
+data/state/
+site/
+_site/
+
+# ---- IDE / SO
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
