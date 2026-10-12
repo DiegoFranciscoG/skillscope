@@ -1,0 +1,1 @@
+# Repositorios retirados del índice a pedido de su autor (uno por línea: owner/repo).

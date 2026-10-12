@@ -23,6 +23,28 @@ TOPIC_THRESHOLD = 0.3
 MATCH_THRESHOLD = 0.35
 SUPPLY_MIN_SCORE = 40
 GAP_MIN_DEMAND = 2.0
+GENERIC_TAGS = frozenset(
+    {
+        "claude-code",
+        "claude",
+        "anthropic-claude",
+        "claude-ai",
+        "ai",
+        "agent",
+        "agents",
+        "ai-agent",
+        "llm",
+        "large-language-model",
+        "model-context-protocol",
+        "mcp",
+        "artificial-intelligence",
+        "github-copilot",
+        "chatgpt",
+        "openai",
+        "openai-api",
+        "agent-skills",
+    }
+)
 
 
 def item_weight(item: DemandItem) -> float:
@@ -40,6 +62,7 @@ class Topic:
     items: list[DemandItem] = field(default_factory=list)
     demand: float = 0.0
     supply: list[str] = field(default_factory=list)
+    subjects: list[str] = field(default_factory=list)  # stems that define what is asked
 
 
 def _vectors(items: list[DemandItem]) -> NDArray[np.float64]:
@@ -87,18 +110,41 @@ def cluster(items: list[DemandItem]) -> list[Topic]:
             words.update(dict.fromkeys(keywords(item.text), 1))
         top = [w for w, _ in sorted(words.items(), key=lambda kv: (-kv[1], kv[0]))[:3]]
         category = classify_category([(" ".join(i.text for i in member_items), 1.0)]).primary
-        topic_id = "-".join(top) or f"tema-{len(topics) + 1}"
+        tags = [
+            t
+            for t in dict.fromkeys(tag for i in member_items for tag in i.tags)
+            if t.lower() not in GENERIC_TAGS
+        ][:3]
+        label_terms = tags or top
+        topic_id = "-".join(label_terms) or f"tema-{len(topics) + 1}"
         topics.append(
             Topic(
                 id=topic_id,
-                label=", ".join(top),
+                label=", ".join(label_terms),
                 keywords=top,
                 category=category,
                 items=member_items,
                 demand=round(sum(item_weight(i) for i in member_items), 2),
+                subjects=subjects_of(member_items, top),
             )
         )
     return sorted(topics, key=lambda t: (-t.demand, t.id))
+
+
+def subjects_of(items: list[DemandItem], fallback: list[str]) -> list[str]:
+    """What a topic is about: the question tags (curated by the community), minus tags that
+    only say the question involves an AI agent. Topics without tags use their keywords."""
+    found: list[str] = []
+    for item in items:
+        for tag in item.tags:
+            if tag.lower() in GENERIC_TAGS:
+                continue
+            for token in tokens(tag.replace("-", " ")):
+                if token not in found:
+                    found.append(token)
+    if not found:
+        found = [stem(w) for w in fallback]
+    return found
 
 
 def category_demand(items: list[DemandItem]) -> dict[str, float]:
@@ -110,11 +156,13 @@ def category_demand(items: list[DemandItem]) -> dict[str, float]:
 
 def matched_demand(
     model: LsaModel, items: list[DemandItem], repo_tokens: list[set[str]]
-) -> list[float]:
-    """For each repository: Σ weight of questions it answers (LSA cos ≥ 0.35 + shared stem)."""
-    result = [0.0] * len(model.ids)
+) -> tuple[list[float], list[list[str]]]:
+    """Per repository: Σ weight of questions it answers (LSA cos ≥ 0.35 + shared stem) and
+    the keys of the displayable questions it answers (Stack Exchange, with attribution)."""
+    weights = [0.0] * len(model.ids)
+    matches: list[list[str]] = [[] for _ in model.ids]
     if not items or not model.dims:
-        return result
+        return weights, matches
     for item in items:
         vector = model.project(item.text)
         if not vector.any():
@@ -123,9 +171,12 @@ def matched_demand(
         stems = {stem(w) for w in keywords(item.text)}
         weight = item_weight(item)
         for index in np.nonzero(sims >= MATCH_THRESHOLD)[0]:
-            if stems & repo_tokens[int(index)]:
-                result[int(index)] += weight
-    return result
+            position = int(index)
+            if stems & repo_tokens[position]:
+                weights[position] += weight
+                if item.title:
+                    matches[position].append(f"{item.source}:{item.id}")
+    return weights, matches
 
 
 def attach_supply(
@@ -134,21 +185,22 @@ def attach_supply(
     repo_tokens: list[set[str]],
     scores: list[int],
 ) -> None:
-    """Supply of a topic: repos with score ≥ 40 that share most of its keywords or its meaning."""
+    """Supply of a topic: repos with score ≥ 40 that cover at least half of its subjects.
+
+    "Code review in ABAP" is not covered by a generic code-review skill: it needs ``abap`` too.
+    """
     for topic in topics:
-        stems = {stem(w) for w in topic.keywords}
-        vector = model.project(" ".join(i.text for i in topic.items))
-        sims = model.similarities(vector)
-        supply: list[str] = []
-        for index, repo_id in enumerate(model.ids):
-            if scores[index] < SUPPLY_MIN_SCORE:
-                continue
-            overlap = len(stems & repo_tokens[index])
-            by_words = bool(stems) and overlap >= max(1, math.ceil(len(stems) / 2))
-            by_meaning = float(sims[index]) >= MATCH_THRESHOLD and overlap >= 1
-            if by_words or by_meaning:
-                supply.append(repo_id)
-        topic.supply = supply
+        subjects = set(topic.subjects)
+        if not subjects:
+            topic.supply = []
+            continue
+        needed = max(1, math.ceil(len(subjects) / 2))
+        covering = [
+            (len(subjects & repo_tokens[index]), scores[index], repo_id)
+            for index, repo_id in enumerate(model.ids)
+            if scores[index] >= SUPPLY_MIN_SCORE and len(subjects & repo_tokens[index]) >= needed
+        ]
+        topic.supply = [r for _, _, r in sorted(covering, key=lambda c: (-c[0], -c[1], c[2]))]
 
 
 def gaps(topics: list[Topic]) -> list[Topic]:
