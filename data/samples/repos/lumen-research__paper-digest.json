@@ -33,12 +33,12 @@
   ],
   [
    "paper-digest/SKILL.md",
-   260
+   262
   ]
  ],
  "files": {
   "README.md": "# Paper digest\n\nSummarizes research papers with method, results and limitations.\n\n## Install\n\nCopy `paper-digest` into `~/.claude/skills/`.\n\n## Usage\n\nExample: digest this arXiv paper.\n\n## License\n\nSee the LICENSE file.\n",
-  "paper-digest/SKILL.md": "---\nname: paper-digest\ndescription: Summarizes a research paper: question, method, results and limitations. Use when the user shares a PDF or an arXiv link.\n---\n\n# Paper Digest\n\n## Steps\n1. Read the abstract.\n2. Extract the method.\n3. List results and limits.\n"
+  "paper-digest/SKILL.md": "---\nname: paper-digest\ndescription: \"Summarizes a research paper: question, method, results and limitations. Use when the user shares a PDF or an arXiv link.\"\n---\n\n# Paper Digest\n\n## Steps\n1. Read the abstract.\n2. Extract the method.\n3. List results and limits.\n"
  },
  "sample": true
 }

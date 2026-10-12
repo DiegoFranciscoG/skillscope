@@ -15,6 +15,7 @@ from collector.http import HttpClient, RequestFailedError
 from collector.snapshots import SnapshotStore
 from collector.state import StateStore
 from pipeline import optout
+from pipeline.catalog import CatalogStore
 from pipeline.clock import Clock
 from pipeline.config import Settings
 from pipeline.report import SourceReport
@@ -49,6 +50,7 @@ def collect_github(
     state: StateStore,
     snapshots: SnapshotStore,
     root: Path,
+    catalog: CatalogStore | None = None,
 ) -> GitHubRun:
     started = clock.monotonic()
     report = SourceReport(id="github")
@@ -76,6 +78,8 @@ def collect_github(
     for repo_id in excluded:
         state.repo(repo_id)["status"] = "opted_out"
         snapshots.delete(repo_id)
+        if catalog is not None:
+            catalog.delete(repo_id)
 
     frontier = Frontier(state, now)
     if not settings.offline and not state.data.get("seeded"):
@@ -84,7 +88,7 @@ def collect_github(
         state.data["seeded"] = True
 
     discovery = Discovery(gh, state, frontier, now, excluded).run()
-    enrich = Enricher(gh, state, snapshots, frontier, now, excluded).run()
+    enrich = Enricher(gh, state, snapshots, frontier, now, excluded, catalog).run()
 
     report.calls = sum(b.calls for b in budgets.all().values())
     report.budget = sum(b.limit for b in budgets.all().values())

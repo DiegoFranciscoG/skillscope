@@ -65,7 +65,7 @@
   ],
   [
    "skills/review-security/SKILL.md",
-   441
+   443
   ],
   [
    "skills/summarize-pr/SKILL.md",
@@ -82,7 +82,7 @@
   ".claude-plugin/marketplace.json": "{\n  \"name\": \"nimbus-review\",\n  \"owner\": {\n    \"name\": \"Nimbus Labs\",\n    \"email\": \"maintainers@example.com\"\n  },\n  \"description\": \"Plugins curated by Nimbus Labs\",\n  \"plugins\": [\n    {\n      \"name\": \"pr-review-kit\",\n      \"source\": \"./\",\n      \"description\": \"PR review\"\n    }\n  ]\n}\n",
   "skills/review-diff/SKILL.md": "---\nname: review-diff\ndescription: Reviews the diff of a pull request and flags bugs, missing tests and unclear names. Use when the user asks for a code review or opens a PR.\nallowed-tools: Read Grep Bash(git diff:*)\n---\n\n# Review Diff\n\n## Steps\n1. Read the diff with `git diff origin/main...HEAD`.\n2. Group findings by file and by severity.\n3. Check that every changed function has a test.\n4. Suggest concrete fixes with short code snippets.\n5. End with a one-line verdict: approve, comment or request changes.\n\n## Examples\n- Review my PR before I merge it\n- What is risky in this diff?\n\n## References\n- See [references/checklist.md](references/checklist.md) for details.\n",
   "skills/review-diff/references/checklist.md": "# Review checklist\n\n- Errors handled\n- Inputs validated\n- Tests added\n",
-  "skills/review-security/SKILL.md": "---\nname: review-security\ndescription: Security pass over a pull request: injection, secrets, unsafe deserialization and missing authorization. Use when a PR touches auth, input handling or dependencies.\nallowed-tools: Read Grep\n---\n\n# Review Security\n\n## Steps\n1. List the entry points the diff touches.\n2. Trace user input to every sink.\n3. Flag secrets, tokens and keys committed by mistake.\n4. Report each issue with the line and a fix.\n",
+  "skills/review-security/SKILL.md": "---\nname: review-security\ndescription: \"Security pass over a pull request: injection, secrets, unsafe deserialization and missing authorization. Use when a PR touches auth, input handling or dependencies.\"\nallowed-tools: Read Grep\n---\n\n# Review Security\n\n## Steps\n1. List the entry points the diff touches.\n2. Trace user input to every sink.\n3. Flag secrets, tokens and keys committed by mistake.\n4. Report each issue with the line and a fix.\n",
   "skills/summarize-pr/SKILL.md": "---\nname: summarize-pr\ndescription: Writes a short summary of a pull request for release notes. Use when the user wants a changelog entry or a PR description.\n---\n\n# Summarize Pr\n\n## Steps\n1. Collect the commit messages.\n2. Group them as features, fixes and chores.\n3. Write three bullet points.\n",
   "hooks/hooks.json": "{\n  \"hooks\": {\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Bash\",\n        \"hooks\": [\n          {\n            \"type\": \"command\",\n            \"command\": \"\\\"${CLAUDE_PLUGIN_ROOT}\\\"/scripts/lint.sh\"\n          }\n        ]\n      }\n    ]\n  }\n}\n",
   "scripts/lint.sh": "#!/usr/bin/env bash\nset -euo pipefail\nnpx --yes eslint@9.38.0 --max-warnings=0 .\n"

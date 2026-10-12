@@ -10,6 +10,7 @@ from collector.http import HttpClient
 from collector.rawstore import RawStore
 from collector.snapshots import SnapshotStore
 from collector.state import StateStore
+from pipeline.catalog import CatalogStore
 from pipeline.clock import Clock, InstantClock, SystemClock
 from pipeline.config import Settings
 from pipeline.sample_api import SampleApi
@@ -26,6 +27,7 @@ class Context:
     state: StateStore
     raw: RawStore
     snapshots: SnapshotStore
+    catalog: CatalogStore
     sample_api: SampleApi | None
 
     def close(self) -> None:
@@ -57,4 +59,5 @@ def open_context(settings: Settings, clock: Clock | None = None) -> Context:
         deadline=clock.monotonic() + settings.max_seconds,
     )
     snapshots = SnapshotStore(settings.state_dir / "snapshots")
-    return Context(settings, clock, http, state, raw, snapshots, sample_api)
+    catalog = CatalogStore(settings.state_dir / "catalog")
+    return Context(settings, clock, http, state, raw, snapshots, catalog, sample_api)

@@ -33,12 +33,12 @@
   ],
   [
    "invoice-checker/SKILL.md",
-   282
+   284
   ]
  ],
  "files": {
   "README.md": "# Invoice checker\n\nChecks electronic invoices for required fields and tax totals.\n\n## Install\n\nCopy `invoice-checker` into `~/.claude/skills/`.\n\n## License\n\nSee the LICENSE file.\n",
-  "invoice-checker/SKILL.md": "---\nname: invoice-checker\ndescription: Validates invoices against tax regulation: required fields, totals and VAT. Use when the user receives an invoice or prepares a tax filing.\n---\n\n# Invoice Checker\n\n## Steps\n1. Read the invoice.\n2. Check totals and VAT.\n3. List missing fields.\n"
+  "invoice-checker/SKILL.md": "---\nname: invoice-checker\ndescription: \"Validates invoices against tax regulation: required fields, totals and VAT. Use when the user receives an invoice or prepares a tax filing.\"\n---\n\n# Invoice Checker\n\n## Steps\n1. Read the invoice.\n2. Check totals and VAT.\n3. List missing fields.\n"
  },
  "sample": true
 }

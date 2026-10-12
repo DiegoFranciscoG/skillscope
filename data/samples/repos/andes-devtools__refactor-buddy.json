@@ -40,7 +40,7 @@
   ],
   [
    "refactor-buddy/SKILL.md",
-   385
+   387
   ],
   [
    "refactor-buddy/references/catalog.md",
@@ -53,7 +53,7 @@
  ],
  "files": {
   "README.md": "# Refactor buddy\n\nRefactors code in small steps and keeps tests green after every step.\n\n## Install\n\n```\n/plugin marketplace add nimbus-labs/agent-marketplace\n/plugin install refactor-buddy@nimbus-plugins\n```\n\n## Usage\n\nExample: extract this function and rename the variables.\n\n## License\n\nSee the LICENSE file.\n",
-  "refactor-buddy/SKILL.md": "---\nname: refactor-buddy\ndescription: Refactors code in small, tested steps: extract function, rename, remove duplication. Use when the user asks to clean up or simplify code.\n---\n\n# Refactor Buddy\n\n## Steps\n1. Run the tests first.\n2. Make one small change.\n3. Run the tests again.\n4. Commit and repeat.\n\n## References\n- See [references/catalog.md](references/catalog.md) for details.\n",
+  "refactor-buddy/SKILL.md": "---\nname: refactor-buddy\ndescription: \"Refactors code in small, tested steps: extract function, rename, remove duplication. Use when the user asks to clean up or simplify code.\"\n---\n\n# Refactor Buddy\n\n## Steps\n1. Run the tests first.\n2. Make one small change.\n3. Run the tests again.\n4. Commit and repeat.\n\n## References\n- See [references/catalog.md](references/catalog.md) for details.\n",
   "refactor-buddy/references/catalog.md": "# Refactoring catalog\n\nExtract function, inline variable.\n"
  },
  "sample": true

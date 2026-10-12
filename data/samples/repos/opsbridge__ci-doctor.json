@@ -49,14 +49,14 @@
   ],
   [
    "skills/gha-hardening/SKILL.md",
-   335
+   337
   ]
  ],
  "files": {
   "README.md": "# CI Doctor\n\nDiagnoses failing GitHub Actions runs and hardens workflows.\n\n## Install\n\n```\n/plugin marketplace add opsbridge/opsbridge-marketplace\n/plugin install ci-doctor@opsbridge\n```\n\n## License\n\nSee the LICENSE file.\n",
   ".claude-plugin/plugin.json": "{\n  \"name\": \"ci-doctor\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Diagnose and harden CI pipelines\",\n  \"author\": {\n    \"name\": \"Sample Author\",\n    \"email\": \"author@example.com\"\n  },\n  \"license\": \"MIT\"\n}\n",
   "skills/fix-ci/SKILL.md": "---\nname: fix-ci\ndescription: Reads failing CI logs and proposes a fix. Use when a GitHub Actions run fails or a deploy pipeline is red.\n---\n\n# Fix Ci\n\n## Steps\n1. Download the failing job log.\n2. Find the first error line.\n3. Propose a minimal fix and explain it.\n",
-  "skills/gha-hardening/SKILL.md": "---\nname: gha-hardening\ndescription: Hardens GitHub Actions workflows: minimal permissions, pinned actions by SHA and no secrets in logs. Use before making a repository public.\n---\n\n# Gha Hardening\n\n## Steps\n1. Set top-level permissions to read.\n2. Pin every action to a full commit SHA.\n3. Move secrets to environment-scoped secrets.\n",
+  "skills/gha-hardening/SKILL.md": "---\nname: gha-hardening\ndescription: \"Hardens GitHub Actions workflows: minimal permissions, pinned actions by SHA and no secrets in logs. Use before making a repository public.\"\n---\n\n# Gha Hardening\n\n## Steps\n1. Set top-level permissions to read.\n2. Pin every action to a full commit SHA.\n3. Move secrets to environment-scoped secrets.\n",
   ".mcp.json": "{\n  \"mcpServers\": {\n    \"gha\": {\n      \"command\": \"npx\",\n      \"args\": [\n        \"-y\",\n        \"github-actions-mcp-server\"\n      ]\n    }\n  }\n}\n"
  },
  "sample": true

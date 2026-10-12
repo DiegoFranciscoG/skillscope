@@ -20,6 +20,7 @@ from collector.github.client import GitHubClient
 from collector.http import DeadlineReachedError, RequestFailedError
 from collector.snapshots import SnapshotStore
 from collector.state import StateStore
+from pipeline.catalog import CatalogStore
 from pipeline.clock import iso
 from pipeline.models import RepoMeta, RepoSnapshot
 
@@ -30,6 +31,7 @@ TREE_GROUP = 8
 BLOBS_PER_QUERY = 40
 BLOB_BYTES_PER_QUERY = 900_000
 REFRESH_SHARE = 0.3
+REANALYSIS_CAP = 40  # repos re-fetched per build after an analyzer upgrade
 
 
 @dataclass(slots=True)
@@ -51,10 +53,12 @@ class Enricher:
         frontier: Frontier,
         now: datetime,
         excluded: set[str],
+        catalog: CatalogStore | None = None,
     ) -> None:
         self.gh = gh
         self.state = state
         self.snapshots = snapshots
+        self.catalog = catalog
         self.frontier = frontier
         self.now = now
         self.excluded = excluded
@@ -91,13 +95,16 @@ class Enricher:
                 entry = self.state.repo(meta.id)
                 entry["meta_at"] = iso(self.now)
                 entry["last_seen"] = iso(self.now)
-                if meta.head_oid and meta.head_oid != entry.get("analyzed_oid"):
+                head_changed = bool(meta.head_oid) and meta.head_oid != entry.get("analyzed_oid")
+                outdated = (
+                    self.catalog is not None
+                    and len(self._changed) < REANALYSIS_CAP
+                    and self.catalog.needs_reanalysis(meta.id)
+                )
+                if head_changed or outdated:
                     self._changed.append(meta)
-                else:
-                    snapshot = self.snapshots.load(meta.id)
-                    if snapshot:
-                        snapshot.meta = meta
-                        self.snapshots.save(snapshot)
+                if self.catalog is not None:
+                    self.catalog.update_meta(meta)
 
     # -- step 2 -----------------------------------------------------------------------------
     def analyze(self) -> None:
@@ -245,6 +252,8 @@ class Enricher:
         state["analyzed_at"] = iso(self.now)
         if status != "artifact":
             self.snapshots.delete(meta.id)
+            if self.catalog is not None:
+                self.catalog.delete(meta.id)
 
     def _mark_gone(self, repo_id: str) -> None:
         state = self.state.known_repo(repo_id)
@@ -255,6 +264,8 @@ class Enricher:
         if misses >= 2:
             state["status"] = "gone"
             self.snapshots.delete(repo_id)
+            if self.catalog is not None:
+                self.catalog.delete(repo_id)
             self.report.gone += 1
 
     def run(self) -> EnrichReport:
