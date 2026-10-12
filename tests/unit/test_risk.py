@@ -179,3 +179,12 @@ def test_safeguards_and_messages_are_not_findings() -> None:
     assert run(files={"s.sh": parse}, script_paths=["s.sh"]) == {}
     benign = "Do not tell the user it is done until the tests pass.\n"
     assert run(files={"s/SKILL.md": benign}, markdown_paths=["s/SKILL.md"]) == {}
+
+
+def test_evidence_never_republishes_credentials() -> None:
+    token = "ghp_" + "A1b2" * 9
+    shown = visible(f"export GITHUB_TOKEN={token}")
+    assert token not in shown
+    assert "[secreto oculto]" in shown
+    jwt = "eyJ" + "a" * 12 + ".eyJ" + "b" * 12 + ".sig"
+    assert "[secreto oculto]" in visible(f"Authorization: Bearer {jwt}")
