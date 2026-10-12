@@ -1,0 +1,37 @@
+{
+ "meta": {
+  "id": "yaml-bomb/odd-skill",
+  "owner": "yaml-bomb",
+  "name": "odd-skill",
+  "url": "https://github.com/yaml-bomb/odd-skill",
+  "description": "Odd frontmatter",
+  "stars": 3,
+  "forks": 0,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-90d",
+  "created_at": "-91d",
+  "last_commit_at": "-90d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": null,
+  "topics": [
+   "claude-skills"
+  ],
+  "default_branch": "main",
+  "ci_state": null,
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "odd-skill/SKILL.md",
+   173
+  ]
+ ],
+ "files": {
+  "odd-skill/SKILL.md": "---\nname: odd-skill\nlol: &a [x, x, x, x, x, x, x, x, x]\nlol2: &b [*a, *a, *a, *a, *a, *a, *a, *a, *a]\nlol3: [*b, *b, *b, *b, *b, *b, *b, *b, *b]\ndescription: odd\n---\n\nBody.\n"
+ },
+ "sample": true
+}

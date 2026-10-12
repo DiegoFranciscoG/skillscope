@@ -1,0 +1,65 @@
+{
+ "hits": [
+  {
+   "objectID": "9001",
+   "created_at_i": "-1d",
+   "url": "https://github.com/nimbus-labs/pr-review-kit",
+   "points": 240,
+   "num_comments": 60,
+   "story_text": null,
+   "comment_text": null,
+   "title": "Sample story"
+  },
+  {
+   "objectID": "9002",
+   "created_at_i": "-3d",
+   "url": "https://github.com/shadowtools/super-agent-pack",
+   "points": 410,
+   "num_comments": 102,
+   "story_text": null,
+   "comment_text": null,
+   "title": "Sample story"
+  },
+  {
+   "objectID": "9003",
+   "created_at_i": "-6d",
+   "url": "https://github.com/andes-devtools/refactor-buddy",
+   "points": 95,
+   "num_comments": 23,
+   "story_text": null,
+   "comment_text": null,
+   "title": "Sample story"
+  },
+  {
+   "objectID": "9004",
+   "created_at_i": "-40d",
+   "url": "https://github.com/secureflow/secret-sentinel",
+   "points": 130,
+   "num_comments": 32,
+   "story_text": null,
+   "comment_text": null,
+   "title": "Sample story"
+  },
+  {
+   "objectID": "9005",
+   "created_at_i": "-2d",
+   "url": "https://example.com/blog",
+   "points": 50,
+   "num_comments": 12,
+   "story_text": "Try https://github.com/andes-devtools/test-pilot today",
+   "comment_text": null,
+   "title": "Sample story"
+  },
+  {
+   "objectID": "9006",
+   "created_at_i": "-200d",
+   "url": "https://github.com/lumen-research/paper-digest",
+   "points": 300,
+   "num_comments": 75,
+   "story_text": null,
+   "comment_text": null,
+   "title": "Sample story"
+  }
+ ],
+ "nbPages": 1
+}

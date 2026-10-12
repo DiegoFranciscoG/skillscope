@@ -1,0 +1,43 @@
+{
+ "meta": {
+  "id": "opsbridge/opsbridge-marketplace",
+  "owner": "opsbridge",
+  "name": "opsbridge-marketplace",
+  "url": "https://github.com/opsbridge/opsbridge-marketplace",
+  "description": "OpsBridge plugin marketplace",
+  "stars": 600,
+  "forks": 40,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-5d",
+  "created_at": "-220d",
+  "last_commit_at": "-5d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-code-marketplace",
+   "devops"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   ".claude-plugin/marketplace.json",
+   595
+  ],
+  [
+   "README.md",
+   168
+  ]
+ ],
+ "files": {
+  "README.md": "# OpsBridge marketplace\n\nDevOps plugins from OpsBridge.\n\n## Install\n\n```\n/plugin marketplace add opsbridge/opsbridge-marketplace\n```\n\n## License\n\nSee the LICENSE file.\n",
+  ".claude-plugin/marketplace.json": "{\n  \"name\": \"opsbridge\",\n  \"owner\": {\n    \"name\": \"OpsBridge\",\n    \"email\": \"maintainers@example.com\"\n  },\n  \"description\": \"Plugins curated by OpsBridge\",\n  \"plugins\": [\n    {\n      \"name\": \"ci-doctor\",\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"opsbridge/ci-doctor\"\n      }\n    },\n    {\n      \"name\": \"terraform-guard\",\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"opsbridge/terraform-guard\"\n      }\n    },\n    {\n      \"name\": \"slack-notify\",\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"opsbridge/slack-notify-hook\"\n      }\n    }\n  ]\n}\n"
+ },
+ "sample": true
+}

@@ -1,0 +1,78 @@
+[
+ {
+  "input": "Necesito revisar pull requests",
+  "tokens": [
+   "review",
+   "pr"
+  ]
+ },
+ {
+  "input": "Code Review de PRs en GitHub",
+  "tokens": [
+   "review",
+   "pr",
+   "github"
+  ]
+ },
+ {
+  "input": "pruebas unitarias para Python",
+  "tokens": [
+   "test",
+   "unit",
+   "python"
+  ]
+ },
+ {
+  "input": "Seguridad y secretos en el repositorio",
+  "tokens": [
+   "security",
+   "secret",
+   "repository"
+  ]
+ },
+ {
+  "input": "documentación de APIs",
+  "tokens": [
+   "docs",
+   "api"
+  ]
+ },
+ {
+  "input": "base de datos SQL lenta",
+  "tokens": [
+   "database",
+   "sql",
+   "slow"
+  ]
+ },
+ {
+  "input": "Writing tests, testing flaky tests",
+  "tokens": [
+   "write",
+   "test",
+   "test",
+   "flaky",
+   "test"
+  ]
+ },
+ {
+  "input": "diseño accesible (WCAG)",
+  "tokens": [
+   "design",
+   "accessibility",
+   "wcag"
+  ]
+ },
+ {
+  "input": "C++ y C# helpers",
+  "tokens": [
+   "cpp",
+   "csharp",
+   "helper"
+  ]
+ },
+ {
+  "input": "  ",
+  "tokens": []
+ }
+]

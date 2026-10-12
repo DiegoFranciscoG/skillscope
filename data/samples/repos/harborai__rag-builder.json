@@ -1,0 +1,54 @@
+{
+ "meta": {
+  "id": "harborai/rag-builder",
+  "owner": "harborai",
+  "name": "rag-builder",
+  "url": "https://github.com/harborai/rag-builder",
+  "description": "Retrieval augmented generation plugin",
+  "stars": 1600,
+  "forks": 130,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-4d",
+  "created_at": "-240d",
+  "last_commit_at": "-4d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-code-plugin",
+   "rag",
+   "embeddings"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   ".claude-plugin/plugin.json",
+   218
+  ],
+  [
+   ".mcp.json",
+   124
+  ],
+  [
+   "README.md",
+   221
+  ],
+  [
+   "skills/chunking/SKILL.md",
+   253
+  ]
+ ],
+ "files": {
+  "README.md": "# RAG builder\n\nBuilds a retrieval pipeline: chunking, embeddings and evaluation.\n\n## Install\n\n```\ngit clone https://github.com/harborai/rag-builder\nclaude --plugin-dir ./rag-builder\n```\n\n## License\n\nSee the LICENSE file.\n",
+  ".claude-plugin/plugin.json": "{\n  \"name\": \"rag-builder\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Chunking, embeddings and retrieval evaluation\",\n  \"author\": {\n    \"name\": \"Sample Author\",\n    \"email\": \"author@example.com\"\n  },\n  \"license\": \"MIT\"\n}\n",
+  "skills/chunking/SKILL.md": "---\nname: chunking\ndescription: Splits documents into chunks for embeddings and vector search. Use when building a RAG pipeline or a semantic search index.\n---\n\n# Chunking\n\n## Steps\n1. Pick a chunk size.\n2. Keep headings with chunks.\n3. Store metadata.\n",
+  ".mcp.json": "{\n  \"mcpServers\": {\n    \"vectors\": {\n      \"command\": \"uvx\",\n      \"args\": [\n        \"vector-store-mcp\"\n      ]\n    }\n  }\n}\n"
+ },
+ "sample": true
+}

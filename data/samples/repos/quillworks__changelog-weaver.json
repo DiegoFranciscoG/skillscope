@@ -1,0 +1,48 @@
+{
+ "meta": {
+  "id": "quillworks/changelog-weaver",
+  "owner": "quillworks",
+  "name": "changelog-weaver",
+  "url": "https://github.com/quillworks/changelog-weaver",
+  "description": "Changelog plugin",
+  "stars": 270,
+  "forks": 18,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-19d",
+  "created_at": "-130d",
+  "last_commit_at": "-19d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-code-plugin",
+   "changelog"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   ".claude-plugin/plugin.json",
+   212
+  ],
+  [
+   "README.md",
+   227
+  ],
+  [
+   "commands/changelog.md",
+   83
+  ]
+ ],
+ "files": {
+  "README.md": "# Changelog weaver\n\nBuilds a changelog from tags and merged pull requests.\n\n## Install\n\n```\ngit clone https://github.com/quillworks/changelog-weaver\nclaude --plugin-dir ./changelog-weaver\n```\n\n## License\n\nSee the LICENSE file.\n",
+  ".claude-plugin/plugin.json": "{\n  \"name\": \"changelog-weaver\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Changelog from tags and merged PRs\",\n  \"author\": {\n    \"name\": \"Sample Author\",\n    \"email\": \"author@example.com\"\n  },\n  \"license\": \"MIT\"\n}\n",
+  "commands/changelog.md": "---\ndescription: Generate the changelog\n---\n\nBuild a changelog since the last tag.\n"
+ },
+ "sample": true
+}

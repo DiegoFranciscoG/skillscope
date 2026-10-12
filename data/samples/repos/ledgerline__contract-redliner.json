@@ -1,0 +1,44 @@
+{
+ "meta": {
+  "id": "ledgerline/contract-redliner",
+  "owner": "ledgerline",
+  "name": "contract-redliner",
+  "url": "https://github.com/ledgerline/contract-redliner",
+  "description": "Contract review skill",
+  "stars": 300,
+  "forks": 22,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-25d",
+  "created_at": "-160d",
+  "last_commit_at": "-25d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-skills",
+   "legal",
+   "contracts"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "README.md",
+   167
+  ],
+  [
+   "contract-redliner/SKILL.md",
+   314
+  ]
+ ],
+ "files": {
+  "README.md": "# Contract redliner\n\nSuggests redlines for common contract clauses.\n\n## Install\n\nCopy `contract-redliner` into `~/.claude/skills/`.\n\n## License\n\nSee the LICENSE file.\n",
+  "contract-redliner/SKILL.md": "---\nname: contract-redliner\ndescription: Reviews contracts and suggests redlines for liability, termination and payment clauses. Use when the user shares a contract or an NDA.\nallowed-tools: Bash Read Write\n---\n\n# Contract Redliner\n\n## Steps\n1. Find key clauses.\n2. Compare with the playbook.\n3. Suggest redlines.\n"
+ },
+ "sample": true
+}

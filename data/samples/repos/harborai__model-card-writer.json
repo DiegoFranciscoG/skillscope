@@ -1,0 +1,44 @@
+{
+ "meta": {
+  "id": "harborai/model-card-writer",
+  "owner": "harborai",
+  "name": "model-card-writer",
+  "url": "https://github.com/harborai/model-card-writer",
+  "description": "Writes model cards",
+  "stars": 260,
+  "forks": 19,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-33d",
+  "created_at": "-180d",
+  "last_commit_at": "-33d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "Apache-2.0",
+  "topics": [
+   "claude-skills",
+   "machine-learning",
+   "documentation"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "README.md",
+   171
+  ],
+  [
+   "model-card/SKILL.md",
+   272
+  ]
+ ],
+ "files": {
+  "README.md": "# Model card writer\n\nGenerates model cards with data, metrics and limitations.\n\n## Install\n\nCopy `model-card` into `~/.claude/skills/`.\n\n## License\n\nSee the LICENSE file.\n",
+  "model-card/SKILL.md": "---\nname: model-card\ndescription: Generates a model card document with training data, metrics, intended use and limitations. Use when publishing a machine learning model.\n---\n\n# Model Card\n\n## Steps\n1. Collect metrics.\n2. Describe the data.\n3. List limitations and risks.\n"
+ },
+ "sample": true
+}

@@ -1,0 +1,62 @@
+[project]
+name = "skillscope"
+version = "0.1.0"
+description = "Discovers, analyzes, scores and indexes agent skills and plugins published on GitHub."
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Diego Francisco Granda Zhingre" }]
+requires-python = ">=3.13"
+dependencies = [
+  "httpx==0.28.1",
+  "numpy==2.5.4",
+  "pyyaml==6.0.3",
+]
+
+[dependency-groups]
+dev = [
+  "mypy==2.4.0",
+  "pre-commit==4.6.2",
+  "pytest==9.1.1",
+  "pytest-cov==7.1.0",
+  "ruff==0.17.0",
+  "types-pyyaml==6.0.12.20260906",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["web", "data", "site"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF", "C4", "PIE", "PT", "RET"]
+ignore = ["RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "S108", "PT018"]
+"scripts/**" = ["S311"]
+"scripts/generate_samples.py" = ["E501"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+packages = ["collector", "analyzer", "indexer", "pipeline"]
+warn_unreachable = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q --strict-markers"
+markers = ["network: hits real public APIs (skipped by default)"]
+
+[tool.coverage.run]
+source = ["collector", "analyzer", "indexer", "pipeline"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 70
+show_missing = true
+skip_covered = true
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "if __name__ == .__main__.:"]
