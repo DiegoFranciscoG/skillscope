@@ -28,11 +28,11 @@
  "tree": [
   [
    "notebook-tidy/SKILL.md",
-   180
+   182
   ]
  ],
  "files": {
-  "notebook-tidy/SKILL.md": "---\nname: notebook-tidy\ndescription: Cleans Jupyter notebooks: clears outputs and sorts imports.\n---\n\n# Notebook Tidy\n\n## Steps\n1. Clear outputs.\n2. Sort imports.\n3. Rename cells.\n"
+  "notebook-tidy/SKILL.md": "---\nname: notebook-tidy\ndescription: \"Cleans Jupyter notebooks: clears outputs and sorts imports.\"\n---\n\n# Notebook Tidy\n\n## Steps\n1. Clear outputs.\n2. Sort imports.\n3. Rename cells.\n"
  },
  "sample": true
 }

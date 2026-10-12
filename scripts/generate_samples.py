@@ -27,6 +27,8 @@ def frontmatter(fields: dict[str, Any]) -> str:
         if isinstance(value, list):
             lines.append(f"{key}:")
             lines.extend(f"  - {v}" for v in value)
+        elif isinstance(value, str) and (": " in value or value[:1] in "&*!|>'\"%@`#{["):
+            lines.append(f"{key}: {json.dumps(value, ensure_ascii=False)}")
         else:
             lines.append(f"{key}: {value}")
     lines.append("---")
@@ -1488,7 +1490,7 @@ def catalog() -> list[dict[str, Any]]:
                     "old-linter",
                     "Runs the linter and fixes style issues. Use when code style is wrong.",
                     ["Run the linter.", "Fix issues."],
-                    repeat=130,
+                    repeat=260,
                 ),
             },
         )
@@ -1856,14 +1858,19 @@ def tokenize_cases() -> list[dict[str, Any]]:
             "input": "Seguridad y secretos en el repositorio",
             "tokens": ["security", "secret", "repository"],
         },
-        {"input": "documentación de APIs", "tokens": ["docs", "api"]},
-        {"input": "base de datos SQL lenta", "tokens": ["database", "sql", "slow"]},
+        {"input": "documentación de APIs", "tokens": ["doc", "api"]},
+        {"input": "base de datos SQL lenta", "tokens": ["databas", "sql", "slow"]},
         {
             "input": "Writing tests, testing flaky tests",
-            "tokens": ["write", "test", "test", "flaky", "test"],
+            "tokens": ["writ", "test", "test", "flaky", "test"],
         },
         {"input": "diseño accesible (WCAG)", "tokens": ["design", "accessibility", "wcag"]},
         {"input": "C++ y C# helpers", "tokens": ["cpp", "csharp", "helper"]},
+        {
+            "input": "Revisión de código: running reviewers",
+            "tokens": ["review", "cod", "run", "review"],
+        },
+        {"input": "Ignore THE docs!!! 123 a b", "tokens": ["ignor", "doc"]},
         {"input": "  ", "tokens": []},
     ]
 
