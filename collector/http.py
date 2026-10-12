@@ -164,8 +164,13 @@ class HttpClient:
         form: Mapping[str, str] | None = None,
         headers: Mapping[str, str] | None = None,
         cost: int = 1,
+        auth: tuple[str, str] | None = None,
+        store_raw: bool = True,
     ) -> HttpResult:
+        """POST request. Use ``store_raw=False`` for login endpoints: tokens never touch disk."""
         body: dict[str, Any] = {"json": json_body} if form is None else {"data": dict(form)}
+        if auth is not None:
+            body["auth"] = auth
         return self._request(
             "POST",
             url,
@@ -177,6 +182,7 @@ class HttpClient:
             conditional=False,
             free_on_304=False,
             cost=cost,
+            store_raw=store_raw,
         )
 
     def remaining_seconds(self) -> float:
@@ -213,6 +219,7 @@ class HttpClient:
         conditional: bool,
         free_on_304: bool,
         cost: int,
+        store_raw: bool = True,
     ) -> HttpResult:
         key = f"{method} {sanitize_url(url, params)}"
         cached = self.state.resource(key) if conditional else None
@@ -266,6 +273,8 @@ class HttpClient:
 
             if 200 <= status < 300:
                 content = response.content
+                if not store_raw:
+                    return HttpResult(status, _parse_body(content), response.headers, False, url)
                 sha = self.raw.save(source, sanitize_url(url, params), status, content)
                 if conditional:
                     self.state.remember(
