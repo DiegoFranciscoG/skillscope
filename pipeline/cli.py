@@ -9,11 +9,13 @@ import logging
 import os
 import sys
 from collections.abc import Sequence
+from dataclasses import asdict
 from pathlib import Path
 
 from collector.run import collect_github
 from pipeline.config import ConfigError, load_settings
 from pipeline.context import open_context
+from pipeline.stages import analyze_pending
 
 ROOT = Path(__file__).resolve().parents[1]
 log = logging.getLogger("skillscope")
@@ -43,10 +45,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         if args.command == "collect":
             result = collect_github(
-                ctx.settings, ctx.clock, ctx.http, ctx.state, ctx.snapshots, ROOT
+                ctx.settings, ctx.clock, ctx.http, ctx.state, ctx.snapshots, ROOT, ctx.catalog
             )
+            analyzed = analyze_pending(ctx.snapshots, ctx.catalog, ctx.state, ctx.clock.now())
             ctx.state.save()
-            print(json.dumps(result.report.to_dict(), ensure_ascii=False, indent=2))
+            report = result.report.to_dict() | {"analysis": asdict(analyzed)}
+            print(json.dumps(report, ensure_ascii=False, indent=2))
             return 0 if result.report.status != "failed" else 1
     finally:
         ctx.close()
