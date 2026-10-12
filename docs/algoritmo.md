@@ -80,9 +80,20 @@ Si en el build no hay ningún dato de demanda, `U = 10` (neutral) y el desglose 
 
 `R = min(25, Σ penalización de cada bandera distinta)` con el catálogo de [modelo-datos.md §3](modelo-datos.md#3-catálogos). Cada bandera guarda hasta 3 evidencias `{archivo, línea, fragmento ≤ 100 caracteres}` para que cualquiera pueda comprobarla en el repo original.
 
-Qué archivos se revisan: todos los `SKILL.md`, comandos y agentes (`.md`), `hooks.json`, `.mcp.json`, `plugin.json`, `marketplace.json`, `package.json`/`pyproject.toml` raíz y hasta 10 scripts (`.sh`, `.py`, `.js`, `.ts`, `.ps1`) dentro de carpetas de skills, hooks o `bin/`, de máximo 64 KB cada uno.
+Qué archivos se revisan: los `SKILL.md`, comandos y agentes (`.md`), `hooks.json`, `.claude/settings.json`, `.mcp.json`, `plugin.json`, `marketplace.json`, el README y hasta 10 scripts (`.sh`, `.py`, `.js`, `.ts`, `.ps1`…) de máximo 64 KB que estén dentro de una carpeta de skill, en `bin/` o en `hooks/` de un plugin. Las carpetas `test(s)/`, `fixtures/`, `testdata/` y `docs/` no cuentan como artefactos.
+
+Reglas que evitan falsos positivos (cada una tiene su prueba en `tests/unit/test_risk.py`):
+
+- **Ejecución**: cuenta lo que el agente puede correr (scripts de carpetas de skills y `bin/`, comandos de hooks, servidores MCP stdio y `` !`cmd` ``). Los scripts de compilación del repositorio fuera de esas carpetas no cuentan. Un script está «explicado» si el README o un `.md` del artefacto nombra su archivo; si se nombra al menos un script de una carpeta, sus módulos auxiliares también cuentan como explicados. Los archivos de prueba (`test_*`, `*_test.*`, `*.test.*`) se ignoran.
+- **Comentarios**: en scripts se ignoran las líneas de comentario (`#`, `//`).
+- **Citas**: una frase de inyección entre comillas (por ejemplo, una skill que explica cómo defenderse de «ignore previous instructions») no se marca.
+- **Salvaguardas**: «nunca pidas al usuario su token» no es una petición de credenciales.
+- **Mensajes**: `pip install x` dentro de un `print(...)` o de una cadena no es una instalación.
+- **Procesar datos**: `curl … | python3 -c "…"` lee JSON, no ejecuta lo descargado.
 
 Nivel: 0 sin banderas · 1 bajo (1–5) · 2 medio (6–12) · 3 alto (≥ 13).
+
+Validación con 115 repositorios reales (2026-10-12): tras estas reglas, 33 sin banderas, 21 nivel bajo, 25 medio y 36 alto; las banderas más frecuentes fueron `exec-unexplained` (47), `broad-permissions` (30) y `downloads-binary` (22). Antes de estas reglas `exec-unexplained` aparecía en 93 repos y `requests-credentials` en 34.
 
 ## 2. Listas derivadas
 
