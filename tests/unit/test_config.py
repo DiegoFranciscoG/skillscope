@@ -19,7 +19,15 @@ def test_offline_mode_needs_no_secrets() -> None:
     settings = load_settings({}, offline=True, root=Path("/repo"))
     assert settings.github_token is None
     assert settings.site_url == "http://localhost:8080/"
-    assert settings.state_dir == Path("/repo/data/state")
+    assert settings.state_dir == Path("/repo/data/state/sample")
+
+
+def test_offline_mode_ignores_credentials_in_the_environment() -> None:
+    env = {"GITHUB_TOKEN": "real", "YOUTUBE_API_KEY": "real-key", "STACKEXCHANGE_KEY": "k"}
+    settings = load_settings(env, offline=True, root=Path())
+    assert settings.github_token is None
+    assert settings.social.youtube_api_key is None
+    assert settings.social.stackexchange_key is None
 
 
 def test_token_never_appears_in_repr() -> None:
@@ -32,13 +40,17 @@ def test_token_never_appears_in_repr() -> None:
     assert settings.site_url == "https://a.b/c/"
 
 
+ONLINE = {"GITHUB_TOKEN": "t", "SKILLSCOPE_SITE_URL": "https://a.b/"}
+
+
 def test_budgets_are_validated() -> None:
     with pytest.raises(ConfigError, match="entero"):
-        load_settings({"SKILLSCOPE_BUDGET_REST": "many"}, offline=True, root=Path())
+        load_settings(ONLINE | {"SKILLSCOPE_BUDGET_REST": "many"}, offline=False, root=Path())
     with pytest.raises(ConfigError, match="entre"):
-        load_settings({"SKILLSCOPE_BUDGET_SEARCH": "999"}, offline=True, root=Path())
-    settings = load_settings({"SKILLSCOPE_BUDGET_REST": "700"}, offline=True, root=Path())
+        load_settings(ONLINE | {"SKILLSCOPE_BUDGET_SEARCH": "999"}, offline=False, root=Path())
+    settings = load_settings(ONLINE | {"SKILLSCOPE_BUDGET_REST": "700"}, offline=False, root=Path())
     assert settings.budgets.rest == 700
+    assert settings.state_dir == Path("data/state/live")
 
 
 def test_repository_format() -> None:
