@@ -1,0 +1,48 @@
+{
+ "meta": {
+  "id": "harborai/prompt-lab",
+  "owner": "harborai",
+  "name": "prompt-lab",
+  "url": "https://github.com/harborai/prompt-lab",
+  "description": "Prompt evaluation skill",
+  "stars": 1100,
+  "forks": 88,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-7d",
+  "created_at": "-220d",
+  "last_commit_at": "-7d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-skills",
+   "llm",
+   "evaluation"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "README.md",
+   228
+  ],
+  [
+   "evals/cases.jsonl",
+   2048
+  ],
+  [
+   "prompt-lab/SKILL.md",
+   286
+  ]
+ ],
+ "files": {
+  "README.md": "# Prompt lab\n\nCompares prompt variants against a small evaluation set.\n\n## Install\n\nCopy `prompt-lab` into `~/.claude/skills/`.\n\n## Usage\n\nExample: compare two system prompts on 20 test cases.\n\n## License\n\nSee the LICENSE file.\n",
+  "prompt-lab/SKILL.md": "---\nname: prompt-lab\ndescription: Evaluates prompt variants against test cases and reports accuracy. Use when tuning prompts for an LLM feature or comparing models.\n---\n\n# Prompt Lab\n\n## Steps\n1. Load the evaluation set.\n2. Run each prompt variant.\n3. Score answers and report a table.\n"
+ },
+ "sample": true
+}

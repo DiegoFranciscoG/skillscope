@@ -1,0 +1,53 @@
+{
+ "meta": {
+  "id": "opsbridge/terraform-guard",
+  "owner": "opsbridge",
+  "name": "terraform-guard",
+  "url": "https://github.com/opsbridge/terraform-guard",
+  "description": "Terraform policy checks",
+  "stars": 980,
+  "forks": 75,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-6d",
+  "created_at": "-230d",
+  "last_commit_at": "-6d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-code-plugin",
+   "terraform",
+   "iac"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   ".claude-plugin/plugin.json",
+   210
+  ],
+  [
+   ".github/workflows/ci.yml",
+   2048
+  ],
+  [
+   "README.md",
+   223
+  ],
+  [
+   "skills/plan-review/SKILL.md",
+   247
+  ]
+ ],
+ "files": {
+  "README.md": "# Terraform guard\n\nChecks Terraform plans with checkov before apply.\n\n## Install\n\n```\n/plugin marketplace add opsbridge/opsbridge-marketplace\n/plugin install terraform-guard@opsbridge\n```\n\n## License\n\nSee the LICENSE file.\n",
+  ".claude-plugin/plugin.json": "{\n  \"name\": \"terraform-guard\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Policy checks for Terraform plans\",\n  \"author\": {\n    \"name\": \"Sample Author\",\n    \"email\": \"author@example.com\"\n  },\n  \"license\": \"MIT\"\n}\n",
+  "skills/plan-review/SKILL.md": "---\nname: plan-review\ndescription: Reviews a Terraform plan for security and cost issues. Use before running terraform apply on shared infrastructure.\n---\n\n# Plan Review\n\n## Steps\n1. Run terraform plan.\n2. Run checkov.\n3. Summarize risky changes.\n"
+ },
+ "sample": true
+}

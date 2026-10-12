@@ -1,0 +1,44 @@
+{
+ "meta": {
+  "id": "andes-devtools/e2e-scout",
+  "owner": "andes-devtools",
+  "name": "e2e-scout",
+  "url": "https://github.com/andes-devtools/e2e-scout",
+  "description": "End-to-end test skill",
+  "stars": 640,
+  "forks": 41,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-11d",
+  "created_at": "-210d",
+  "last_commit_at": "-11d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-skills",
+   "playwright",
+   "e2e"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "README.md",
+   167
+  ],
+  [
+   "e2e-scout/SKILL.md",
+   402
+  ]
+ ],
+ "files": {
+  "README.md": "# E2E scout\n\nWrites Playwright end-to-end tests for critical user journeys.\n\n## Install\n\nCopy `e2e-scout` into `~/.claude/skills/`.\n\n## License\n\nSee the LICENSE file.\n",
+  "e2e-scout/SKILL.md": "---\nname: e2e-scout\ndescription: Writes Playwright end-to-end tests for login, checkout and other critical flows. Use when the user wants browser tests or a smoke test before release.\nallowed-tools: Read Write Bash(npx playwright test:*)\n---\n\n# E2E Scout\n\n## Steps\n1. Ask for the base URL and the journey.\n2. Write the test with role-based locators.\n3. Run it headless and attach the trace on failure.\n"
+ },
+ "sample": true
+}

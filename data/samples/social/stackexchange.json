@@ -1,0 +1,149 @@
+{
+ "items": [
+  {
+   "question_id": 81001,
+   "title": "How can I make my coding agent review pull requests automatically?",
+   "link": "https://stackoverflow.com/q/81001",
+   "owner": {
+    "display_name": "dev_sample_1",
+    "link": "https://stackoverflow.com/users/1"
+   },
+   "creation_date": "-5d",
+   "is_answered": false,
+   "score": 4,
+   "tags": [
+    "claude-code",
+    "code-review",
+    "pull-request"
+   ],
+   "body": "<p>Is there a skill for reviewing pull requests? See https://github.com/nimbus-labs/pr-review-kit</p>"
+  },
+  {
+   "question_id": 81002,
+   "title": "Agent skill to write unit tests for legacy Python code",
+   "link": "https://stackoverflow.com/q/81002",
+   "owner": {
+    "display_name": "dev_sample_2",
+    "link": "https://stackoverflow.com/users/2"
+   },
+   "creation_date": "-12d",
+   "is_answered": true,
+   "score": 2,
+   "tags": [
+    "claude-code",
+    "unit-testing",
+    "python"
+   ],
+   "body": "<p>I need tests for old code.</p>"
+  },
+  {
+   "question_id": 81003,
+   "title": "Skill for migrating COBOL batch jobs to Java with an AI agent?",
+   "link": "https://stackoverflow.com/q/81003",
+   "owner": {
+    "display_name": "dev_sample_3",
+    "link": "https://stackoverflow.com/users/3"
+   },
+   "creation_date": "-8d",
+   "is_answered": false,
+   "score": 7,
+   "tags": [
+    "claude-code",
+    "cobol",
+    "migration"
+   ],
+   "body": "<p>Nothing found for COBOL migration.</p>"
+  },
+  {
+   "question_id": 81004,
+   "title": "Automate COBOL to Java migration of mainframe jobs with an agent",
+   "link": "https://stackoverflow.com/q/81004",
+   "owner": {
+    "display_name": "dev_sample_4",
+    "link": "https://stackoverflow.com/users/4"
+   },
+   "creation_date": "-20d",
+   "is_answered": false,
+   "score": 3,
+   "tags": [
+    "cobol",
+    "mainframe",
+    "migration"
+   ],
+   "body": "<p>Mainframe migration help.</p>"
+  },
+  {
+   "question_id": 81005,
+   "title": "Agent skill that reviews SAP ABAP code for performance",
+   "link": "https://stackoverflow.com/q/81005",
+   "owner": {
+    "display_name": "dev_sample_5",
+    "link": "https://stackoverflow.com/users/5"
+   },
+   "creation_date": "-15d",
+   "is_answered": false,
+   "score": 5,
+   "tags": [
+    "abap",
+    "sap",
+    "code-review"
+   ],
+   "body": "<p>ABAP review skill?</p>"
+  },
+  {
+   "question_id": 81006,
+   "title": "Check Terraform plans for security issues before apply",
+   "link": "https://stackoverflow.com/q/81006",
+   "owner": {
+    "display_name": "dev_sample_6",
+    "link": "https://stackoverflow.com/users/6"
+   },
+   "creation_date": "-30d",
+   "is_answered": false,
+   "score": 6,
+   "tags": [
+    "terraform",
+    "security",
+    "iac"
+   ],
+   "body": "<p>Policy checks for terraform plan.</p>"
+  },
+  {
+   "question_id": 81007,
+   "title": "Generate Excel VBA macros safely with a coding agent skill",
+   "link": "https://stackoverflow.com/q/81007",
+   "owner": {
+    "display_name": "dev_sample_7",
+    "link": "https://stackoverflow.com/users/7"
+   },
+   "creation_date": "-9d",
+   "is_answered": false,
+   "score": 3,
+   "tags": [
+    "excel",
+    "vba",
+    "macros"
+   ],
+   "body": "<p>VBA macros skill.</p>"
+  },
+  {
+   "question_id": 81008,
+   "title": "Excel VBA macro generation and review with agents",
+   "link": "https://stackoverflow.com/q/81008",
+   "owner": {
+    "display_name": "dev_sample_8",
+    "link": "https://stackoverflow.com/users/8"
+   },
+   "creation_date": "-25d",
+   "is_answered": false,
+   "score": 1,
+   "tags": [
+    "excel",
+    "vba"
+   ],
+   "body": "<p>Need VBA help.</p>"
+  }
+ ],
+ "has_more": false,
+ "quota_remaining": 280
+}

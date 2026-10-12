@@ -1,0 +1,51 @@
+{
+ "meta": {
+  "id": "templateforge/skill-starter",
+  "owner": "templateforge",
+  "name": "skill-starter",
+  "url": "https://github.com/templateforge/skill-starter",
+  "description": "Template to start a new skill",
+  "stars": 680,
+  "forks": 900,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-30d",
+  "created_at": "-260d",
+  "last_commit_at": "-30d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": true,
+  "license": "MIT",
+  "topics": [
+   "template",
+   "agent-skills"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   ".github/workflows/validate.yml",
+   2048
+  ],
+  [
+   "README.md",
+   214
+  ],
+  [
+   "my-skill/SKILL.md",
+   220
+  ],
+  [
+   "tests/validate.py",
+   2048
+  ]
+ ],
+ "files": {
+  "README.md": "# Skill starter\n\nUse this template to create a new skill with tests and CI.\n\n## Install\n\nClick *Use this template* or run `gh repo create --template templateforge/skill-starter`.\n\n## License\n\nSee the LICENSE file.\n",
+  "my-skill/SKILL.md": "---\nname: my-skill\ndescription: Describe what the skill does and when to use it. Use when you start a new skill from this template.\n---\n\n# My Skill\n\n## Steps\n1. Rename the folder.\n2. Write the description.\n3. Add steps.\n"
+ },
+ "sample": true
+}
