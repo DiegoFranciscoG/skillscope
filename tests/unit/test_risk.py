@@ -188,3 +188,44 @@ def test_evidence_never_republishes_credentials() -> None:
     assert "[secreto oculto]" in shown
     jwt = "eyJ" + "a" * 12 + ".eyJ" + "b" * 12 + ".sig"
     assert "[secreto oculto]" in visible(f"Authorization: Bearer {jwt}")
+
+
+def test_long_prose_and_encoding_are_not_obfuscation() -> None:
+    """False positives found on the live index (2026-10-13): prompts, encoding, shell one-liners."""
+    prose = (
+        "export const prompt = '"
+        + "Use the tool to repair this diagram while keeping it. " * 30
+        + "';\n"
+    )
+    encode = 'agent-browser eval -b "$(printf \'%s\' "$js" | base64)"\n'
+    shell = 'export PATH="$HOME/.nvm/v$(ls "$HOME/.nvm" | sed "s/x/y/")' + " :$PATH" * 200 + '"\n'
+    files = {"s/a.mjs": prose, "s/b.sh": encode, "s/c.sh": shell}
+    flags = run(files=files, script_paths=list(files))
+    assert "obfuscated-code" not in flags
+
+
+def test_packed_code_and_decoding_are_still_obfuscation() -> None:
+    minified = "var a=" + ";a+=1" * 400 + ";\n"
+    blob = "payload='" + "QUJD" * 400 + "'\n"
+    decode = "eval(atob('ZWNobw=='))\n"
+    files = {"s/min.js": minified, "s/blob.py": blob, "s/d.js": decode}
+    flags = run(files=files, script_paths=list(files))
+    assert sorted(path for path, _ in flags["obfuscated-code"]) == [
+        "s/blob.py",
+        "s/d.js",
+        "s/min.js",
+    ]
+
+
+def test_hyphenated_test_scripts_are_not_unexplained_execution() -> None:
+    files = {
+        "s/SKILL.md": "Run `node run.mjs` to start.\n",
+        "s/run.mjs": "console.log(1)\n",
+        "s/send-imessage-test.sh": "echo test\n",
+        "s/test-discord-bot.sh": "echo test\n",
+    }
+    scripts = ["s/run.mjs", "s/send-imessage-test.sh", "s/test-discord-bot.sh"]
+    flags = run(
+        files=files, markdown_paths=["s/SKILL.md"], script_paths=scripts, exec_paths=scripts
+    )
+    assert "exec-unexplained" not in flags

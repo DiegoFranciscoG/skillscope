@@ -13,7 +13,7 @@ from typing import Any
 
 from pipeline.models import RepoMeta
 
-ANALYZER_VERSION = 1
+ANALYZER_VERSION = 2  # 2: fewer obfuscation false positives (prose lines, base64 encoding)
 MAX_INDEX_TEXT = 8000
 
 
