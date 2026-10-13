@@ -11,6 +11,7 @@ from collector.social.sources import (
     Bluesky,
     DevTo,
     HackerNews,
+    Lemmy,
     Mastodon,
     Reddit,
     StackExchange,
@@ -154,12 +155,53 @@ def test_mastodon_keeps_min_id_cursor(tmp_path: Path) -> None:
     seen: list[httpx.Request] = []
     h = harness(tmp_path, {"https://mastodon.social": statuses}, seen)
     result = run_source(Mastodon(), http=h.http, state=h.state, settings=SETTINGS, clock=h.clock)
+    assert result.report.status == "ok"  # the other instances answered 404 and were skipped
     assert result.mentions[0].engagement == 3
-    assert h.state.cursor("mastodon")["claude"] == "105"
+    assert h.state.cursor("mastodon")["mastodon.social#claude"] == "105"
     h.clock.advance(3600)
+    h.http.deadline = h.clock.monotonic() + 600  # a new build, with its own time budget
     seen.clear()
     run_source(Mastodon(), http=h.http, state=h.state, settings=SETTINGS, clock=h.clock)
-    assert all(r.url.params.get("min_id") == "105" for r in seen)
+    social = [r for r in seen if r.url.host == "mastodon.social"]
+    assert social and all(r.url.params.get("min_id") == "105" for r in social)
+
+
+def test_federated_post_counts_once_and_lemmy_rotates_queries(tmp_path: Path) -> None:
+    status = {
+        "id": "1",
+        "uri": "https://example.com/users/a/statuses/1",
+        "created_at": iso(NOW),
+        "content": '<a href="https://github.com/acme/tool">x</a>',
+    }
+    routes: dict[str, Any] = {
+        "https://mastodon.social": [status],
+        "https://hachyderm.io": [status | {"id": "77"}],  # same post, other local id
+        "https://programming.dev": {
+            "posts": [
+                {
+                    "post": {
+                        "id": 5,
+                        "name": "try https://github.com/acme/tool",
+                        "published": iso(NOW),
+                    },
+                    "counts": {"score": 4},
+                }
+            ]
+        },
+    }
+    seen: list[httpx.Request] = []
+    h = harness(tmp_path, routes, seen)
+    toot = run_source(Mastodon(), http=h.http, state=h.state, settings=SETTINGS, clock=h.clock)
+    assert len({m.key_hash for m in toot.mentions}) == 1
+    lemmy = run_source(Lemmy(), http=h.http, state=h.state, settings=SETTINGS, clock=h.clock)
+    assert lemmy.report.status == "ok" and lemmy.mentions[0].repo_id == "acme/tool"
+    first = [r.url.params["q"] for r in seen if r.url.path == "/api/v3/search"]
+    h.clock.advance(3 * 3600)
+    h.http.deadline = h.clock.monotonic() + 600
+    seen.clear()
+    run_source(Lemmy(), http=h.http, state=h.state, settings=SETTINGS, clock=h.clock)
+    second = [r.url.params["q"] for r in seen if r.url.path == "/api/v3/search"]
+    assert first[0] != second[0]  # one query per instance and run, rotated
 
 
 def test_reddit_stores_counts_only_and_never_saves_the_token(tmp_path: Path) -> None:

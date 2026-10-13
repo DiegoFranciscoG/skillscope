@@ -1,0 +1,16 @@
+{
+ "posts": [
+  {
+   "post": {
+    "id": 9101,
+    "ap_id": "https://example.com/lemmy/post/9101",
+    "name": "A skill that reviews PRs before merge",
+    "url": "https://github.com/demo_nimbus-labs/pr-review-kit",
+    "published": "-1d"
+   },
+   "counts": {
+    "score": 12
+   }
+  }
+ ]
+}

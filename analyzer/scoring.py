@@ -36,6 +36,7 @@ SOURCE_WEIGHTS: dict[str, float] = {
     "devto": 0.6,
     "mastodon": 0.5,
     "bluesky": 0.5,
+    "lemmy": 0.5,
 }
 # Utilidad ------------------------------------------------------------------------------------
 U_MATCHED, U_CATEGORY = 12, 8

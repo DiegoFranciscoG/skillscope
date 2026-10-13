@@ -1836,10 +1836,25 @@ def social() -> dict[str, Any]:
                 },
             ]
         },
+        "lemmy": {
+            "posts": [
+                {
+                    "post": {
+                        "id": 9101,
+                        "ap_id": "https://example.com/lemmy/post/9101",
+                        "name": "A skill that reviews PRs before merge",
+                        "url": "https://github.com/demo_nimbus-labs/pr-review-kit",
+                        "published": "-1d",
+                    },
+                    "counts": {"score": 12},
+                }
+            ]
+        },
         "mastodon": {
             "statuses": [
                 {
                     "id": "7001",
+                    "uri": "https://example.com/mastodon/statuses/7001",
                     "created_at": "-1d",
                     "favourites_count": 14,
                     "reblogs_count": 3,
@@ -1847,6 +1862,7 @@ def social() -> dict[str, Any]:
                 },
                 {
                     "id": "7002",
+                    "uri": "https://example.com/mastodon/statuses/7002",
                     "created_at": "-2d",
                     "favourites_count": 30,
                     "reblogs_count": 9,
