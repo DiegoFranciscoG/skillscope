@@ -1698,10 +1698,10 @@ def social() -> dict[str, Any]:
                 {
                     "question_id": 81001,
                     "title": "How can I make my coding agent review pull requests automatically?",
-                    "link": "https://stackoverflow.com/q/81001",
+                    "link": "https://example.com/stackexchange/q/81001",
                     "owner": {
                         "display_name": "dev_sample_1",
-                        "link": "https://stackoverflow.com/users/1",
+                        "link": "https://example.com/stackexchange/users/1",
                     },
                     "creation_date": "-5d",
                     "is_answered": False,
@@ -1712,10 +1712,10 @@ def social() -> dict[str, Any]:
                 {
                     "question_id": 81002,
                     "title": "Agent skill to write unit tests for legacy Python code",
-                    "link": "https://stackoverflow.com/q/81002",
+                    "link": "https://example.com/stackexchange/q/81002",
                     "owner": {
                         "display_name": "dev_sample_2",
-                        "link": "https://stackoverflow.com/users/2",
+                        "link": "https://example.com/stackexchange/users/2",
                     },
                     "creation_date": "-12d",
                     "is_answered": True,
@@ -1726,10 +1726,10 @@ def social() -> dict[str, Any]:
                 {
                     "question_id": 81003,
                     "title": "Skill for migrating COBOL batch jobs to Java with an AI agent?",
-                    "link": "https://stackoverflow.com/q/81003",
+                    "link": "https://example.com/stackexchange/q/81003",
                     "owner": {
                         "display_name": "dev_sample_3",
-                        "link": "https://stackoverflow.com/users/3",
+                        "link": "https://example.com/stackexchange/users/3",
                     },
                     "creation_date": "-8d",
                     "is_answered": False,
@@ -1740,10 +1740,10 @@ def social() -> dict[str, Any]:
                 {
                     "question_id": 81004,
                     "title": "Automate COBOL to Java migration of mainframe jobs with an agent",
-                    "link": "https://stackoverflow.com/q/81004",
+                    "link": "https://example.com/stackexchange/q/81004",
                     "owner": {
                         "display_name": "dev_sample_4",
-                        "link": "https://stackoverflow.com/users/4",
+                        "link": "https://example.com/stackexchange/users/4",
                     },
                     "creation_date": "-20d",
                     "is_answered": False,
@@ -1754,10 +1754,10 @@ def social() -> dict[str, Any]:
                 {
                     "question_id": 81005,
                     "title": "Agent skill that reviews SAP ABAP code for performance",
-                    "link": "https://stackoverflow.com/q/81005",
+                    "link": "https://example.com/stackexchange/q/81005",
                     "owner": {
                         "display_name": "dev_sample_5",
-                        "link": "https://stackoverflow.com/users/5",
+                        "link": "https://example.com/stackexchange/users/5",
                     },
                     "creation_date": "-15d",
                     "is_answered": False,
@@ -1768,10 +1768,10 @@ def social() -> dict[str, Any]:
                 {
                     "question_id": 81006,
                     "title": "Check Terraform plans for security issues before apply",
-                    "link": "https://stackoverflow.com/q/81006",
+                    "link": "https://example.com/stackexchange/q/81006",
                     "owner": {
                         "display_name": "dev_sample_6",
-                        "link": "https://stackoverflow.com/users/6",
+                        "link": "https://example.com/stackexchange/users/6",
                     },
                     "creation_date": "-30d",
                     "is_answered": False,
@@ -1782,10 +1782,10 @@ def social() -> dict[str, Any]:
                 {
                     "question_id": 81007,
                     "title": "Generate Excel VBA macros safely with a coding agent skill",
-                    "link": "https://stackoverflow.com/q/81007",
+                    "link": "https://example.com/stackexchange/q/81007",
                     "owner": {
                         "display_name": "dev_sample_7",
-                        "link": "https://stackoverflow.com/users/7",
+                        "link": "https://example.com/stackexchange/users/7",
                     },
                     "creation_date": "-9d",
                     "is_answered": False,
@@ -1796,10 +1796,10 @@ def social() -> dict[str, Any]:
                 {
                     "question_id": 81008,
                     "title": "Excel VBA macro generation and review with agents",
-                    "link": "https://stackoverflow.com/q/81008",
+                    "link": "https://example.com/stackexchange/q/81008",
                     "owner": {
                         "display_name": "dev_sample_8",
-                        "link": "https://stackoverflow.com/users/8",
+                        "link": "https://example.com/stackexchange/users/8",
                     },
                     "creation_date": "-25d",
                     "is_answered": False,

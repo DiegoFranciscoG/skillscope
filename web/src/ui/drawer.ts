@@ -183,13 +183,14 @@ function answersSection(detail: Detail, demand: DemandData | null): HTMLElement 
   const byKey = new Map(demand.items.map((q) => [q.key, q]));
   const questions = detail.answers.map((key) => byKey.get(key)).filter((q) => q !== undefined);
   if (!questions.length) return null;
+  const source = demand.sample ? ", pregunta ficticia de ejemplo" : " en Stack Overflow, CC BY-SA 4.0";
   return section(
-    "Responde a preguntas reales",
+    demand.sample ? "Responde a preguntas (ejemplo ficticio)" : "Responde a preguntas reales",
     h(
       "ul",
       {},
       ...questions.map((q) =>
-        h("li", {}, externalLink(q.url, q.title), h("span", { class: "attribution" }, " · ", externalLink(q.author_url, q.author), " en Stack Overflow, CC BY-SA 4.0")),
+        h("li", {}, externalLink(q.url, q.title), h("span", { class: "attribution" }, " · ", externalLink(q.author_url, q.author), source)),
       ),
     ),
   );

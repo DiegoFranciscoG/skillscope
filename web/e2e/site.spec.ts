@@ -27,7 +27,7 @@ test.describe("Skillscope", () => {
     const { errors } = await watch(page);
     await page.goto("./");
     await expect(page.locator("#status")).toContainText("Actualizado");
-    await expect(page.locator(".row").first()).toBeVisible();
+    await expect(page.locator(".row-main").first()).toBeVisible();
     await expect(page.locator("meta[http-equiv='Content-Security-Policy']")).toHaveCount(1);
     expect(await page.locator("script[type=module]").getAttribute("integrity")).toMatch(/^sha384-/);
     expect(errors).toEqual([]);
@@ -46,7 +46,7 @@ test.describe("Skillscope", () => {
   test("keyboard: / focuses search, j/k move, Enter opens, Escape closes", async ({ page, isMobile }) => {
     test.skip(isMobile, "physical keyboard shortcuts are a desktop feature");
     await page.goto("./");
-    await expect(page.locator(".row").first()).toBeVisible();
+    await expect(page.locator(".row-main").first()).toBeVisible();
     await page.keyboard.press("/");
     await expect(page.locator("#q")).toBeFocused();
     await page.keyboard.press("Escape");
@@ -117,19 +117,20 @@ test.describe("Skillscope", () => {
 
   test("keeps the data and says so when the network fails", async ({ page }) => {
     await page.goto("./");
-    await expect(page.locator(".row").first()).toBeVisible();
-    const count = await page.locator(".row").count();
+    await expect(page.locator(".row-main").first()).toBeVisible();
+    const count = await page.locator(".row-main").count();
     await page.route("**/data/index.json", (route) => route.abort("internetdisconnected"));
     await triggerCheck(page);
     await expect(page.locator("#status")).toContainText("Sin conexión");
-    await expect(page.locator(".row")).toHaveCount(count);
+    await expect(page.locator(".row-main")).toHaveCount(count);
   });
 
   test("gaps view shows unmet demand with attribution", async ({ page }) => {
     await page.goto("./?tab=gaps");
     await expect(page.locator(".gaps")).toContainText("Huecos del ecosistema");
     await expect(page.locator(".card").first()).toContainText(/cobol|vba/i);
-    await expect(page.locator(".attribution").last()).toContainText("CC BY-SA");
+    // The offline demo says its questions are fictional instead of crediting Stack Overflow.
+    await expect(page.locator(".attribution").last()).toContainText("ficticias");
   });
 
   test("filters live in a bottom sheet on phones", async ({ page, isMobile }) => {

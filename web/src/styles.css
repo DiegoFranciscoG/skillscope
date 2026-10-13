@@ -190,6 +190,8 @@ a {
   overflow-x: auto;
   scrollbar-width: none;
   border-bottom: 1px solid var(--border);
+  /* The tab buttons are created by script; reserve their row so nothing below moves (CLS). */
+  min-height: 41px;
 }
 
 .tab {
@@ -245,6 +247,11 @@ a {
   font-size: var(--fs-small);
 }
 
+/* Fixed widths: options are filled in after the data loads and must not resize the row. */
+.filters select {
+  width: 11.5rem;
+}
+
 select,
 .button {
   height: 36px;
@@ -273,6 +280,11 @@ select,
   margin: 0 0 0 auto;
   color: var(--muted);
   font-size: var(--fs-small);
+}
+
+/* Keeps the footer below the fold while the skeleton is replaced by the real list (CLS). */
+.view {
+  min-height: 100vh;
 }
 
 /* ---- list ------------------------------------------------------------------------------- */
@@ -448,7 +460,8 @@ select,
   font-size: var(--fs-body);
 }
 
-.block + .block {
+.block + .block,
+.gaps + .block {
   margin-top: var(--s6);
 }
 

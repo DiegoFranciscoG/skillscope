@@ -45,6 +45,10 @@ ATTRIBUTION = (
     "Preguntas de Stack Overflow (red Stack Exchange), publicadas por sus autores bajo "
     "licencia CC BY-SA 4.0. Se muestran título, autor y enlace al original."
 )
+SAMPLE_ATTRIBUTION = (
+    "Preguntas ficticias de ejemplo: el modo sin conexión no consulta Stack Exchange y sus "
+    "enlaces apuntan a example.com."
+)
 
 
 @dataclass(slots=True)
@@ -80,6 +84,7 @@ class SiteData:
     model: embeddings.LsaModel
     days: list[str]
     signals: SignalStore
+    sample_mode: bool = False
     files: dict[str, str] = field(default_factory=dict)
 
 
@@ -240,6 +245,7 @@ def build(
         model=published_model,
         days=days,
         signals=signals,
+        sample_mode=sample_mode,
     )
 
 
@@ -373,7 +379,8 @@ def write(data: SiteData, out_dir: Path, now: datetime) -> dict[str, str]:
     demand_payload = {
         "schema_version": SCHEMA_VERSION,
         "build_id": data.build_id,
-        "attribution": ATTRIBUTION,
+        "attribution": SAMPLE_ATTRIBUTION if data.sample_mode else ATTRIBUTION,
+        "sample": data.sample_mode,
         "items": [
             {
                 "key": f"{i.source}:{i.id}",
