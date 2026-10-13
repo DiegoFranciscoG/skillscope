@@ -170,7 +170,10 @@ NPX_LIKE = re.compile(r"\b(npx|bunx|pnpx|uvx|pipx\s+run)\s+([^\n;&|]+)")
 PIP_INSTALL = re.compile(r"\bpip3?\s+install\s+([^\n;&|]+)")
 PACKAGE_SPEC = re.compile(r"^(@[\w.-]+/)?[A-Za-z0-9][\w.-]*(@[\w.^~<>=*-]+)?$")
 TEST_SCRIPT = re.compile(r"(^test_|_test\.|\.test\.|\.spec\.)")
-SCRIPT_REF = re.compile(r"[\w./${}\"'-]*?([\w.-]+\.(?:sh|bash|py|js|mjs|cjs|ts|ps1|rb))\b")
+# Script names inside a hook or MCP command (third-party text). Linear on purpose: the match starts
+# at a token boundary and the name is bounded; the old lazy prefix [...]*? overlapped [...]+ and
+# took quadratic time on long tokens, which hung a live build (docs/investigacion.md E13).
+SCRIPT_REF = re.compile(r"(?<![\w.-])([\w.-]{1,128}\.(?:sh|bash|py|js|mjs|cjs|ts|ps1|rb))\b")
 
 
 @dataclass(slots=True)
