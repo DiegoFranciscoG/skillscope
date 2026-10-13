@@ -72,6 +72,8 @@ export interface IndexData {
   totals: {
     repos: number;
     catalog: number;
+    /** Repositories found and waiting for analysis. */
+    queue?: number;
     artifacts: Record<string, number>;
     by_type: Record<string, number>;
     by_category: Record<string, number>;

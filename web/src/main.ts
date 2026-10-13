@@ -2,7 +2,7 @@ import "./styles.css";
 import { DataCache, type UpdateEvent, Updater } from "./data";
 import { clear, h } from "./dom";
 import { ago, clockTime, SOURCE_LABELS } from "./format";
-import { searchGitHub } from "./github-live";
+import { LiveSearch } from "./github-live";
 import { SearchEngine } from "./search/hybrid";
 import { initialState, Store, TABS, type State, type Tab, toSearch, visibleItems } from "./store";
 import type { IndexData, Item } from "./types";
@@ -56,7 +56,8 @@ function announce(text: string): void {
 function renderStatus(state: State): void {
   const data = state.data;
   if (!data) return;
-  const when = `${ago(data.built_at)} · ${clockTime(data.built_at)}`;
+  const queue = data.totals.queue ? ` · ${data.totals.queue.toLocaleString("es")} en cola de análisis` : "";
+  const when = `${ago(data.built_at)} · ${clockTime(data.built_at)} · ${data.totals.repos.toLocaleString("es")} analizados${queue}`;
   ui.status.classList.toggle("offline", state.offline);
   ui.status.textContent = state.offline ? `Sin conexión: mostrando el índice de las ${clockTime(data.built_at)}` : `Actualizado ${when}`;
   ui.status.title = `Build ${data.build_id}`;
@@ -122,6 +123,7 @@ function selectTab(tab: Tab): void {
 
 // ---- main view -----------------------------------------------------------------------------------
 const BEYOND_BELOW = 3; // fewer good matches than this: also search beyond the index
+const liveSearch = new LiveSearch((input, init) => fetch(input, init));
 
 function rowContext(state: State): RowContext {
   return {
@@ -171,7 +173,7 @@ function renderView(state: State): void {
       const analyzed = new Set(data.items.map((item) => item.id.toLowerCase()));
       renderBeyond(ui.view, state.query, {
         loadCandidates: () => cache.loadCandidates(),
-        searchGitHub: (query) => searchGitHub(query, (input, init) => fetch(input, init)),
+        searchGitHub: (query) => liveSearch.search(query),
         inIndex: (id) => analyzed.has(id.toLowerCase()),
         onOpen: (id) => openItem(state.byId.get(id) ? id : data.items.find((i) => i.id.toLowerCase() === id.toLowerCase())?.id ?? id),
         now: Date.now(),
