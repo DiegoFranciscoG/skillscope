@@ -10,7 +10,7 @@ from pipeline.sample_api import SampleApi
 from tests.support import NOW, SAMPLES, make_harness
 
 ENV = {
-    "GITHUB_TOKEN": "test-token",
+    "SKILLSCOPE_GITHUB_TOKEN": "test-token",
     "SKILLSCOPE_SITE_URL": "https://example.test/skillscope/",
     "SKILLSCOPE_BUDGET_SEARCH": "100",
     "SKILLSCOPE_BUDGET_CODE_SEARCH": "20",

@@ -1,0 +1,93 @@
+name: Keepalive
+
+# Layer 3 of the self-update (docs/despliegue.md):
+#  - every hour: if no build succeeded in the last 90 minutes, relaunch it and open an issue;
+#    also keep only the newest pipeline-state caches so the 10 GB cache quota never fills up.
+#  - every month: re-enable build.yml and push an empty commit to the `keepalive` branch so the
+#    repository never reaches 60 days without activity (assumption S1 in docs/investigacion.md).
+on:
+  schedule:
+    - cron: "41 * * * *"
+    - cron: "13 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    if: github.event.schedule != '13 6 1 * *'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      MAX_AGE_MINUTES: "90"
+      KEEP_CACHES: "3"
+    steps:
+      - name: Relaunch the build when it has been silent for too long
+        run: |
+          last=$(gh run list --workflow build.yml --status success --limit 1 --json updatedAt --jq '.[0].updatedAt // empty')
+          now=$(date -u +%s)
+          age=999999
+          if [ -n "$last" ]; then age=$(( (now - $(date -u -d "$last" +%s)) / 60 )); fi
+          echo "Minutes since the last successful build: $age" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$age" -le "$MAX_AGE_MINUTES" ]; then exit 0; fi
+
+          gh api -X PUT "repos/$GH_REPO/actions/workflows/build.yml/enable"
+          gh workflow run build.yml --ref "$GITHUB_REF_NAME"
+
+          title="Skillscope sin build exitoso desde hace más de ${MAX_AGE_MINUTES} min"
+          open=$(gh issue list --state open --label keepalive --json number --jq '.[0].number // empty')
+          body="El vigilante relanzó build.yml. Último build exitoso: ${last:-ninguno}. Revisa la pestaña Actions."
+          # One open alert is enough: the build keeps being relaunched every hour meanwhile.
+          if [ -z "$open" ]; then
+            gh label create keepalive --color B60205 --description "Alertas del vigilante" 2>/dev/null || true
+            gh issue create --title "$title" --body "$body" --label keepalive
+          fi
+
+      - name: Keep only the newest pipeline-state caches
+        run: |
+          gh cache list --key pipeline-state-v1- --sort created_at --order desc --limit 100 --json id --jq '.[].id' \
+            | tail -n +"$((KEEP_CACHES + 1))" \
+            | while read -r id; do gh cache delete "$id"; done
+
+  monthly:
+    if: github.event.schedule == '13 6 1 * *'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Re-enable the scheduled workflows
+        run: |
+          gh api -X PUT "repos/$GH_REPO/actions/workflows/build.yml/enable"
+          gh api -X PUT "repos/$GH_REPO/actions/workflows/keepalive.yml/enable"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Register activity on the keepalive branch (main is never touched)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin keepalive >/dev/null; then
+            git fetch --depth 1 origin keepalive
+            git switch -C keepalive FETCH_HEAD
+          else
+            git switch --orphan keepalive
+          fi
+          git commit --allow-empty -m "chore: keepalive $(date -u +%Y-%m)"
+          git push origin keepalive

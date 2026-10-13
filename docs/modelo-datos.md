@@ -78,13 +78,16 @@ erDiagram
 | `data/detail/<categoria>.json` | sitio | Sí | Ficha completa de cada repo de esa categoría (shards para no descargar todo). |
 | `data/embeddings.bin` + `data/embeddings.json` | sitio | Sí | Vectores int8 de documentos y términos + mapa de ids, vocabulario e idf. |
 | `data/demand.json` | sitio | Sí | Preguntas de demanda (con atribución), temas y huecos. |
-| `data/signals.json` | sitio | Sí | Serie diaria compacta (60 días) por repo. También sirve de respaldo para restaurar el estado. |
+| `data/signals.json` | sitio | Sí | Serie diaria compacta (60 días) por repo para las gráficas de tendencia. |
 | `feed.xml`, `feed.json` | sitio | Sí | Boletín RSS 2.0 y JSON Feed 1.1. |
-| `s/<owner>/<repo>/index.html`, `sitemap.xml`, `badge/<owner>/<repo>.svg` | sitio | Sí | Página estática por repo con schema.org, mapa del sitio e insignia. |
-| `repos.json` | caché de Actions | No | Análisis completo (fuente de los shards). |
-| `state.json` | caché de Actions | No | ETag, cursores, cola de candidatos y progreso por repo. |
-| `mentions.json` | caché de Actions | No | Eventos de mención deduplicados (180 días). |
-| `data/raw/AAAA-MM-DD/<fuente>/<sha256>.json` | caché de Actions | No (ignorado en git) | Respuesta cruda con hash y fecha, para reproducir un análisis. |
+| `s/<owner>/<repo>/index.html`, `sitemap.xml`, `robots.txt`, `badge/<owner>/<repo>.svg` | sitio | Sí | Página estática por repo con schema.org, mapa del sitio e insignia. |
+| `data/state/live/catalog/<owner>__<repo>.json` | caché de Actions | No | Análisis completo por repo ligado al commit analizado (solo se reanaliza si cambia el commit o `ANALYZER_VERSION`). |
+| `data/state/live/state.json` | caché de Actions | No | ETag, cursores, cola de candidatos, progreso por repo y último build. |
+| `data/state/live/signals.json` | caché de Actions | No | Series diarias (90 días), menciones deduplicadas (180 días), demanda (365 días) y descargas npm. |
+| `data/state/live/snapshots/` | caché de Actions | No | Metadatos y árbol de archivos de cada repo en su último commit. |
+| `data/raw/live/objects/<sha256[:2]>/<sha256>` y `data/raw/live/AAAA-MM-DD/manifest.jsonl` | caché de Actions | No (ignorado en git) | Respuesta cruda con hash y fecha, para reproducir un análisis y reutilizarla ante un `304`. |
+
+Si la caché de Actions se pierde (7 días sin uso o desalojo por el límite de 10 GB, investigación #21 y #22), el siguiente build arranca con estado vacío y el índice publicado se reconstruye en varios ciclos dentro de los mismos presupuestos (el vigilante de `keepalive.yml` no lo trata como caída porque el build sigue terminando bien).
 
 ## 3. Catálogos
 

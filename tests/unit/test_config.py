@@ -6,13 +6,13 @@ from pipeline.config import ConfigError, load_settings, normalize_site_url
 
 
 def test_online_mode_fails_fast_without_token() -> None:
-    with pytest.raises(ConfigError, match="GITHUB_TOKEN"):
+    with pytest.raises(ConfigError, match="SKILLSCOPE_GITHUB_TOKEN"):
         load_settings({"SKILLSCOPE_SITE_URL": "https://x.github.io/s/"}, offline=False, root=Path())
 
 
 def test_online_mode_fails_fast_without_site_url() -> None:
     with pytest.raises(ConfigError, match="SKILLSCOPE_SITE_URL"):
-        load_settings({"GITHUB_TOKEN": "t"}, offline=False, root=Path())
+        load_settings({"SKILLSCOPE_GITHUB_TOKEN": "t"}, offline=False, root=Path())
 
 
 def test_offline_mode_needs_no_secrets() -> None:
@@ -23,7 +23,11 @@ def test_offline_mode_needs_no_secrets() -> None:
 
 
 def test_offline_mode_ignores_credentials_in_the_environment() -> None:
-    env = {"GITHUB_TOKEN": "real", "YOUTUBE_API_KEY": "real-key", "STACKEXCHANGE_KEY": "k"}
+    env = {
+        "SKILLSCOPE_GITHUB_TOKEN": "real",
+        "SKILLSCOPE_YOUTUBE_API_KEY": "real-key",
+        "SKILLSCOPE_STACKEXCHANGE_KEY": "k",
+    }
     settings = load_settings(env, offline=True, root=Path())
     assert settings.github_token is None
     assert settings.social.youtube_api_key is None
@@ -32,7 +36,7 @@ def test_offline_mode_ignores_credentials_in_the_environment() -> None:
 
 def test_token_never_appears_in_repr() -> None:
     settings = load_settings(
-        {"GITHUB_TOKEN": "ghp_should_not_leak", "SKILLSCOPE_SITE_URL": "https://a.b/c"},
+        {"SKILLSCOPE_GITHUB_TOKEN": "ghp_should_not_leak", "SKILLSCOPE_SITE_URL": "https://a.b/c"},
         offline=False,
         root=Path(),
     )
@@ -40,7 +44,7 @@ def test_token_never_appears_in_repr() -> None:
     assert settings.site_url == "https://a.b/c/"
 
 
-ONLINE = {"GITHUB_TOKEN": "t", "SKILLSCOPE_SITE_URL": "https://a.b/"}
+ONLINE = {"SKILLSCOPE_GITHUB_TOKEN": "t", "SKILLSCOPE_SITE_URL": "https://a.b/"}
 
 
 def test_budgets_are_validated() -> None:

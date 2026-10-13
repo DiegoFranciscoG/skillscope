@@ -35,3 +35,12 @@ def test_repo_from_issue_parsing() -> None:
 def test_topic_optout() -> None:
     assert optout.has_optout_topic(["Skillscope-OptOut"])
     assert not optout.has_optout_topic(["claude-skills"])
+
+
+def test_issue_form_body_is_parsed() -> None:
+    body = (
+        "### Repositorio\n\nAcme-Labs/my.skill\n\n"
+        "### Motivo (opcional)\n\nYa no lo mantengo; ver other/repo"
+    )
+    issue = {"body": body, "user": {"login": "acme-labs"}, "labels": [{"name": "opt-out"}]}
+    assert optout.from_issues([issue]) == {"acme-labs/my.skill"}

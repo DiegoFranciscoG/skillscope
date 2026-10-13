@@ -30,6 +30,9 @@ def write_text(path: Path, text: str) -> None:
     write_bytes(path, text.encode("utf-8"))
 
 
+FILE_MODE = 0o644  # mkstemp creates 0600; published files must be readable by the web server
+
+
 def write_bytes(path: Path, payload: bytes) -> None:
     """Write through a temporary file and rename, so readers never see half a file."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -37,6 +40,7 @@ def write_bytes(path: Path, payload: bytes) -> None:
     try:
         with os.fdopen(fd, "wb") as fh:
             fh.write(payload)
+        os.chmod(tmp, FILE_MODE)
         os.replace(tmp, path)
     except BaseException:
         Path(tmp).unlink(missing_ok=True)
