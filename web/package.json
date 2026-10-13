@@ -16,12 +16,14 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "e2e": "playwright test",
-    "scan:bundle": "node scripts/scan-bundle.mjs ../site"
+    "scan:bundle": "node scripts/scan-bundle.mjs ../site",
+    "lighthouse": "node scripts/lighthouse.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0",
     "@vitest/coverage-v8": "5.0.4",
     "happy-dom": "21.0.1",
+    "lighthouse": "13.5.0",
     "typescript": "7.0.2",
     "vite": "8.3.4",
     "vitest": "5.0.4"

@@ -27,6 +27,7 @@ test-results/
 playwright-report/
 blob-report/
 .lighthouseci/
+lighthouse-report/
 npm-debug.log*
 
 # ---- Datos generados (se reconstruyen con el pipeline)
