@@ -101,7 +101,8 @@ Validación con 115 repositorios reales (2026-10-12): tras estas reglas, 33 sin 
 |---|---|---|
 | Más usadas | A descendente | estrellas |
 | Más mencionadas | `menciones_30d` > 0 descendente | S |
-| En tendencia | `0,7 · crec_estrellas + 0,3 · crec_menciones` > 0, con `crec_estrellas = (e_hoy − e_hace7) / (e_hace7 + 20)` y `crec_menciones = max(0, (m_7d − m_7d_previos) / (m_7d_previos + 3))`. Mientras no haya 7 días de historia se usa el día más antiguo disponible. | total |
+| Nuevas | Creados en GitHub hace ≤ 30 días, total descendente | estrellas |
+| En tendencia | `0,7 · crec_estrellas + 0,3 · crec_menciones` > 0, con `crec_estrellas = g7 / (estrellas − g7 + 20)`, donde `g7` son las estrellas de los últimos 7 días según el historial de estrellas de GitHub (#59) medido en los últimos 2 días; sin esa medición, `(e_hoy − e_hace7) / (e_hace7 + 20)` con las instantáneas propias (el día más antiguo mientras no haya 7 días). `crec_menciones = max(0, (m_7d − m_7d_previos) / (m_7d_previos + 3))`. Si `g7 ≥ 1.000` y supera la mitad de las estrellas, la ficha dice «más de la mitad de sus estrellas llegó esta semana». | total |
 | Más útiles | `U + Q − R` descendente | total |
 | Más necesarias | Por categoría: `demanda / (1 + oferta)`, oferta = repos de la categoría con total ≥ 50. | demanda |
 | Más seguras | `R` ascendente entre repos con artefactos y total ≥ 40 | total |
@@ -140,7 +141,8 @@ En el navegador: vector de la consulta = `Σ peso_tf-idf(t) · V_t` y coseno con
 
    *Cobertura* = términos distintos de la consulta que contiene el repo ÷ términos de la consulta. Hace falta porque BM25 se normaliza por el mejor resultado: sin cobertura, una consulta que solo comparte una palabra genérica («trabajo») produciría un 1,0 falso. Lo detectó la prueba end-to-end «migrar trabajos COBOL», que ahora devuelve correctamente «nadie ha publicado una skill para esto».
    - **Se usan junto con eso**: repos que comparten colecciones con los 3 primeros resultados (hasta 6).
-6. Si los dos primeros bloques quedan vacíos: «Nadie ha publicado una skill para esto» con enlace a la plantilla oficial para crearla.
+6. **Más allá del índice**: si «Resuelve exactamente eso» y «Se le parece» suman menos de 3, se busca también entre los repos ya descubiertos y aún sin analizar (`data/candidates.json`, hasta 5.000 por prioridad): BM25 sobre nombre (×3), temas (×2) y descripción, cobertura ≥ 0,5, orden `0,8 · BM25 normalizado + 0,2 · min(1, log10(1 + estrellas) / 5)`. Además se ofrece «Buscar en todo GitHub», que consulta la API pública de búsqueda **solo si el lector pulsa el botón** (#62). Cada resultado sin analizar enlaza a un formulario que lo pone primero en la cola del siguiente build.
+7. Si los dos primeros bloques quedan vacíos: «Nadie ha publicado una skill para esto» con enlace a la plantilla oficial para crearla.
 
 ### 3.4 Categoría y causa
 

@@ -103,6 +103,17 @@ Fecha de consulta de todas las fuentes: **2026-10-12** (salvo que se indique otr
 |---|---|---|---|
 | 58 | Deployments and environments | https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments | Temporizador de espera de un entorno: entero de **1 a 43.200 min**; en planes Free/Pro/Team solo en **repos públicos**; «el tiempo de espera no cuenta como tiempo facturable». Base de la capa 2 (`next-later` espera 20 min en el entorno `cadence`). |
 
+### 1.9 Redes, tendencias y búsqueda en vivo (consultado el 2026-10-13)
+
+| # | Fuente | URL | Qué se tomó de aquí |
+|---|---|---|---|
+| 59 | REST — Starring (List stargazers y Get repository star history) | https://docs.github.com/en/rest/activity/starring | **Desde julio de 2026 el listado de stargazers queda limitado a administradores y colaboradores**, así que no sirve para repos ajenos. `GET /repos/{o}/{r}/stargazers/history` devuelve estrellas **agregadas por semana con conteo diario** y sin datos de personas (máx. 30 semanas por página). Base de «estrellas de la semana» y de «En tendencia». |
+| 60 | robots.txt de hachyderm.io y fosstodon.org | https://hachyderm.io/robots.txt · https://fosstodon.org/robots.txt | Solo bloquean `GPTBot` y rutas internas (`/media_proxy/`, `/interact/`); la API de timelines públicas por etiqueta está permitida. Límites de la API de Mastodon: #40. |
+| 61 | Lemmy — API y robots.txt de programming.dev y lemmy.world | https://join-lemmy.org/docs/contributors/04-api.html · https://programming.dev/robots.txt | La API v3 se lee sin cuenta y el límite es por IP. El robots.txt bloquea la interfaz `/search/` (no la API) y pide **`Crawl-delay: 60`**: una petición por instancia y por ejecución, con la consulta rotando entre ejecuciones. |
+| 62 | Using CORS and JSONP to make cross-origin requests | https://docs.github.com/en/rest/using-the-rest-api/using-cors-and-jsonp-to-make-cross-origin-requests | «The REST API supports cross-origin resource sharing (CORS) for AJAX requests from any origin»; sin cuenta, la búsqueda permite 10 peticiones por minuto (#14). Base de «Buscar en todo GitHub» desde el navegador, solo al pulsar el botón. |
+
+**Descartadas tras revisar sus reglas**: Lobsters publica feeds RSS por etiqueta, pero su `robots.txt` responde `Disallow: /` a todo agente que no sea un buscador conocido, así que no se consulta. PyPI Stats pide no consultar en masa y cachear un día (https://pypistats.org/api/); queda como mejora futura solo para paquetes MCP de Python ya indexados.
+
 ## 2. Verificaciones empíricas propias (2026-10-12)
 
 | # | Qué se probó | Resultado | Decisión |
@@ -118,6 +129,7 @@ Fecha de consulta de todas las fuentes: **2026-10-12** (salvo que se indique otr
 | E9 | Sondeo GraphQL de 600 repos con más estrellas de esos topics (archivos clave por `object(expression:)`) | 304 con `marketplace.json`, 159 con skills, 19 con `plugin.json`, 21 listas awesome, 95 sin artefactos en rutas estándar | El analizador debe mirar el **árbol completo**, no solo rutas fijas. Con esto se armó la lista semilla. |
 | E10 | Consulta GraphQL de metadatos (estrellas, issues, release, CI, commits en 30 días, árbol) para 4 repos | `cost: 1` | Los metadatos se refrescan por lotes de 40–50 repos por punto. |
 | E11 | Primer build en Actions (2026-10-13) y medición de la consulta de metadatos con token personal: 40 repos de la semilla más grandes, 3 tamaños de consulta | En Actions la primera consulta GraphQL tras 29 búsquedas recibió `429` con `retry-after` largo y el build publicó 0 repos. 40 repos por consulta tardan ~10 s y a veces dan `502` (tope de 10 s de GraphQL), con o sin `history`; 10 repos tardan ~3 s | Lotes de 10 que se parten por la mitad si fallan, pausa de 0,5 × tiempo de respuesta tras cada llamada a GitHub (el CPU se estima por el tiempo de respuesta, #12), búsqueda amplia diferida con cola ≥ 300 y 60 s reservados para las redes. Resultado local desde cero: 40 repos en el 1.er build y 98 en el 2.º. |
+| E12 | Pruebas en vivo del 2026-10-13: Lemmy y tres instancias de Mastodon sin cuenta, historial de estrellas de repos ajenos y build completo en local con token personal | Lemmy y Mastodon responden 200 con publicaciones del día. El historial de estrellas funciona para repos ajenos (1 llamada `core`). El build midió 40 repos y la lista «En tendencia» pasó de 2 a 41. Un repo pasó de ~150 estrellas/semana a > 40.000/día: el 95 % de sus estrellas llegó en 7 días | Medir tendencias antes del análisis (no las deja sin tiempo). Mostrar «más de la mitad de sus estrellas llegó esta semana» como dato, sin acusar, porque la popularidad se puede inflar. |
 
 ## 3. Supuestos (no verificables en fuente oficial) — avisados al usuario
 
