@@ -460,7 +460,8 @@ select,
   font-size: var(--fs-body);
 }
 
-.block + .block {
+.block + .block,
+.gaps + .block {
   margin-top: var(--s6);
 }
 
