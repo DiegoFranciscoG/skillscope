@@ -198,7 +198,7 @@ Categoría y causa se asignan con léxicos ponderados (español e inglés) sobre
 | `resources.<clave>` | objeto | `etag`, `last_modified`, `body_sha256`, `fetched_at` (la clave nunca incluye tokens) |
 | `cursors` | objeto | Rebanadas de fecha por consulta (`from`, `to`, `count`, `page`), cursores de fuentes sociales |
 | `schedule.<fuente>` | string | Próxima ejecución permitida (cadencia de [fuentes.md](fuentes.md)) |
-| `repos.<id>` | objeto | `head_oid`, `analyzed_oid`, `first_seen`, `last_seen`, `status ∈ {artifact, no_artifact, gone, opted_out}` |
+| `repos.<id>` | objeto | `head_oid`, `analyzed_oid`, `first_seen`, `last_seen`, `status ∈ {artifact, no_artifact, internal, unavailable, gone, opted_out}` (`internal`: skills solo en `.claude/` de una aplicación con ≥ 150 archivos fuera; `unavailable`: 3 builds seguidos sin poder leer sus metadatos), `meta_failures` |
 | `frontier[]` | lista | `{id, priority, via[]}` candidatos pendientes |
 
 ## 5. Reglas de negocio

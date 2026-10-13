@@ -33,7 +33,7 @@ Los números `#n` remiten a [investigacion.md](investigacion.md). Límites consu
 
 **Cuenta para el peor caso con `GITHUB_TOKEN`** (1.000 REST/h y 1.000 pts GraphQL/h por repo, #12 y #15): hasta 6 builds por hora (4 del cron cada 15 min + 2 del disparador externo cada 30 min) × 140 REST = 840 < 1.000, y 6 × 120 = 720 pts < 1.000. Queda margen para el vigilante y para builds manuales.
 
-**Rendimiento esperado**: analizar un repo nuevo cuesta 1 llamada REST (árbol completo) + ~0,25 puntos GraphQL (contenido por lotes). Con 140 llamadas por build entran ~100 repos nuevos por build, ~600 por hora. Con un token personal fino (5.000/h) basta subir `SKILLSCOPE_BUDGET_REST` y `SKILLSCOPE_BUDGET_GRAPHQL` como variables del repo.
+**Rendimiento medido (E11)**: los metadatos se piden en lotes de 10 repos por consulta GraphQL (40 llegaban al tope de 10 s y GitHub respondía `502`/`429`); si una consulta falla se parte por la mitad y un repo que falla solo vuelve a la cola (se descarta tras 3 builds). Después de cada respuesta de GitHub el recolector espera 0,5 × lo que tardó, para que el CPU que consume en el servidor quede por debajo del tope secundario (#12). Con la cola llena (≥ 300 candidatos) la búsqueda amplia se difiere y solo se buscan repos recientes. Con token personal y estado vacío: 40 repos en el primer build y ~60 nuevos por build después. Con un token fino propio (5.000/h) se pueden subir `SKILLSCOPE_BUDGET_REST` y `SKILLSCOPE_BUDGET_GRAPHQL` como variables del repo.
 
 ## 3. Estrategia de descubrimiento (GitHub)
 

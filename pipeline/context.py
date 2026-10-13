@@ -17,6 +17,7 @@ from pipeline.sample_api import SampleApi
 
 USER_AGENT = "skillscope/0.1 (+https://github.com/DiegoFranciscoG/skillscope)"
 OFFLINE_TOKEN = "offline-sample"  # noqa: S105 - placeholder for the in-memory sample API
+GITHUB_COOLDOWN = 0.5  # idle 0.5 × response time: server CPU ≤ 2/3 of wall time (≤ 40 s/min)
 
 
 @dataclass(slots=True)
@@ -61,6 +62,8 @@ def open_context(
         raw=raw,
         clock=clock,
         deadline=clock.monotonic() + settings.max_seconds,
+        # GitHub: server CPU per minute is capped; stay idle as long as each answer took.
+        cooldown={"github": GITHUB_COOLDOWN},
     )
     snapshots = SnapshotStore(settings.state_dir / "snapshots")
     catalog = CatalogStore(settings.state_dir / "catalog")

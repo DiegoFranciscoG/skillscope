@@ -1,10 +1,14 @@
 """Turn candidates into snapshots: metadata (GraphQL), file tree (REST) and file text (GraphQL).
 
 Order of work inside one build:
-1. Refresh metadata of already indexed repos (cheap, 40 per GraphQL point) and queue the
-   ones whose head commit changed.
+1. Refresh metadata of already indexed repos (10 per GraphQL query) and queue the ones whose
+   head commit changed.
 2. Analyze changed repos first, then new candidates by priority, until a budget or the
    deadline runs out. What is left stays in the frontier for the next build.
+
+A GraphQL query that fails (timeout, 5xx, secondary limit) is split in halves and retried;
+a single repository that keeps failing goes back to the frontier and is dropped after
+``MAX_META_FAILURES`` builds. One bad batch never stops the whole build.
 """
 
 from __future__ import annotations
@@ -26,12 +30,16 @@ from pipeline.models import RepoMeta, RepoSnapshot
 
 log = logging.getLogger("skillscope.enrich")
 
-META_BATCH = 40
+# 40 big repositories per query took ~10 s and hit GitHub's 10 s GraphQL timeout (502);
+# 10 take ~3 s (measured 2026-10-13, docs/investigacion.md E11).
+META_BATCH = 10
+MAX_META_FAILURES = 3
 TREE_GROUP = 8
-BLOBS_PER_QUERY = 40
-BLOB_BYTES_PER_QUERY = 900_000
+BLOBS_PER_QUERY = 20
+BLOB_BYTES_PER_QUERY = 500_000
 REFRESH_SHARE = 0.3
 REANALYSIS_CAP = 40  # repos re-fetched per build after an analyzer upgrade
+INTERNAL_PROJECT_FILES = 150  # files outside .claude/ that make a repo an application, not a kit
 
 
 @dataclass(slots=True)
@@ -40,6 +48,7 @@ class EnrichReport:
     analyzed: int = 0
     unchanged: int = 0
     no_artifacts: int = 0
+    internal: int = 0
     gone: int = 0
     errors: list[str] = field(default_factory=list)
 
@@ -81,12 +90,14 @@ class Enricher:
                 break
             batch = [e["id"] for e in known[start : start + META_BATCH]]
             try:
-                metas = self.gh.repo_meta(batch, self.now)
-            except (RequestFailedError, DeadlineReachedError) as exc:
+                metas, failed = self._meta(batch)
+            except DeadlineReachedError as exc:
                 self.report.errors.append(str(exc))
                 break
             spent += 1
             for repo_id in batch:
+                if repo_id in failed:
+                    continue  # unknown, not gone: try again next build
                 meta = metas.get(repo_id.lower())
                 if meta is None:
                     self._mark_gone(repo_id)
@@ -127,15 +138,51 @@ class Enricher:
             batch = self.frontier.pop_batch(META_BATCH)
             ids = [str(e["id"]) for e in batch]
             try:
-                metas = self.gh.repo_meta(ids, self.now)
-            except (RequestFailedError, DeadlineReachedError) as exc:
+                metas, failed = self._meta(ids)
+            except DeadlineReachedError as exc:
                 self.report.errors.append(str(exc))
                 self.frontier.push_back(batch)
                 return []
-            out = [m for m in (self._accept(e, metas) for e in batch) if m is not None]
+            retry = [e for e in batch if str(e["id"]) in failed and self._may_retry(str(e["id"]))]
+            self.frontier.push_back(retry)
+            fetched = [e for e in batch if str(e["id"]) not in failed]
+            out = [m for m in (self._accept(e, metas) for e in fetched) if m is not None]
             if out:
                 return out
+            if failed and not self.gh.budgets.graphql.can_spend():
+                return []
         return []
+
+    def _meta(self, ids: list[str]) -> tuple[dict[str, RepoMeta], set[str]]:
+        """Metadata for ``ids`` plus the ids that could not be fetched.
+
+        A failed query is split in halves until single repositories remain, so one huge or
+        broken repository costs a couple of extra calls instead of the whole batch. Only the
+        build deadline propagates; a closed budget simply leaves the rest as failed.
+        """
+        try:
+            return self.gh.repo_meta(ids, self.now), set()
+        except DeadlineReachedError:
+            raise
+        except RequestFailedError as exc:
+            self.report.errors.append(str(exc))
+            if len(ids) == 1 or not self.gh.budgets.graphql.can_spend():
+                return {}, set(ids)
+            half = len(ids) // 2
+            left, left_failed = self._meta(ids[:half])
+            right, right_failed = self._meta(ids[half:])
+            return left | right, left_failed | right_failed
+
+    def _may_retry(self, repo_id: str) -> bool:
+        """Count a metadata failure; after ``MAX_META_FAILURES`` the repository is skipped."""
+        if not self.gh.budgets.graphql.can_spend():
+            return True  # the budget ran out, the repository did nothing wrong
+        state = self.state.repo(repo_id)
+        state["meta_failures"] = int(state.get("meta_failures", 0)) + 1
+        if state["meta_failures"] >= MAX_META_FAILURES:
+            state["status"] = "unavailable"
+            return False
+        return True
 
     def _accept(self, entry: dict[str, Any], metas: dict[str, RepoMeta]) -> RepoMeta | None:
         meta = metas.get(str(entry["id"]).lower())
@@ -183,6 +230,10 @@ class Enricher:
             if not lay.has_artifacts() and not _worth_fetching(meta, lay):
                 self._mark_status(meta, "no_artifact")
                 self.report.no_artifacts += 1
+                continue
+            if _internal_only(lay, [e.path for e in tree.entries]):
+                self._mark_status(meta, "internal")
+                self.report.internal += 1
                 continue
             sizes = {e.path: e.size for e in tree.entries}
             plans.append((meta, tree.entries, tree.truncated, select_files(lay, sizes)))
@@ -234,15 +285,30 @@ class Enricher:
                 if not self.gh.budgets.graphql.can_spend():
                     return None
                 try:
-                    texts.update(self.gh.blobs(chunk))
-                except (RequestFailedError, DeadlineReachedError) as exc:
+                    texts.update(self._blobs(chunk))
+                except DeadlineReachedError as exc:
                     self.report.errors.append(str(exc))
+                    return None
+                if self.gh.budgets.graphql.closed:  # rate-limited midway: do not keep half a repo
                     return None
                 chunk, chunk_bytes = [], 0
             if request is not None:
                 chunk.append(request)
                 chunk_bytes += size
         return texts
+
+    def _blobs(self, chunk: list[tuple[str, str, str]]) -> dict[tuple[str, str], str]:
+        """File texts for ``chunk``; a failed query is split, a file that fails alone is skipped."""
+        try:
+            return self.gh.blobs(chunk)
+        except DeadlineReachedError:
+            raise
+        except RequestFailedError as exc:
+            self.report.errors.append(str(exc))
+            if len(chunk) == 1 or not self.gh.budgets.graphql.can_spend():
+                return {}
+            half = len(chunk) // 2
+            return self._blobs(chunk[:half]) | self._blobs(chunk[half:])
 
     # -- helpers ----------------------------------------------------------------------------
     def _mark_status(self, meta: RepoMeta, status: str) -> None:
@@ -283,3 +349,19 @@ def _worth_fetching(meta: RepoMeta, lay: Layout) -> bool:
     has_package = bool(lay.package_json or lay.pyproject)
     mcp_hint = "mcp" in name or bool(topics & {"mcp", "mcp-server", "model-context-protocol"})
     return has_package and mcp_hint
+
+
+def _internal_only(lay: Layout, paths: list[str]) -> bool:
+    """Skills an application keeps under ``.claude/`` for its own contributors.
+
+    They describe that codebase, so they are not something to install elsewhere, and the
+    project's stars would inflate their ranking. A kit that shares its ``.claude/`` folder on
+    purpose is small; an application has hundreds of files outside it.
+    """
+    if lay.plugin_manifests or lay.marketplace or lay.other_marketplaces:
+        return False
+    components = [*lay.skills, *lay.commands, *lay.agents]
+    if not components or not all(path.startswith(".claude/") for path in components):
+        return False
+    outside = sum(1 for path in paths if not path.startswith(".claude/"))
+    return outside >= INTERNAL_PROJECT_FILES
