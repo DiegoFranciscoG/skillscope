@@ -201,12 +201,24 @@ class GitHubClient:
         ]
         return Tree(entries=entries, truncated=bool(data.get("truncated", False)))
 
-    def issues(self, repo_id: str, *, label: str) -> list[dict[str, Any]]:
+    def star_history(self, repo_id: str, weeks: int = 3) -> list[dict[str, Any]]:
+        """Stars per day for the last ``weeks`` weeks (aggregate counts, no user data)."""
+        result = self.http.get(
+            f"{API}/repos/{repo_id}/stargazers/history",
+            source=SOURCE,
+            budget=self.budgets.core,
+            params={"per_page": weeks},
+            headers=self._headers,
+            free_on_304=True,
+        )
+        return list(result.data or [])
+
+    def issues(self, repo_id: str, *, label: str, state: str = "all") -> list[dict[str, Any]]:
         result = self.http.get(
             f"{API}/repos/{repo_id}/issues",
             source=SOURCE,
             budget=self.budgets.core,
-            params={"labels": label, "state": "all", "per_page": 100},
+            params={"labels": label, "state": state, "per_page": 100},
             headers=self._headers,
             free_on_304=True,
         )

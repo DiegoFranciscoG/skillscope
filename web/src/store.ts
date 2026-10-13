@@ -3,6 +3,7 @@ import type { IndexData, Item } from "./types";
 
 export const TABS = [
   ["explore", "Explorar"],
+  ["newest", "Nuevas"],
   ["most_used", "Más usadas"],
   ["most_mentioned", "Más mencionadas"],
   ["trending", "En tendencia"],

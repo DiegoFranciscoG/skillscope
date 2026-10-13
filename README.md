@@ -56,10 +56,16 @@ interés y demanda; nunca son la fuente del catálogo.
   fijar o sin licencia; cada bandera muestra archivo, línea y fragmento (los secretos se redactan).
 - **Búsqueda por necesidad** en el navegador: BM25 + embeddings LSA cuantizados, en tres bloques
   («Resuelve exactamente eso», «Se le parece», «Se usan junto con eso») y en < 100 ms con 3.000 repos.
+- **Nunca se queda en el índice**: si una búsqueda encuentra poco, busca entre los miles de repos ya
+  descubiertos que esperan análisis y ofrece «Buscar en todo GitHub» (solo al pulsar, sin cuenta ni
+  cookies). Cualquier resultado se puede mandar a analizar con prioridad desde un formulario.
 - **Comando de instalación exacto** con botón copiar (`/plugin marketplace add …`, `/plugin install …`,
   `claude mcp add …` o `git clone` + copia a `~/.claude/skills`).
-- **Listas**: más usadas, más mencionadas, en tendencia, más útiles, más seguras, más riesgosas y
-  más necesarias por categoría.
+- **Listas**: nuevas (creadas este mes), más usadas, más mencionadas, en tendencia, más útiles, más
+  seguras, más riesgosas y más necesarias por categoría.
+- **Tendencias reales desde el primer día**: estrellas ganadas en los últimos 7 días según el
+  historial de estrellas de GitHub, y aviso cuando más de la mitad de las estrellas de un repo llegó
+  esta semana (la popularidad se puede inflar).
 - **Huecos del ecosistema**: temas que la gente pregunta en Stack Overflow y que ningún repo de
   calidad cubre, con enlace para crear la skill.
 - **Actualización en vivo sin recargar**: la web consulta el índice cada 5 min con `ETag`; si hay un
@@ -257,7 +263,12 @@ Paso a paso, presupuesto de llamadas y verificación: [docs/despliegue.md](docs/
   validadas contra el juego de caracteres de GitHub.
 - **YAML seguro**: `safe_load`, sin anclas ni alias, tamaño acotado.
 - **Cero claves en el front** y en el bundle (escaneo en CI); las claves de API viajan en cabeceras y
-  nunca se registran.
+  nunca se registran. La búsqueda en vivo usa la API pública de GitHub sin credenciales, `credentials:
+  "omit"` y `no-referrer`; la CSP solo abre `connect-src` a `https://api.github.com`.
+- **Entradas de visitantes acotadas**: de los issues de sugerencia solo se toma un `owner/repo` válido,
+  20 por build como máximo, y nunca se vuelve a encolar un repo ya analizado.
+- **CodeQL** (Python, TypeScript y los propios workflows) activado en el repositorio, además del
+  escaneo de secretos con protección de push y las alertas de Dependabot.
 - **Cadena de suministro**: acciones fijadas por SHA de commit, permisos mínimos por job, gitleaks con
   checksum verificado en cada push, Dependabot semanal para uv, npm, Actions y Docker.
 - **Contenedor**: imágenes con versión exacta, usuario no root, `read_only`, `cap_drop: ALL`,
@@ -304,10 +315,12 @@ Paso a paso, presupuesto de llamadas y verificación: [docs/despliegue.md](docs/
 | Stack Exchange API | Demanda y huecos | Contenido **CC BY-SA 4.0**: se muestran título, autor y enlace al original. |
 | Hacker News (Algolia) | Menciones | API pública. |
 | DEV (Forem) | Menciones | Solo conteos y enlaces. |
-| Mastodon | Menciones | Timelines públicas por etiqueta. |
+| Mastodon (mastodon.social, hachyderm.io, fosstodon.org) | Menciones | Timelines públicas por etiqueta; su robots.txt lo permite. |
+| Lemmy (programming.dev, lemmy.world) | Menciones | API pública; una petición por instancia y hora, como pide su `Crawl-delay: 60`. |
+| GitHub, historial de estrellas | Tendencias | Conteos agregados por día, sin datos de personas. |
 | Bluesky, YouTube | Menciones (opcionales) | Con credenciales propias y dentro de sus cuotas. |
 
-Investigación completa con 57 fuentes, verificaciones propias y supuestos:
+Investigación completa con 62 fuentes, verificaciones propias y supuestos:
 [docs/investigacion.md](docs/investigacion.md) · límites y presupuesto por fuente:
 [docs/fuentes.md](docs/fuentes.md). Los datos de `data/samples` son **ficticios**: todos los dueños
 llevan el prefijo `demo_` (GitHub no admite `_` en nombres de usuario ni de organización, así que

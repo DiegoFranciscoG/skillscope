@@ -16,10 +16,14 @@ Los números `#n` remiten a [investigacion.md](investigacion.md). Límites consu
 | Stack Exchange | Señal de **demanda** y menciones | Activa | `SKILLSCOPE_STACKEXCHANGE_KEY` opcional | 300/día por IP sin clave; respetar `backoff`; no repetir consulta en < 1 min (#32) | 6 llamadas | Cada 120 min |
 | Reddit | Señal social y demanda | **Apagada** salvo credenciales aprobadas (S5) | `SKILLSCOPE_REDDIT_CLIENT_ID`, `SKILLSCOPE_REDDIT_CLIENT_SECRET`, `SKILLSCOPE_REDDIT_USER_AGENT` | 100 QPM por client id (#36) | 10 llamadas | Cada 60 min |
 | DEV (Forem) | Señal social | Activa | Ninguna | No publicado; API pública (#42) | 2 listados + 10 artículos | Cada 60 min |
-| Mastodon (mastodon.social) | Señal social | Activa | Ninguna | 300 / 5 min por IP (#40) | 4 llamadas | Cada 30 min |
+| Mastodon (mastodon.social, hachyderm.io, fosstodon.org) | Señal social | Activa | Ninguna | 300 / 5 min por IP en cada instancia (#40, #60) | 9 llamadas (3 etiquetas × 3 instancias); una publicación federada cuenta una vez | Cada 30 min |
+| Lemmy (programming.dev, lemmy.world) | Señal social | Activa | Ninguna | Por IP; `Crawl-delay: 60` (#61) | 1 búsqueda por instancia, consulta rotativa | Cada 60 min |
+| GitHub — historial de estrellas | Tendencias | Activa | `SKILLSCOPE_GITHUB_TOKEN` | Recurso `core` (#12, #59) | 40 repos por build, cada uno a lo sumo una vez cada 20 h | Cada build, antes del análisis |
+| GitHub Search desde el navegador | Búsqueda en vivo | Activa, solo al pulsar «Buscar en GitHub ahora» | Ninguna (sin cuenta ni cookies) | 10/min por IP del visitante (#14, #62) | 1 petición por clic | A pedido |
 | Bluesky | Señal social | Opcional (E2) | `SKILLSCOPE_BLUESKY_HANDLE`, `SKILLSCOPE_BLUESKY_APP_PASSWORD` | 3.000 / 5 min por IP; 300 sesiones/día (#38) | 1 sesión + 3 búsquedas | Cada 120 min |
 | YouTube Data API | Señal social | Opcional | `SKILLSCOPE_YOUTUBE_API_KEY` | 100 `search.list`/día (#37) | 2 búsquedas + 1 `videos.list` | Cada 180 min (≤ 16 búsquedas/día) |
 | X | — | **Descartada** | — | Sin nivel gratuito utilizable (#44) | — | — |
+| Lobsters | — | **Descartada** | — | Su `robots.txt` prohíbe todo agente que no sea un buscador (#61, nota) | — | — |
 | Instagram / Facebook | — | **Descartadas** | — | Solo API oficial con cuenta de empresa propia y revisión de app; recolección automatizada prohibida sin permiso escrito (#45, #46) | — | — |
 
 ## 2. Cómo se calcula el presupuesto de GitHub

@@ -2,6 +2,7 @@
  "statuses": [
   {
    "id": "7001",
+   "uri": "https://example.com/mastodon/statuses/7001",
    "created_at": "-1d",
    "favourites_count": 14,
    "reblogs_count": 3,
@@ -9,6 +10,7 @@
   },
   {
    "id": "7002",
+   "uri": "https://example.com/mastodon/statuses/7002",
    "created_at": "-2d",
    "favourites_count": 30,
    "reblogs_count": 9,

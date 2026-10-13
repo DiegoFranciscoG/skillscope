@@ -306,12 +306,16 @@ class DevTo(SocialSource):
 
 # ---------------------------------------------------------------------------------------------
 class Mastodon(SocialSource):
-    """Public hashtag timelines on mastodon.social, 300 requests / 5 min (#40, #41)."""
+    """Public hashtag timelines on several instances, 300 requests / 5 min each (#40, #41, #60).
+
+    The same post reaches many instances through federation, so it is identified by its
+    canonical ``uri`` and counted once. An instance that fails does not stop the others.
+    """
 
     id = "mastodon"
     cadence_minutes = 30
-    budget = 4
-    BASE = "https://mastodon.social/api/v1/timelines/tag/"
+    budget = 9
+    INSTANCES = ("mastodon.social", "hachyderm.io", "fosstodon.org")
     TAGS = ("claudecode", "claude", "mcp")
 
     def fetch(
@@ -319,31 +323,102 @@ class Mastodon(SocialSource):
     ) -> tuple[list[Mention], list[DemandItem]]:
         cursor = state.cursor(self.id)
         mentions: list[Mention] = []
-        for tag in self.TAGS:
+        failures: list[RequestFailedError] = []
+        for instance in self.INSTANCES:
+            for tag in self.TAGS:
+                if not budget.can_spend():
+                    break
+                key = f"{instance}#{tag}"
+                params: dict[str, Any] = {"limit": 40}
+                if cursor.get(key):
+                    params["min_id"] = cursor[key]
+                try:
+                    result = http.get(
+                        f"https://{instance}/api/v1/timelines/tag/{tag}",
+                        source=self.id,
+                        budget=budget,
+                        params=params,
+                        conditional=False,
+                    )
+                except RequestFailedError as exc:
+                    failures.append(exc)
+                    break  # this instance is down or limiting us: go on with the next one
+                newest = cursor.get(key)
+                for status in result.data or []:
+                    card = status.get("card") or {}
+                    mentions += mentions_from(
+                        self.id,
+                        str(status.get("uri") or status.get("id")),
+                        [html_text(status.get("content")), card.get("url")],
+                        _iso_day(status.get("created_at")),
+                        int(status.get("favourites_count") or 0)
+                        + int(status.get("reblogs_count") or 0),
+                    )
+                    status_id = str(status.get("id"))
+                    if newest is None or (status_id.isdigit() and int(status_id) > int(newest)):
+                        newest = status_id
+                if newest:
+                    cursor[key] = newest
+        if failures and len(failures) == len(self.INSTANCES):
+            raise failures[0]
+        return mentions, []
+
+
+# ---------------------------------------------------------------------------------------------
+class Lemmy(SocialSource):
+    """Posts on developer-focused Lemmy instances (#61).
+
+    Their robots.txt asks for 60 s between requests, so each run sends one search per
+    instance and rotates the query between runs (cadence 60 min).
+    """
+
+    id = "lemmy"
+    cadence_minutes = 60
+    budget = 2
+    INSTANCES = ("programming.dev", "lemmy.world")
+    QUERIES = ("claude code", "mcp server", "agent skills")
+
+    def fetch(
+        self, http: HttpClient, budget: Budget, state: StateStore, settings: Settings, now: datetime
+    ) -> tuple[list[Mention], list[DemandItem]]:
+        cursor = state.cursor(self.id)
+        turn = int(cursor.get("turn", 0))
+        query = self.QUERIES[turn % len(self.QUERIES)]
+        cursor["turn"] = turn + 1
+        mentions: list[Mention] = []
+        failures: list[RequestFailedError] = []
+        for instance in self.INSTANCES:
             if not budget.can_spend():
                 break
-            params: dict[str, Any] = {"limit": 40}
-            if cursor.get(tag):
-                params["min_id"] = cursor[tag]
-            result = http.get(
-                f"{self.BASE}{tag}", source=self.id, budget=budget, params=params, conditional=False
-            )
-            newest = cursor.get(tag)
-            for status in result.data or []:
-                card = status.get("card") or {}
+            try:
+                result = http.get(
+                    f"https://{instance}/api/v3/search",
+                    source=self.id,
+                    budget=budget,
+                    params={
+                        "q": query,
+                        "type_": "Posts",
+                        "sort": "New",
+                        "listing_type": "All",
+                        "limit": 50,
+                    },
+                    conditional=False,
+                )
+            except RequestFailedError as exc:
+                failures.append(exc)
+                continue
+            for view in (result.data or {}).get("posts", []):
+                post = view.get("post") or {}
+                counts = view.get("counts") or {}
                 mentions += mentions_from(
                     self.id,
-                    str(status.get("id")),
-                    [html_text(status.get("content")), card.get("url")],
-                    _iso_day(status.get("created_at")),
-                    int(status.get("favourites_count") or 0)
-                    + int(status.get("reblogs_count") or 0),
+                    str(post.get("ap_id") or post.get("id")),
+                    [post.get("name"), post.get("body"), post.get("url")],
+                    _iso_day(post.get("published")),
+                    int(counts.get("score") or 0),
                 )
-                status_id = str(status.get("id"))
-                if newest is None or (status_id.isdigit() and int(status_id) > int(newest)):
-                    newest = status_id
-            if newest:
-                cursor[tag] = newest
+        if failures and len(failures) == len(self.INSTANCES):
+            raise failures[0]
         return mentions, []
 
 
@@ -488,6 +563,7 @@ ALL_SOURCES: tuple[type[SocialSource], ...] = (
     Reddit,
     DevTo,
     Mastodon,
+    Lemmy,
     Bluesky,
     YouTube,
 )

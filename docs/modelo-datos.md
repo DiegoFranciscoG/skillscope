@@ -79,6 +79,7 @@ erDiagram
 | `data/embeddings.bin` + `data/embeddings.json` | sitio | Sí | Vectores int8 de documentos y términos + mapa de ids, vocabulario e idf. |
 | `data/demand.json` | sitio | Sí | Preguntas de demanda (con atribución), temas y huecos. |
 | `data/signals.json` | sitio | Sí | Serie diaria compacta (60 días) por repo para las gráficas de tendencia. |
+| `data/candidates.json` | sitio | Sí | Hasta 5.000 repos descubiertos y aún sin analizar, por prioridad: `id`, descripción (`d`, texto saneado y con secretos redactados), temas (`t`), lenguaje (`l`), estrellas (`s`) y último push (`p`). Se descarga solo si una búsqueda encuentra poco en el índice. |
 | `feed.xml`, `feed.json` | sitio | Sí | Boletín RSS 2.0 y JSON Feed 1.1. |
 | `s/<owner>/<repo>/index.html`, `sitemap.xml`, `robots.txt`, `badge/<owner>/<repo>.svg` | sitio | Sí | Página estática por repo con schema.org, mapa del sitio e insignia. |
 | `data/state/live/catalog/<owner>__<repo>.json` | caché de Actions | No | Análisis completo por repo ligado al commit analizado (solo se reanaliza si cambia el commit o `ANALYZER_VERSION`). |
