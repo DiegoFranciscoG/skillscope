@@ -1,6 +1,6 @@
 """Analyzer against real public repositories from the seed list.
 
-Skipped by default. Run with a token:  GITHUB_TOKEN=... uv run pytest -m network
+Skipped by default. Run with a token:  SKILLSCOPE_GITHUB_TOKEN=... uv run pytest -m network
 Only metadata and the files the analyzer needs are fetched through the official API.
 """
 
@@ -30,7 +30,9 @@ REPOS = [
 pytestmark = pytest.mark.network
 
 
-@pytest.mark.skipif(not os.environ.get("GITHUB_TOKEN"), reason="needs GITHUB_TOKEN")
+@pytest.mark.skipif(
+    not os.environ.get("SKILLSCOPE_GITHUB_TOKEN"), reason="needs SKILLSCOPE_GITHUB_TOKEN"
+)
 def test_real_repositories_are_classified(tmp_path: Path) -> None:
     clock = SystemClock()
     state = StateStore(tmp_path / "state.json", clock)
@@ -42,7 +44,9 @@ def test_real_repositories_are_classified(tmp_path: Path) -> None:
         deadline=clock.monotonic() + 300,
     )
     gh = GitHubClient(
-        http, os.environ["GITHUB_TOKEN"], GitHubBudgets.from_settings(Budgets(rest=20, graphql=40))
+        http,
+        os.environ["SKILLSCOPE_GITHUB_TOKEN"],
+        GitHubBudgets.from_settings(Budgets(rest=20, graphql=40)),
     )
     metas = gh.repo_meta(REPOS, clock.now())
     snapshots = []

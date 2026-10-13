@@ -7,18 +7,18 @@ Los números `#n` remiten a [investigacion.md](investigacion.md). Límites consu
 
 | Fuente | Rol | Estado | Credencial | Límite oficial verificado | Presupuesto por ejecución (por defecto) | Cadencia propia |
 |---|---|---|---|---|---|---|
-| GitHub REST | Motor (árboles, búsqueda) | Activa | `GITHUB_TOKEN` (Actions) o token fino propio | 1.000/h por repo con `GITHUB_TOKEN`; 5.000/h con token personal (#12) | 140 llamadas | Cada build |
+| GitHub REST | Motor (árboles, búsqueda) | Activa | `SKILLSCOPE_GITHUB_TOKEN` (en Actions: `GITHUB_TOKEN` o un token fino propio) | 1.000/h por repo con `GITHUB_TOKEN`; 5.000/h con token personal (#12) | 140 llamadas | Cada build |
 | GitHub Search (repos) | Motor (descubrimiento) | Activa | Igual | 30/min, 1.000 resultados por consulta (#14) | 24 llamadas, ≥ 2,1 s entre llamadas | Cada build |
 | GitHub Search (código) | Motor (descubrimiento) | Activa si el token lo permite (S2) | Igual | 10/min, exige token (#14) | 5 llamadas, ≥ 6,5 s entre llamadas | Cada build |
 | GitHub GraphQL | Motor (metadatos y contenido) | Activa | Igual | 1.000 pts/h con `GITHUB_TOKEN`, 5.000 con token personal; 2.000 pts/min (#15) | 120 puntos | Cada build |
 | npm downloads | Adopción (descargas) | Activa | Ninguna | No publicado (S4) | 30 llamadas, caché 24 h | Cada build |
 | Hacker News (Algolia) | Señal social | Activa | Ninguna | 10.000/h por IP (#31) | 6 llamadas | Cada build |
-| Stack Exchange | Señal de **demanda** y menciones | Activa | `STACKEXCHANGE_KEY` opcional | 300/día por IP sin clave; respetar `backoff`; no repetir consulta en < 1 min (#32) | 6 llamadas | Cada 120 min |
-| Reddit | Señal social y demanda | **Apagada** salvo credenciales aprobadas (S5) | `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT` | 100 QPM por client id (#36) | 10 llamadas | Cada 60 min |
+| Stack Exchange | Señal de **demanda** y menciones | Activa | `SKILLSCOPE_STACKEXCHANGE_KEY` opcional | 300/día por IP sin clave; respetar `backoff`; no repetir consulta en < 1 min (#32) | 6 llamadas | Cada 120 min |
+| Reddit | Señal social y demanda | **Apagada** salvo credenciales aprobadas (S5) | `SKILLSCOPE_REDDIT_CLIENT_ID`, `SKILLSCOPE_REDDIT_CLIENT_SECRET`, `SKILLSCOPE_REDDIT_USER_AGENT` | 100 QPM por client id (#36) | 10 llamadas | Cada 60 min |
 | DEV (Forem) | Señal social | Activa | Ninguna | No publicado; API pública (#42) | 2 listados + 10 artículos | Cada 60 min |
 | Mastodon (mastodon.social) | Señal social | Activa | Ninguna | 300 / 5 min por IP (#40) | 4 llamadas | Cada 30 min |
-| Bluesky | Señal social | Opcional (E2) | `BLUESKY_HANDLE`, `BLUESKY_APP_PASSWORD` | 3.000 / 5 min por IP; 300 sesiones/día (#38) | 1 sesión + 3 búsquedas | Cada 120 min |
-| YouTube Data API | Señal social | Opcional | `YOUTUBE_API_KEY` | 100 `search.list`/día (#37) | 2 búsquedas + 1 `videos.list` | Cada 180 min (≤ 16 búsquedas/día) |
+| Bluesky | Señal social | Opcional (E2) | `SKILLSCOPE_BLUESKY_HANDLE`, `SKILLSCOPE_BLUESKY_APP_PASSWORD` | 3.000 / 5 min por IP; 300 sesiones/día (#38) | 1 sesión + 3 búsquedas | Cada 120 min |
+| YouTube Data API | Señal social | Opcional | `SKILLSCOPE_YOUTUBE_API_KEY` | 100 `search.list`/día (#37) | 2 búsquedas + 1 `videos.list` | Cada 180 min (≤ 16 búsquedas/día) |
 | X | — | **Descartada** | — | Sin nivel gratuito utilizable (#44) | — | — |
 | Instagram / Facebook | — | **Descartadas** | — | Solo API oficial con cuenta de empresa propia y revisión de app; recolección automatizada prohibida sin permiso escrito (#45, #46) | — | — |
 

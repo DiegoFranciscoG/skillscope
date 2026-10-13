@@ -91,10 +91,14 @@ def load_settings(
     out_dir: Path | None = None,
 ) -> Settings:
     """Read settings from ``env``. Online builds need a token and a public site URL."""
-    token = None if offline else _opt(env, "GITHUB_TOKEN")
+    token = None if offline else _opt(env, "SKILLSCOPE_GITHUB_TOKEN")
     site = _opt(env, "SKILLSCOPE_SITE_URL")
     if not offline:
-        missing = [k for k, v in (("GITHUB_TOKEN", token), ("SKILLSCOPE_SITE_URL", site)) if not v]
+        missing = [
+            k
+            for k, v in (("SKILLSCOPE_GITHUB_TOKEN", token), ("SKILLSCOPE_SITE_URL", site))
+            if not v
+        ]
         if missing:
             raise ConfigError(
                 "Faltan variables obligatorias para el modo en línea: " + ", ".join(missing)
@@ -122,13 +126,13 @@ def load_settings(
         SocialCredentials()
         if offline
         else SocialCredentials(
-            stackexchange_key=_opt(env, "STACKEXCHANGE_KEY"),
-            reddit_client_id=_opt(env, "REDDIT_CLIENT_ID"),
-            reddit_client_secret=_opt(env, "REDDIT_CLIENT_SECRET"),
-            reddit_user_agent=_opt(env, "REDDIT_USER_AGENT"),
-            bluesky_handle=_opt(env, "BLUESKY_HANDLE"),
-            bluesky_app_password=_opt(env, "BLUESKY_APP_PASSWORD"),
-            youtube_api_key=_opt(env, "YOUTUBE_API_KEY"),
+            stackexchange_key=_opt(env, "SKILLSCOPE_STACKEXCHANGE_KEY"),
+            reddit_client_id=_opt(env, "SKILLSCOPE_REDDIT_CLIENT_ID"),
+            reddit_client_secret=_opt(env, "SKILLSCOPE_REDDIT_CLIENT_SECRET"),
+            reddit_user_agent=_opt(env, "SKILLSCOPE_REDDIT_USER_AGENT"),
+            bluesky_handle=_opt(env, "SKILLSCOPE_BLUESKY_HANDLE"),
+            bluesky_app_password=_opt(env, "SKILLSCOPE_BLUESKY_APP_PASSWORD"),
+            youtube_api_key=_opt(env, "SKILLSCOPE_YOUTUBE_API_KEY"),
         )
     )
     return Settings(
