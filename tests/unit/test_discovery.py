@@ -5,7 +5,13 @@ import httpx
 
 from collector.frontier import Frontier
 from collector.github.client import GitHubBudgets, GitHubClient
-from collector.github.discovery import TOPIC_QUERIES, Discovery, _split_dates, _split_sizes
+from collector.github.discovery import (
+    FRONTIER_FULL,
+    TOPIC_QUERIES,
+    Discovery,
+    _split_dates,
+    _split_sizes,
+)
 from pipeline.config import Budgets
 from tests.support import NOW, make_harness
 
@@ -96,3 +102,19 @@ def test_excluded_repos_never_enter_frontier(tmp_path: Path) -> None:
     assert frontier.add("ok/repo", via="y", stars=5)
     entry = frontier.items["ok/repo"]
     assert entry["via"] == ["x", "y"] and entry["stars"] == 10
+
+
+def test_long_queue_defers_the_wide_crawl(tmp_path: Path) -> None:
+    log: list[str] = []
+    h = make_harness(tmp_path, handler=_fake_search(log))
+    budgets = GitHubBudgets.from_settings(Budgets(search=20, code_search=5))
+    gh = GitHubClient(h.http, "test-token", budgets)
+    frontier = Frontier(h.state, NOW)
+    for i in range(FRONTIER_FULL):
+        frontier.add(f"queued/r{i}", via="seed")
+
+    report = Discovery(gh, h.state, frontier, NOW, excluded=set()).run()
+
+    assert report.crawl_deferred
+    assert budgets.search.used <= 5  # a quarter of the search budget, for fresh repos only
+    assert budgets.code_search.used == 0

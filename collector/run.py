@@ -11,7 +11,7 @@ from collector.frontier import Frontier
 from collector.github.client import GitHubBudgets, GitHubClient
 from collector.github.discovery import Discovery
 from collector.github.enrich import Enricher
-from collector.http import HttpClient, RequestFailedError
+from collector.http import DEADLINE_MESSAGE, HttpClient, RequestFailedError
 from collector.snapshots import SnapshotStore
 from collector.state import StateStore
 from pipeline import optout
@@ -99,19 +99,24 @@ def collect_github(
             "queries": discovery.queries,
             "found": discovery.found,
             "added": discovery.added,
+            "crawl_deferred": discovery.crawl_deferred,
         },
         "enrich": {
             "refreshed": enrich.refreshed,
             "analyzed": enrich.analyzed,
             "unchanged": enrich.unchanged,
             "no_artifacts": enrich.no_artifacts,
+            "internal": enrich.internal,
             "gone": enrich.gone,
         },
         "frontier": len(frontier),
     }
-    errors = discovery.errors + enrich.errors
+    # Running out of build time is the normal end of a build, not a failure: the queue waits.
+    errors = [e for e in discovery.errors + enrich.errors if DEADLINE_MESSAGE not in e]
+    report.details["deadline_reached"] = len(errors) < len(discovery.errors + enrich.errors)
     if errors:
         report.status = "partial"
         report.reason = errors[0][:200]
         report.details["errors"] = len(errors)
+        report.details["first_errors"] = [error[:200] for error in errors[:3]]
     return GitHubRun(report, excluded)

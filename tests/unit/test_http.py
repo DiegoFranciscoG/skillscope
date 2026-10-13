@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import httpx
 import pytest
@@ -179,3 +180,34 @@ def test_seconds_until_reset_formats() -> None:
         == 300
     )
     assert seconds_until_reset(httpx.Headers({}), now) is None
+
+
+def test_slow_answers_make_the_source_wait_as_long_as_they_took(tmp_path: Path) -> None:
+    calls: list[float] = []
+    holder: dict[str, Any] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        clock = holder["h"].clock
+        calls.append(clock.monotonic())
+        clock.sleep(3.0)  # the server needs 3 s to answer
+        return httpx.Response(200, json={})
+
+    h = make_harness(tmp_path, handler=httpx.MockTransport(handler))
+    holder["h"] = h
+    h.http.cooldown = {"github": 1.0}
+    budget = Budget("x", 5)
+    h.http.get(URL, source="github", budget=budget, conditional=False)
+    h.http.get(URL, source="github", budget=budget, conditional=False)
+    h.http.get(URL, source="other", budget=Budget("y", 5), conditional=False)
+
+    assert calls[1] - calls[0] >= 6.0  # 3 s answering + 3 s idle
+    assert calls[2] - calls[1] == 3.0  # other sources are not slowed down
+
+
+def test_server_errors_can_be_handed_back_without_retrying(tmp_path: Path) -> None:
+    seen: list[httpx.Request] = []
+    h = make_harness(tmp_path, handler=_transport([httpx.Response(502)], seen))
+    with pytest.raises(RequestFailedError) as info:
+        h.http.post(URL, source="t", budget=Budget("x", 5), retry_server_errors=False)
+    assert info.value.status == 502
+    assert len(seen) == 1

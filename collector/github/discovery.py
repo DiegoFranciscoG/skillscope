@@ -53,6 +53,7 @@ PER_PAGE = 100
 EPOCH = date(2015, 1, 1)
 MAX_FILE_SIZE = 400_000
 RECRAWL_DAYS = 7
+FRONTIER_FULL = 300  # candidates waiting; above this, discovery only looks for fresh repos
 
 
 @dataclass(slots=True)
@@ -60,6 +61,7 @@ class DiscoveryReport:
     queries: int = 0
     found: int = 0
     added: int = 0
+    crawl_deferred: bool = False
     errors: list[str] = field(default_factory=list)
 
 
@@ -247,6 +249,12 @@ class Discovery:
         return done_at is None or self.now - done_at >= timedelta(days=RECRAWL_DAYS)
 
     def run(self) -> DiscoveryReport:
+        """Look for new repositories. With a long queue only recent ones are searched, so the
+        build spends its time analyzing what it already found (search is the slowest API)."""
+        if len(self.frontier) >= FRONTIER_FULL:
+            self.report.crawl_deferred = True
+            self.freshness(max(1, int(self.gh.budgets.search.remaining * 0.25)))
+            return self.report
         fresh_quota = max(1, int(self.gh.budgets.search.remaining * 0.4))
         self.freshness(fresh_quota)
         self.crawl_topics()

@@ -25,6 +25,8 @@ from pipeline.stages import analyze_pending
 
 log = logging.getLogger("skillscope.build")
 
+SOURCES_RESERVE_S = 60.0  # seconds kept for social sources and npm after GitHub
+
 
 @dataclass(slots=True)
 class BuildResult:
@@ -43,9 +45,15 @@ def run_build(ctx: Context, out_dir: Path, root: Path) -> BuildResult:
     signals = SignalStore(settings.state_dir)
     reports: list[dict[str, Any]] = []
 
-    github = collect_github(
-        settings, ctx.clock, ctx.http, ctx.state, ctx.snapshots, root, ctx.catalog
-    )
+    # GitHub can always use more time; keep a slice for the social sources and npm after it.
+    full_deadline = ctx.http.deadline
+    ctx.http.deadline = full_deadline - min(SOURCES_RESERVE_S, 0.2 * settings.max_seconds)
+    try:
+        github = collect_github(
+            settings, ctx.clock, ctx.http, ctx.state, ctx.snapshots, root, ctx.catalog
+        )
+    finally:
+        ctx.http.deadline = full_deadline
     reports.append(github.report.to_dict())
 
     for source_class in ALL_SOURCES:
@@ -58,6 +66,8 @@ def run_build(ctx: Context, out_dir: Path, root: Path) -> BuildResult:
 
     analyzed = analyze_pending(ctx.snapshots, ctx.catalog, ctx.state, ctx.clock.now())
     reports[0].setdefault("details", {})["analysis"] = asdict(analyzed)
+    for line in github_digest(reports[0]):
+        log.info("github: %s", line)
 
     records = list(ctx.catalog)
     excluded = set(github.excluded) | {
@@ -130,5 +140,47 @@ def _step_summary(
         reason = str(report.get("reason") or "").replace("|", "/")
         status = report.get("status", "ok")
         lines.append(f"| {report['id']} | {status} | {report.get('calls', 0)} | {reason} |")
+    github = next((r for r in reports if r.get("id") == "github"), None)
+    if github:
+        lines += ["", "**GitHub**", ""] + [f"- {line}" for line in github_digest(github)]
     with open(path, "a", encoding="utf-8") as fh:
         fh.write("\n".join(lines) + "\n")
+
+
+def github_digest(report: dict[str, Any]) -> list[str]:
+    """Human summary of the GitHub collection: budgets, discovery, analysis and first errors."""
+    details = report.get("details") or {}
+    lines: list[str] = []
+    budgets = details.get("budgets") or {}
+    if budgets:
+        parts = []
+        for name, budget in budgets.items():
+            part = f"{name} {budget.get('used', 0)}/{budget.get('budget', 0)}"
+            if budget.get("closed"):
+                part += f" (cerrado: {budget['closed']})"
+            parts.append(part)
+        lines.append("presupuesto " + ", ".join(parts))
+    found = details.get("discovery") or {}
+    if found:
+        deferred = " · búsqueda amplia diferida (cola llena)" if found.get("crawl_deferred") else ""
+        lines.append(
+            f"descubrimiento {found.get('queries', 0)} consultas, {found.get('found', 0)} "
+            f"encontrados, {found.get('added', 0)} nuevos en cola{deferred}"
+        )
+    enrich = details.get("enrich") or {}
+    if enrich:
+        lines.append(
+            f"enriquecimiento {enrich.get('analyzed', 0)} descargados, "
+            f"{enrich.get('refreshed', 0)} actualizados, {enrich.get('unchanged', 0)} sin cambios, "
+            f"{enrich.get('no_artifacts', 0)} sin artefactos, "
+            f"{enrich.get('internal', 0)} con skills solo internas, "
+            f"cola {details.get('frontier', 0)}"
+        )
+    analysis = details.get("analysis") or {}
+    if analysis:
+        lines.append(
+            f"análisis {analysis.get('analyzed', 0)} repos, {analysis.get('failed', 0)} fallidos"
+        )
+    for error in details.get("first_errors") or []:
+        lines.append(f"error: {error}")
+    return lines

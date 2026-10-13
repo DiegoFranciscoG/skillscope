@@ -221,6 +221,7 @@ class GitHubClient:
             json_body={"query": query, "variables": variables},
             headers=self._headers,
             cost=cost_hint,
+            retry_server_errors=False,  # callers split the batch instead of repeating it
         )
         payload = result.data or {}
         data = payload.get("data")

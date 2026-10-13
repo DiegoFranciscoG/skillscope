@@ -2,7 +2,9 @@
 
 Responsibilities, in order:
 1. Refuse to call when the build deadline or the source budget is reached.
-2. Pace calls (minimum interval per budget) and send them one at a time.
+2. Pace calls (minimum interval per budget) and send them one at a time. For sources with a
+   cool-down factor, wait ``factor × response time`` after each answer: GitHub caps server CPU
+   time per minute and says it is roughly the response time (docs/investigacion.md #12).
 3. Send ``If-None-Match`` / ``If-Modified-Since`` and serve 304 answers from the raw store.
 4. Read rate-limit headers and close the budget before the API reserve is touched.
 5. Retry transient failures with exponential back-off and jitter; honour ``Retry-After``.
@@ -32,6 +34,7 @@ SECRET_PARAMS = frozenset(
     {"key", "access_token", "api_key", "apikey", "token", "client_secret", "password"}
 )
 RETRYABLE_STATUS = frozenset({500, 502, 503, 504})
+DEADLINE_MESSAGE = "build deadline reached"
 
 
 class RequestFailedError(Exception):
@@ -118,7 +121,8 @@ class HttpClient:
         deadline: float,
         rng: random.Random | None = None,
         max_retries: int = 3,
-        max_wait: float = 90.0,
+        max_wait: float = 120.0,
+        cooldown: Mapping[str, float] | None = None,
     ) -> None:
         self.client = client
         self.state = state
@@ -128,6 +132,8 @@ class HttpClient:
         self.rng = rng or random.Random(0)  # noqa: S311 - jitter, not cryptography
         self.max_retries = max_retries
         self.max_wait = max_wait
+        self.cooldown = dict(cooldown or {})
+        self._free_at: dict[str, float] = {}
 
     # -- public -----------------------------------------------------------------------------
     def get(
@@ -166,8 +172,14 @@ class HttpClient:
         cost: int = 1,
         auth: tuple[str, str] | None = None,
         store_raw: bool = True,
+        retry_server_errors: bool = True,
     ) -> HttpResult:
-        """POST request. Use ``store_raw=False`` for login endpoints: tokens never touch disk."""
+        """POST request. Use ``store_raw=False`` for login endpoints: tokens never touch disk.
+
+        ``retry_server_errors=False`` hands a 5xx straight back to the caller, which can split
+        an expensive query instead of repeating it (a GraphQL query that timed out once will
+        time out again).
+        """
         body: dict[str, Any] = {"json": json_body} if form is None else {"data": dict(form)}
         if auth is not None:
             body["auth"] = auth
@@ -183,18 +195,29 @@ class HttpClient:
             free_on_304=False,
             cost=cost,
             store_raw=store_raw,
+            retry_server_errors=retry_server_errors,
         )
 
     def remaining_seconds(self) -> float:
         return self.deadline - self.clock.monotonic()
 
     # -- internals --------------------------------------------------------------------------
-    def _pace(self, budget: Budget) -> None:
+    def _pace(self, budget: Budget, source: str) -> None:
         if budget.min_interval and budget.last_call_at is not None:
             wait = budget.last_call_at + budget.min_interval - self.clock.monotonic()
             if wait > 0:
                 self.clock.sleep(wait)
+        free_at = self._free_at.get(source, 0.0)
+        if free_at > self.clock.monotonic():
+            self.clock.sleep(free_at - self.clock.monotonic())
         budget.last_call_at = self.clock.monotonic()
+
+    def _cool_down(self, source: str, started: float) -> None:
+        """After a slow answer, keep the source idle for ``factor ×`` the time it took."""
+        factor = self.cooldown.get(source, 0.0)
+        if factor > 0:
+            now = self.clock.monotonic()
+            self._free_at[source] = now + (now - started) * factor
 
     def _backoff(self, attempt: int) -> float:
         return float(min(30.0, (2**attempt) * self.rng.uniform(0.5, 1.5)))
@@ -220,6 +243,7 @@ class HttpClient:
         free_on_304: bool,
         cost: int,
         store_raw: bool = True,
+        retry_server_errors: bool = True,
     ) -> HttpResult:
         key = f"{method} {sanitize_url(url, params)}"
         cached = self.state.resource(key) if conditional else None
@@ -233,17 +257,19 @@ class HttpClient:
         attempt = 0
         while True:
             if self.remaining_seconds() <= 0:
-                raise DeadlineReachedError(source, None, "build deadline reached")
+                raise DeadlineReachedError(source, None, DEADLINE_MESSAGE)
             try:
                 budget.ensure(cost)
             except BudgetExhaustedError as exc:
                 raise RequestFailedError(source, None, str(exc)) from exc
-            self._pace(budget)
+            self._pace(budget, source)
+            started = self.clock.monotonic()
             try:
                 response = self.client.request(
                     method, url, params=params, headers=send_headers, **(body or {})
                 )
             except httpx.HTTPError as exc:
+                self._cool_down(source, started)
                 budget.spend(cost)
                 if attempt >= self.max_retries:
                     raise RequestFailedError(source, None, f"network error: {exc}") from exc
@@ -251,6 +277,7 @@ class HttpClient:
                 attempt += 1
                 continue
 
+            self._cool_down(source, started)
             status = response.status_code
             budget.observe(
                 _int_header(response.headers, "x-ratelimit-remaining"),
@@ -290,7 +317,7 @@ class HttpClient:
                 attempt += 1
                 continue
 
-            if status in RETRYABLE_STATUS and attempt < self.max_retries:
+            if status in RETRYABLE_STATUS and retry_server_errors and attempt < self.max_retries:
                 self.clock.sleep(self._backoff(attempt))
                 attempt += 1
                 continue
