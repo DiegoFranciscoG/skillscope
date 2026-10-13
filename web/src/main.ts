@@ -122,7 +122,7 @@ function selectTab(tab: Tab): void {
 }
 
 // ---- main view -----------------------------------------------------------------------------------
-const BEYOND_BELOW = 3; // fewer good matches than this: also search beyond the index
+const BEYOND_BELOW = 3; // fewer exact matches than this: also search beyond the index
 const liveSearch = new LiveSearch((input, init) => fetch(input, init));
 
 function rowContext(state: State): RowContext {
@@ -169,7 +169,7 @@ function renderView(state: State): void {
     const result = ensureEngine(state)!.search(state.query);
     renderSearch(ui.view, result, rowContext(state), () => selectTab("gaps"));
     // Never stop at the index: with few good matches, look in the queue and offer GitHub.
-    if (result.exact.length + result.similar.length < BEYOND_BELOW) {
+    if (result.exact.length < BEYOND_BELOW) {
       const analyzed = new Set(data.items.map((item) => item.id.toLowerCase()));
       renderBeyond(ui.view, state.query, {
         loadCandidates: () => cache.loadCandidates(),

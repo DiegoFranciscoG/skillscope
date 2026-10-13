@@ -11,6 +11,10 @@ const W_LEX = 0.35;
 const W_SCORE = 0.2;
 const BLOCK_SIZE = 8;
 const TOGETHER_SIZE = 6;
+// "Se le parece" (measured on the live index, 2026-10-13): documents about agents share a
+// semantic background of ~0.40-0.45, while genuine matches score 0.5-0.85.
+const SIMILAR_SEM_WITH_WORDS = 0.3; // shares query words and some meaning
+const SIMILAR_SEM_ALONE = 0.55; // no shared word: only clearly related meaning counts
 
 export interface Hit {
   item: Item;
@@ -44,6 +48,12 @@ export function documentFields(item: Item, labels: Record<string, string>): BmFi
 }
 
 type BmFields = ReadonlyArray<readonly [string[], number]>;
+
+/** "Se le parece": shares part of the query and some meaning, or clearly related meaning. */
+export function similarEnough(hit: Pick<Hit, "lex" | "sem" | "coverage">, semantic: boolean): boolean {
+  if (!semantic) return hit.coverage >= 0.5 && hit.lex >= 0.2; // meaning not loaded yet
+  return (hit.coverage >= 1 / 3 && hit.sem >= SIMILAR_SEM_WITH_WORDS) || hit.sem >= SIMILAR_SEM_ALONE;
+}
 
 export class SearchEngine {
   private readonly index: Bm25Index;
@@ -111,11 +121,7 @@ export class SearchEngine {
       .slice(0, BLOCK_SIZE);
     const shown = new Set(exact.map((h) => h.item.id));
     const similar = hits
-      .filter(
-        (h) =>
-          !shown.has(h.item.id) &&
-          ((h.coverage >= 1 / 3 && (h.sem >= 0.2 || h.lex >= 0.2)) || h.sem >= 0.4),
-      )
+      .filter((h) => !shown.has(h.item.id) && similarEnough(h, semantic))
       .slice(0, BLOCK_SIZE);
     similar.forEach((h) => shown.add(h.item.id));
 

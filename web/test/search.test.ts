@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { Bm25Index } from "../src/search/bm25";
 import { Embeddings } from "../src/search/embeddings";
-import { cleanQuery, MAX_QUERY, SearchEngine } from "../src/search/hybrid";
+import { cleanQuery, MAX_QUERY, SearchEngine, similarEnough } from "../src/search/hybrid";
 import { stem, tokens } from "../src/search/tokenize";
 import { encodeEmbeddings, item } from "./fixtures";
 
@@ -135,5 +135,21 @@ describe("search by need", () => {
     expect(result.semantic).toBe(true);
     expect(result.exact.length + result.similar.length).toBeGreaterThan(0);
     expect(elapsed).toBeLessThan(100);
+  });
+});
+
+describe("similar results (thresholds measured on the live index)", () => {
+  it("drops background semantic noise and keeps real partial matches", () => {
+    // facturación electrónica Ecuador: unrelated skills at sem 0.42-0.45 without a shared word
+    expect(similarEnough({ lex: 0, sem: 0.45, coverage: 0 }, true)).toBe(false);
+    // base de datos postgres: a Postgres guide with no shared word but clear meaning
+    expect(similarEnough({ lex: 0, sem: 0.65, coverage: 0 }, true)).toBe(true);
+    // one shared word and some meaning: a partial answer
+    expect(similarEnough({ lex: 0.5, sem: 0.38, coverage: 1 / 3 }, true)).toBe(true);
+    // one shared word but no meaning in common
+    expect(similarEnough({ lex: 1, sem: 0.14, coverage: 1 / 3 }, true)).toBe(false);
+    // before embeddings load, half of the words are needed
+    expect(similarEnough({ lex: 0.9, sem: 0, coverage: 1 / 3 }, false)).toBe(false);
+    expect(similarEnough({ lex: 0.9, sem: 0, coverage: 0.5 }, false)).toBe(true);
   });
 });
