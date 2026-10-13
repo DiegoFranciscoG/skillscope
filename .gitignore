@@ -35,6 +35,7 @@ data/raw/
 data/state/
 site/
 _site/
+docs/img/frames/
 
 # ---- IDE / SO
 .idea/
