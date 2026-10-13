@@ -39,7 +39,13 @@ jobs:
           age=999999
           if [ -n "$last" ]; then age=$(( (now - $(date -u -d "$last" +%s)) / 60 )); fi
           echo "Minutes since the last successful build: $age" >> "$GITHUB_STEP_SUMMARY"
-          if [ "$age" -le "$MAX_AGE_MINUTES" ]; then exit 0; fi
+          if [ "$age" -le "$MAX_AGE_MINUTES" ]; then
+            # Healthy again: close old alerts so the next outage opens a fresh one.
+            for number in $(gh issue list --state open --label keepalive --json number --jq '.[].number'); do
+              gh issue close "$number" --comment "Recuperado: el último build exitoso fue hace ${age} min."
+            done
+            exit 0
+          fi
 
           gh api -X PUT "repos/$GH_REPO/actions/workflows/build.yml/enable"
           gh workflow run build.yml --ref "$GITHUB_REF_NAME"

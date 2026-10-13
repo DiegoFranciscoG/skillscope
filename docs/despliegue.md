@@ -23,6 +23,7 @@ sociales que no piden clave (Hacker News, Stack Exchange sin clave, DEV, Mastodo
 | Nombre | Tipo | Para qué | Cómo obtenerlo |
 |---|---|---|---|
 | `SKILLSCOPE_GH_TOKEN` | Secreto | Sube el presupuesto de 1.000 a 5.000 llamadas REST/h (#12). | Token *fine-grained* con acceso **Public repositories (read-only)** y **ningún** permiso adicional. |
+| `SKILLSCOPE_BUDGET_REST` / `SKILLSCOPE_BUDGET_GRAPHQL` | Variable | Llamadas por build. Por defecto 140 / 120 (pensado para el token de Actions); con token propio se usan 260 / 220 (≈ 1.800 y 1.500 por hora a 7 builds/h, bajo las 5.000 del token). El pipeline igual recorta a la cuota real que informa GitHub. | `gh variable set SKILLSCOPE_BUDGET_REST --body 260` |
 | `SKILLSCOPE_SITE_URL` | Variable | Solo si usas dominio propio; si no, se toma de `configure-pages`. | — |
 | `SKILLSCOPE_STACKEXCHANGE_KEY` | Secreto | Cuota diaria de la app en vez de 300 por IP (#32). | Registrar la app en Stack Apps (#33). |
 | `SKILLSCOPE_YOUTUBE_API_KEY` | Secreto | Menciones en YouTube (#37). | Clave de API restringida a *YouTube Data API v3*. |
@@ -88,3 +89,9 @@ gastar y deja un 10 % de reserva.
 
 Ver la sección «Cómo ejecutar en local» del [README](../README.md): `docker compose up --build`
 levanta el sitio con los datos ficticios de `data/samples` en `http://localhost:8080`.
+
+## 6. Dependencias
+
+Dependabot propone actualizaciones semanales de uv, npm, Actions y Docker, pero solo dentro de las
+líneas estables: Python 3.14 (3.15 aún sin ruedas de PyYAML, #50), Node 24 LTS (Node 26 sigue como
+*Current*, #48) y la rama estable de nginx (1.30.x; las versiones impares son *mainline*).

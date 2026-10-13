@@ -22,3 +22,12 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Stable lines only: Python 3.14 (PyYAML has no 3.15 wheels yet, investigación #50),
+      # Node 24 LTS (26 is still "Current", #48) and the nginx stable branch (1.30.x).
+      - dependency-name: "python"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "nginxinc/nginx-unprivileged"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
