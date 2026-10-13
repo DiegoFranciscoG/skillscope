@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 from html import escape
 from pathlib import Path
 
@@ -34,6 +35,7 @@ def badge(score: int, label: str = "Skillscope") -> str:
 
 
 def write(data: SiteData, out_dir: Path) -> int:
+    shutil.rmtree(out_dir / "badge", ignore_errors=True)  # no badge outlives its repository
     count = 0
     for entry in data.entries:
         meta = entry.analysis.meta

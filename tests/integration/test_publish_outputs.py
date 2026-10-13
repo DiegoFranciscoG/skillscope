@@ -33,8 +33,10 @@ def test_feeds_sitemap_pages_and_badges(tmp_path: Path) -> None:
     assert len(urls.findall("s:url", ns)) == result.published + 1
     assert "Sitemap: http://localhost:8080/sitemap.xml" in (site / "robots.txt").read_text()
 
-    page = (site / "s" / "nimbus-labs" / "pr-review-kit" / "index.html").read_text(encoding="utf-8")
-    assert "<h1>nimbus-labs/pr-review-kit</h1>" in page
+    page = (site / "s" / "demo_nimbus-labs" / "pr-review-kit" / "index.html").read_text(
+        encoding="utf-8"
+    )
+    assert "<h1>demo_nimbus-labs/pr-review-kit</h1>" in page
     assert 'http-equiv="Content-Security-Policy"' in page
     match = re.search(r'<script type="application/ld\+json">(.*?)</script>', page, re.S)
     assert match is not None
@@ -43,8 +45,9 @@ def test_feeds_sitemap_pages_and_badges(tmp_path: Path) -> None:
     assert "codeRepository" not in structured  # fictional sample repositories never link out
     for heading in ("Qué hace", "Cuándo usarla", "Cómo se instala", "Qué riesgos tiene"):
         assert f"<h2>{heading}</h2>" in page
+    assert re.search(r"<li>Adopción: \d+(,\d)? de 20</li>", page)
 
-    svg = (site / "badge" / "nimbus-labs" / "pr-review-kit.svg").read_text(encoding="utf-8")
+    svg = (site / "badge" / "demo_nimbus-labs" / "pr-review-kit.svg").read_text(encoding="utf-8")
     assert ET.fromstring(svg).get("role") == "img"
 
 
@@ -61,3 +64,13 @@ def test_badge_and_safe_paths() -> None:
     assert not safe_path("acme", "..")
     assert not safe_path("../etc", "x")
     assert not safe_path("acme", "a/b")
+
+
+def test_stale_pages_and_badges_are_removed(tmp_path: Path) -> None:
+    stale_page = tmp_path / "site" / "s" / "gone" / "repo" / "index.html"
+    stale_badge = tmp_path / "site" / "badge" / "gone" / "repo.svg"
+    for path in (stale_page, stale_badge):
+        path.parent.mkdir(parents=True)
+        path.write_text("old", encoding="utf-8")
+    build(tmp_path)
+    assert not stale_page.exists() and not stale_badge.exists()

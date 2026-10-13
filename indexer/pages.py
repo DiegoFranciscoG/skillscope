@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 from datetime import datetime
 from html import escape
 from pathlib import Path
@@ -23,6 +24,11 @@ PAGE_CSP = (
     "form-action 'none'; require-trusted-types-for 'script'"
 )
 RISK_TEXT = ("sin banderas de riesgo", "riesgo bajo", "riesgo medio", "riesgo alto")
+
+
+def _decimal(value: float) -> str:
+    """One decimal with a Spanish comma: 16.77 -> "16,8"."""
+    return f"{value:.1f}".replace(".", ",").removesuffix(",0")
 
 
 def _json_ld(data: dict[str, Any]) -> str:
@@ -74,7 +80,8 @@ def page(entry: Entry, data: SiteData, now: datetime) -> str:
         else f'<p><a href="{escape(meta.url)}" rel="noopener noreferrer">Ver en GitHub</a></p>'
     )
     components = "".join(
-        f"<li>{escape(c.label)}: {c.points:g} / {c.max:g}</li>" for c in entry.score.components
+        f"<li>{escape(c.label)}: {_decimal(c.points)} de {c.max:g}</li>"
+        for c in entry.score.components
     )
     description = escape(a.summary(now))
     level = (a.risk_penalty > 0) + (a.risk_penalty >= 6) + (a.risk_penalty >= 13)
@@ -131,6 +138,8 @@ def safe_path(owner: str, name: str) -> bool:
 
 
 def write(data: SiteData, out_dir: Path, now: datetime) -> int:
+    # Start clean: a repository that left the index (opt-out, deleted) must lose its page too.
+    shutil.rmtree(out_dir / "s", ignore_errors=True)
     count = 0
     for entry in data.entries:
         meta = entry.analysis.meta
