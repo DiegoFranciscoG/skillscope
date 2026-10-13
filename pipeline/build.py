@@ -96,6 +96,8 @@ def run_build(ctx: Context, out_dir: Path, root: Path) -> BuildResult:
         excluded=excluded,
         index_max=settings.index_max,
         sample_mode=settings.offline,
+        queue=ctx.state.data.get("frontier") or {},
+        velocity=ctx.state.data.get("velocity") or {},
     )
     files = index.write(site, out_dir, now)
     feeds.write(site, out_dir, now)
@@ -191,6 +193,8 @@ def github_digest(report: dict[str, Any]) -> list[str]:
             f"{enrich.get('internal', 0)} con skills solo internas, "
             f"cola {details.get('frontier', 0)}"
         )
+    if "velocity" in details:
+        lines.append(f"tendencias {details['velocity']} repos con estrellas de la semana medidas")
     analysis = details.get("analysis") or {}
     if analysis:
         lines.append(

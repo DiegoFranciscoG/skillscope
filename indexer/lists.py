@@ -8,6 +8,7 @@ LIST_SIZE = 50
 SAFE_MIN_SCORE = 40
 NEEDED_MIN_SCORE = 50
 NO_ARTIFACT_TYPES = frozenset({"awesome_list", "template"})
+NEW_DAYS = 30
 
 
 @dataclass(slots=True)
@@ -24,6 +25,7 @@ class Ranked:
     stars: int
     mentions_30d: float
     trend: float
+    created_days: float | None = None  # age of the repository on GitHub
 
 
 def _ids(items: list[Ranked]) -> list[str]:
@@ -37,6 +39,12 @@ def most_used(items: list[Ranked]) -> list[str]:
 def most_mentioned(items: list[Ranked]) -> list[str]:
     mentioned = [i for i in items if i.mentions_30d > 0]
     return _ids(sorted(mentioned, key=lambda i: (-i.mentions_30d, -i.social, i.id)))
+
+
+def newest(items: list[Ranked]) -> list[str]:
+    """Created on GitHub in the last 30 days, best score first: what to try this month."""
+    recent = [i for i in items if i.created_days is not None and i.created_days <= NEW_DAYS]
+    return _ids(sorted(recent, key=lambda i: (-i.total, -i.stars, i.id)))
 
 
 def trending(items: list[Ranked]) -> list[str]:
@@ -79,6 +87,7 @@ def most_needed(items: list[Ranked], demand: dict[str, float]) -> list[dict[str,
 
 def all_lists(items: list[Ranked], demand: dict[str, float]) -> dict[str, object]:
     return {
+        "newest": newest(items),
         "most_used": most_used(items),
         "most_mentioned": most_mentioned(items),
         "trending": trending(items),

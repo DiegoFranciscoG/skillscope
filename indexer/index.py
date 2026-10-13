@@ -8,6 +8,7 @@ supply and gaps → ranking and lists → files.
 from __future__ import annotations
 
 import hashlib
+import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -38,6 +39,11 @@ from pipeline.models import DemandItem, Mention
 from pipeline.signals import SignalStore
 
 SCHEMA_VERSION = 1
+SPIKE_MIN = 1000
+CANDIDATES_MAX = 5000  # queued repos published for search (~1 MB, ~250 KB gzipped)
+REPO_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,99}/[A-Za-z0-9._-]{1,100}$")
+TOPIC = re.compile(r"^[a-z0-9][a-z0-9-]{0,49}$")
+CONTROL = re.compile(r"[\x00-\x1f\x7f\u200b-\u200f\u202a-\u202e\u2066-\u2069]")
 SERIES_PUBLISHED_DAYS = 30
 DEMAND_PUBLISHED = 300
 CO_LIMIT = 5
@@ -62,6 +68,7 @@ class Entry:
     mention_counts: dict[str, int]
     trend: float
     answers: list[str]
+    stars_7d: int | None = None
 
     @property
     def id(self) -> str:
@@ -85,6 +92,7 @@ class SiteData:
     days: list[str]
     signals: SignalStore
     sample_mode: bool = False
+    candidates: list[dict[str, Any]] = field(default_factory=list)
     files: dict[str, str] = field(default_factory=dict)
 
 
@@ -117,12 +125,37 @@ def _mention_stats(
     return weight, sum(counts.values()), round(window, 3), dict(counts), growth
 
 
-def _star_growth(signals: SignalStore, analysis: RepoAnalysis, now: datetime) -> float:
+def star_spike(gained: int | None, stars: int) -> bool:
+    """More than half of all stars arrived this week (and at least 1,000): a fact readers should
+    weigh before trusting popularity, since star counts can be inflated. Not an accusation."""
+    return bool(gained and gained >= SPIKE_MIN and gained * 2 > stars)
+
+
+def _fresh_velocity(entry: dict[str, Any] | None, now: datetime) -> int | None:
+    """Stars of the last 7 days (collector/github/stars.py) if measured in the last 2 days."""
+    if not entry or entry.get("d7") is None:
+        return None
+    measured = parse_iso(entry.get("at"))
+    if measured is None or now - measured > timedelta(days=2):
+        return None
+    return int(entry["d7"])
+
+
+def _star_growth(
+    signals: SignalStore, analysis: RepoAnalysis, now: datetime, gained: int | None = None
+) -> float:
+    """(stars now − stars a week ago) / (stars a week ago + 20).
+
+    With a fresh GitHub star-history measurement the week-ago value is ``stars − gained``;
+    otherwise our own daily snapshots are used (oldest day while there is less than a week).
+    """
+    if gained is not None:
+        return gained / (max(0, analysis.meta.stars - gained) + 20)
     week_ago = (now - timedelta(days=7)).strftime("%Y-%m-%d")
-    before = signals.value_on_or_before(analysis.id, "stars", week_ago)
-    if before is None:
+    recorded = signals.value_on_or_before(analysis.id, "stars", week_ago)
+    if recorded is None:
         return 0.0
-    return (analysis.meta.stars - before) / (before + 20)
+    return (analysis.meta.stars - recorded) / (recorded + 20)
 
 
 def build(
@@ -135,6 +168,8 @@ def build(
     excluded: set[str],
     index_max: int,
     sample_mode: bool = False,
+    queue: dict[str, dict[str, Any]] | None = None,
+    velocity: dict[str, dict[str, Any]] | None = None,
 ) -> SiteData:
     analyses = [r.analysis for r in records if r.analysis.id.lower() not in excluded]
     if sample_mode:  # offline demo: fictional repos never link to github.com
@@ -172,7 +207,8 @@ def build(
             has_demand=bool(demand_items),
         )
         result = score(analysis, signal_input, now)
-        trend = 0.7 * _star_growth(signals, analysis, now) + 0.3 * mention_growth
+        gained = _fresh_velocity((velocity or {}).get(analysis.id.lower()), now)
+        trend = 0.7 * _star_growth(signals, analysis, now, gained) + 0.3 * mention_growth
         entries.append(
             Entry(
                 analysis=analysis,
@@ -184,6 +220,7 @@ def build(
                 mention_counts=by_source,
                 trend=round(max(0.0, trend), 4),
                 answers=answers[index][:3],
+                stars_7d=gained,
             )
         )
 
@@ -211,6 +248,7 @@ def build(
             stars=e.analysis.meta.stars,
             mentions_30d=e.mentions_30d,
             trend=e.trend,
+            created_days=days_between(parse_iso(e.analysis.meta.created_at), now),
         )
         for e in published
     ]
@@ -247,6 +285,7 @@ def build(
         days=days,
         signals=signals,
         sample_mode=sample_mode,
+        candidates=candidates_from(queue or {}, {e.id.lower() for e in published} | excluded),
     )
 
 
@@ -282,9 +321,39 @@ def index_item(entry: Entry, now: datetime) -> dict[str, Any]:
         "first_seen": entry.first_seen,
         "mentions_30d": entry.mentions_30d,
         "trend": entry.trend,
+        "stars_7d": entry.stars_7d,
+        "star_spike": star_spike(entry.stars_7d, entry.analysis.meta.stars),
         "co": entry.co,
         "sample": a.sample,
     }
+
+
+def candidates_from(queue: dict[str, dict[str, Any]], skip: set[str]) -> list[dict[str, Any]]:
+    """Queued repositories not analyzed yet, so a search never stops at the published index.
+
+    Everything here came from the GitHub search API, so it is treated as untrusted text: only
+    valid ``owner/repo`` ids, control characters removed, secrets redacted, short fields.
+    """
+    ordered = sorted(queue.values(), key=lambda e: (-float(e.get("priority", 0)), str(e["id"])))
+    out: list[dict[str, Any]] = []
+    for entry in ordered:
+        repo_id = str(entry.get("id", ""))
+        if repo_id.lower() in skip or not REPO_ID.match(repo_id):
+            continue
+        description = CONTROL.sub(" ", str(entry.get("description") or ""))
+        out.append(
+            {
+                "id": repo_id,
+                "d": SECRET_LIKE.sub("[secreto oculto]", description).strip()[:300],
+                "t": [t for t in entry.get("topics", []) if TOPIC.match(str(t))][:8],
+                "l": CONTROL.sub("", str(entry.get("language") or ""))[:40],
+                "s": int(entry.get("stars") or 0),
+                "p": entry.get("pushed_at"),
+            }
+        )
+        if len(out) >= CANDIDATES_MAX:
+            break
+    return out
 
 
 def _redacted(flag: dict[str, Any]) -> dict[str, Any]:
@@ -369,6 +438,10 @@ def write(data: SiteData, out_dir: Path, now: datetime) -> dict[str, str]:
     bin_hash, meta_hash = embeddings.write(data.model, target)
     files["embeddings"] = f"data/embeddings.bin?v={bin_hash}"
     files["embeddings_meta"] = f"data/embeddings.json?v={meta_hash}"
+
+    queue_payload = {"schema_version": SCHEMA_VERSION, "items": data.candidates}
+    write_json(target / "candidates.json", queue_payload)
+    files["candidates"] = f"data/candidates.json?v={_short_hash(dumps(queue_payload))}"
 
     published = {e.id for e in data.entries}
     se_items = sorted(
