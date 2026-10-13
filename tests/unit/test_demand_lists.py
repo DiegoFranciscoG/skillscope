@@ -7,6 +7,7 @@ from indexer.demand import (
     gaps,
     item_weight,
     matched_demand,
+    relevant,
 )
 from indexer.embeddings import build_lsa
 from indexer.lists import Ranked, all_lists, most_needed
@@ -132,3 +133,34 @@ def test_lists_criteria() -> None:
     needed = most_needed(items, {"testing": 4.0, "security": 3.0})
     assert needed[0]["category"] == "security"  # no supply at all
     assert needed[0]["ratio"] == 3.0
+
+
+def test_only_agent_questions_count_as_demand() -> None:
+    assert relevant(q("10", "Copy constructor rules", ["c++", "claude-code"]))  # agent tag
+    assert relevant(q("11", "Automate COBOL migration with an agent", ["cobol"]))
+    assert relevant(q("12", "Expose tools over MCP from Spring", ["spring"]))
+    assert not relevant(q("13", "Is deleting both copy constructors redundant?", ["c++"]))
+    assert not relevant(q("14", "Set the User-Agent header in requests", ["python"]))
+    assert not relevant(q("15", "ssh agent forwarding breaks git", ["ssh"]))
+
+
+def test_generic_tags_measured_on_the_data_do_not_make_supply() -> None:
+    ids = [f"r/{i}" for i in range(24)]
+    model = build_lsa([(i, "python tooling library") for i in ids])
+    repo_tokens = [{"python", "tool"} for _ in ids]  # python is in every repository
+    repo_tokens[0] |= {"pydantic"}
+    topics = cluster(
+        [
+            q("20", "Validate agent output with Pydantic", ["python", "pydantic"], day=1),
+            q("21", "Pydantic models for agent tools", ["python", "pydantic"], day=2),
+            q("22", "Best way to write python with an agent", ["python"], day=3),
+            q("23", "Python agent tips please", ["python"], day=4),
+        ]
+    )
+    attach_supply(topics, model, repo_tokens, [80] * len(ids))
+    by_label = {t.label: t for t in topics}
+    assert by_label["pydantic"].specific == ["pydantic"]
+    assert by_label["pydantic"].supply == ["r/0"]  # not every python repository
+    vague = by_label["python"]
+    assert vague.specific == [] and vague.demand >= 2
+    assert gaps(topics) == []  # demand without a specific subject is not a gap
