@@ -30,7 +30,15 @@ def write_text(path: Path, text: str) -> None:
     write_bytes(path, text.encode("utf-8"))
 
 
-FILE_MODE = 0o644  # mkstemp creates 0600; published files must be readable by the web server
+def _plain_mode() -> int:
+    """Permissions a plain ``open()`` would give: 0o666 minus the process umask.
+
+    ``mkstemp`` creates files as 0o600, which a web server running as another user (nginx in
+    Docker, the Pages artifact) cannot read. The umask stays in charge, as for any other file.
+    """
+    current = os.umask(0)
+    os.umask(current)
+    return 0o666 & ~current
 
 
 def write_bytes(path: Path, payload: bytes) -> None:
@@ -40,7 +48,7 @@ def write_bytes(path: Path, payload: bytes) -> None:
     try:
         with os.fdopen(fd, "wb") as fh:
             fh.write(payload)
-        os.chmod(tmp, FILE_MODE)
+        os.chmod(tmp, _plain_mode())
         os.replace(tmp, path)
     except BaseException:
         Path(tmp).unlink(missing_ok=True)
