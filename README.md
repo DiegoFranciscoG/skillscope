@@ -241,8 +241,9 @@ npm run lighthouse                  # mediana de 3 corridas, falla si < 95
 1. *Settings → Pages → Source*: **GitHub Actions**.
 2. El workflow `build.yml` corre a los minutos 7, 22, 37 y 52 de cada hora, recolecta, analiza,
    publica en Pages y guarda el estado en la caché de Actions.
-3. Capa externa: un trabajo gratuito de cron-job.org dispara `workflow_dispatch` cada 30 min con un
-   token fino que solo tiene **Actions: write** sobre este repo.
+3. Cada build agenda el siguiente: de inmediato mientras haya mucha cola y cuota, o tras 20 min de
+   espera en el entorno `cadence` (la espera no consume minutos). Funciona aunque GitHub no
+   dispare su cron.
 4. `keepalive.yml` relanza el build si pasan 90 min sin éxito, abre un issue de alerta y cada mes
    evita la desactivación por 60 días de inactividad.
 

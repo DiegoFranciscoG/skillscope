@@ -97,6 +97,12 @@ Fecha de consulta de todas las fuentes: **2026-10-12** (salvo que se indique otr
 | 56 | Sitemaps XML protocol | https://www.sitemaps.org/protocol.html | Máximo **50.000 URL y 50 MB** por archivo; espacio de nombres `http://www.sitemaps.org/schemas/sitemap/0.9`; `lastmod` en W3C Datetime (`AAAA-MM-DD` válido); escapar `&`, comillas y `<>`; línea `Sitemap:` en `robots.txt`. |
 | 57 | schema.org — SoftwareSourceCode | https://schema.org/SoftwareSourceCode | `codeRepository` y `programmingLanguage` son propios del tipo; `license`, `dateModified`, `keywords`, `author`, `isPartOf` se heredan de CreativeWork. Base del JSON-LD de cada página estática. |
 
+### 1.8 Operación de Actions (consultado el 2026-10-13)
+
+| # | Fuente | URL | Qué se tomó de aquí |
+|---|---|---|---|
+| 58 | Deployments and environments | https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments | Temporizador de espera de un entorno: entero de **1 a 43.200 min**; en planes Free/Pro/Team solo en **repos públicos**; «el tiempo de espera no cuenta como tiempo facturable». Base de la capa 2 (`next-later` espera 20 min en el entorno `cadence`). |
+
 ## 2. Verificaciones empíricas propias (2026-10-12)
 
 | # | Qué se probó | Resultado | Decisión |
