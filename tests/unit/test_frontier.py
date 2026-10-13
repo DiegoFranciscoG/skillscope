@@ -33,3 +33,26 @@ def test_frontier_persists_in_state(tmp_path: Path) -> None:
 
     reloaded = StateStore(tmp_path / "state.json", h.clock)
     assert "a/b" in Frontier(reloaded, NOW).items
+
+
+def test_analyzed_repos_are_not_queued_again(tmp_path: Path) -> None:
+    h = make_harness(tmp_path)
+    frontier = Frontier(h.state, NOW)
+    h.state.repo("done/skill")["status"] = "artifact"
+    assert not frontier.add("done/skill", via="search")
+    empty = h.state.repo("empty/repo")
+    empty.update(status="no_artifact", analyzed_at="2026-10-10T00:00:00Z")
+    assert not frontier.add("empty/repo", via="search", pushed_at="2026-10-09T00:00:00Z")
+    assert frontier.add("empty/repo", via="search", pushed_at="2026-10-11T00:00:00Z")
+
+
+def test_search_metadata_is_kept_and_suggestions_jump_the_queue(tmp_path: Path) -> None:
+    h = make_harness(tmp_path)
+    frontier = Frontier(h.state, NOW)
+    frontier.add(
+        "big/repo", via="search", stars=50_000, description="  An  MCP\nserver ", topics=["mcp"]
+    )
+    frontier.add("small/asked", via="suggestion", stars=0)
+    assert frontier.items["big/repo"]["description"] == "An MCP server"
+    assert frontier.items["big/repo"]["topics"] == ["mcp"]
+    assert [e["id"] for e in frontier.pop_batch(1)] == ["small/asked"]

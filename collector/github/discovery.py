@@ -126,6 +126,9 @@ class Discovery:
                 stars=int(item.get("stargazers_count") or 0),
                 pushed_at=item.get("pushed_at"),
                 excluded=self.excluded,
+                description=item.get("description"),
+                topics=item.get("topics"),
+                language=item.get("language"),
             ):
                 self.report.added += 1
 
@@ -136,7 +139,12 @@ class Discovery:
             if not full_name or repo.get("fork"):
                 continue
             self.report.found += 1
-            if self.frontier.add(str(full_name), via=via, excluded=self.excluded):
+            if self.frontier.add(
+                str(full_name),
+                via=via,
+                excluded=self.excluded,
+                description=repo.get("description"),
+            ):
                 self.report.added += 1
 
     # -- passes -----------------------------------------------------------------------------

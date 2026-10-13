@@ -99,7 +99,7 @@ def test_excluded_repos_never_enter_frontier(tmp_path: Path) -> None:
     h.state.repo("gone/repo")["status"] = "gone"
     assert not frontier.add("gone/repo", via="x")
     assert frontier.add("ok/repo", via="x", stars=10)
-    assert frontier.add("ok/repo", via="y", stars=5)
+    assert not frontier.add("ok/repo", via="y", stars=5)  # merged, not counted as new
     entry = frontier.items["ok/repo"]
     assert entry["via"] == ["x", "y"] and entry["stars"] == 10
 
