@@ -148,12 +148,17 @@ function ensureEngine(state: State): SearchEngine | null {
   return engine;
 }
 
+// The toolbar is in the initial HTML so the list does not jump when the data arrives (CLS).
+function syncToolbar(state: State): void {
+  ui.toolbar.hidden = state.query.length > 0 || state.tab !== "explore";
+}
+
 function renderView(state: State): void {
   const data = state.data;
   if (!data) return;
   ui.view.setAttribute("aria-busy", "false");
   const searching = state.query.length > 0;
-  ui.toolbar.hidden = searching || state.tab !== "explore";
+  syncToolbar(state);
   if (searching) {
     const result = ensureEngine(state)!.search(state.query);
     renderSearch(ui.view, result, rowContext(state), () => selectTab("gaps"));
@@ -359,11 +364,13 @@ const updater = new Updater((event) => void onUpdate(event));
 
 async function start(): Promise<void> {
   renderTabs(store.state);
+  syncToolbar(store.state);
   try {
     const data = await updater.load();
     cache.reset(data.files);
     store.replaceData(data);
   } catch (error) {
+    ui.toolbar.hidden = true;
     renderError(ui.view, error instanceof Error ? error.message : String(error));
     ui.status.textContent = "No se pudo cargar el índice";
     window.setTimeout(() => location.reload(), 5 * 60 * 1000);
