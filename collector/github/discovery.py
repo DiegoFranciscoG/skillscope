@@ -259,9 +259,19 @@ class Discovery:
     def run(self) -> DiscoveryReport:
         """Look for new repositories. With a long queue only recent ones are searched, so the
         build spends its time analyzing what it already found (search is the slowest API)."""
+        search = self.gh.budgets.search
         if len(self.frontier) >= FRONTIER_FULL:
+            # Long queue: mostly fresh repos, plus a small slice of the wide crawl so the pool
+            # visitors search (data/candidates.json) keeps growing past what is analyzed.
             self.report.crawl_deferred = True
-            self.freshness(max(1, int(self.gh.budgets.search.remaining * 0.25)))
+            quota = max(1, int(search.remaining * 0.25))
+            self.freshness(quota)
+            saved = search.limit
+            search.limit = min(saved, search.used + quota)
+            try:
+                self.crawl_topics()
+            finally:
+                search.limit = saved
             return self.report
         fresh_quota = max(1, int(self.gh.budgets.search.remaining * 0.4))
         self.freshness(fresh_quota)

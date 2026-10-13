@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from analyzer.detect import Layout, layout, select_files
@@ -38,6 +38,7 @@ TREE_GROUP = 8
 BLOBS_PER_QUERY = 20
 BLOB_BYTES_PER_QUERY = 500_000
 REFRESH_SHARE = 0.3
+REFRESH_AFTER = timedelta(hours=6)  # stars of the week are measured apart (stars.py)
 REANALYSIS_CAP = 40  # repos re-fetched per build after an analyzer upgrade
 INTERNAL_PROJECT_FILES = 150  # files outside .claude/ that make a repo an application, not a kit
 
@@ -78,10 +79,13 @@ class Enricher:
     def refresh_known(self) -> None:
         graphql = self.gh.budgets.graphql
         allowance = max(1, int(graphql.remaining * REFRESH_SHARE))
+        stale = iso(self.now - REFRESH_AFTER)
         known = [
             entry
             for entry in self.state.repos().values()
-            if entry.get("status") == "artifact" and entry["id"].lower() not in self.excluded
+            if entry.get("status") == "artifact"
+            and entry["id"].lower() not in self.excluded
+            and (entry.get("meta_at") or "") <= stale
         ]
         known.sort(key=lambda e: (e.get("meta_at") or "", e["id"]))
         spent = 0

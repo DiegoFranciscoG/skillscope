@@ -53,7 +53,11 @@ def test_second_build_reuses_etags_and_skips_unchanged_trees(tmp_path: Path) -> 
     clock.advance(15 * 60)
     result, _, _ = _run(tmp_path, api, clock, env)
     assert api.calls["core"] == trees_first  # nothing changed, no tree downloaded again
+    assert result.report.details["enrich"]["refreshed"] == 0  # metadata waits 6 hours
+    clock.advance(7 * 3600)
+    result, _, _ = _run(tmp_path, api, clock, env)
     assert result.report.details["enrich"]["refreshed"] > 0
+    assert api.calls["core"] == trees_first  # metadata refreshed, trees still unchanged
 
 
 def test_build_never_exceeds_api_limits(tmp_path: Path) -> None:
