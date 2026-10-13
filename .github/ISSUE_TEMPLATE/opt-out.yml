@@ -1,0 +1,25 @@
+name: Excluir mi repositorio
+description: Pide que Skillscope deje de indexar un repositorio tuyo.
+title: "Opt-out: owner/repo"
+labels: ["opt-out"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Si eres el dueño del repositorio, la exclusión es automática en el siguiente build
+        (cada ~15 min). También puedes agregar el topic `skillscope-optout` al repositorio.
+        Si no eres el dueño, un mantenedor revisará la solicitud y añadirá la etiqueta
+        `opt-out-approved`.
+  - type: input
+    id: repository
+    attributes:
+      label: Repositorio
+      description: En la forma owner/repo.
+      placeholder: owner/repo
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Motivo (opcional)
+      description: No incluyas datos personales.

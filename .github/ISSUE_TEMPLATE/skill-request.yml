@@ -1,0 +1,26 @@
+name: Sugerir un repositorio o una necesidad
+description: Un repositorio que falta en el índice o una skill que necesitas y no existe.
+title: "Sugerencia: "
+labels: ["suggestion"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Tipo
+      options:
+        - Falta un repositorio en el índice
+        - Necesito una skill que no existe (hueco del ecosistema)
+    validations:
+      required: true
+  - type: input
+    id: repository
+    attributes:
+      label: Repositorio (si aplica)
+      placeholder: owner/repo
+  - type: textarea
+    id: need
+    attributes:
+      label: Qué necesitas resolver
+      description: Describe la tarea; Skillscope la usa como señal de demanda.
+    validations:
+      required: true
