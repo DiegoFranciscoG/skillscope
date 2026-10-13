@@ -109,7 +109,7 @@ Categoría y causa se asignan con léxicos ponderados (español e inglés) sobre
 | `exec-unexplained` | alta | 8 | Ejecuta comandos (scripts, hooks, `` !`cmd` ``, `bin/`, servidores MCP stdio) y la documentación no los menciona. |
 | `downloads-binary` | alta | 8 | `curl … \| sh`, descarga de ejecutables o archivos comprimidos, `chmod +x` tras descargar, paquetes MCP desde URL. |
 | `requests-credentials` | media | 6 | Pide o lee claves, tokens o contraseñas (`~/.ssh`, `~/.aws`, `.env`, «pega tu API key»). |
-| `obfuscated-code` | media | 6 | `eval`/`exec` de cadenas decodificadas o líneas minificadas enormes en scripts. |
+| `obfuscated-code` | media | 6 | `eval`/`exec` de código que se **decodifica** antes de correr (`base64 -d`, `atob(`, `b64decode`, `fromCharCode`, `\x..`), o una línea de más de 1.000 caracteres con menos de 5 % de espacios (minificado o blob). Texto largo en lenguaje natural y `base64` usado para codificar no cuentan (analizador v2, E14). |
 | `network-exfil` | media | 6 | Envía datos a URLs externas desde scripts o hooks (`curl -d/-F`, webhooks). |
 | `broad-permissions` | media | 5 | `allowed-tools`/`tools` con `Bash` sin restricción, `bypassPermissions` o `--dangerously-skip-permissions`. |
 | `no-license` | media | 4 | Sin licencia detectada (#27). |

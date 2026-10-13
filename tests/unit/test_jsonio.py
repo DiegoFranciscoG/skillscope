@@ -16,7 +16,14 @@ def test_atomic_write_round_trip_leaves_no_temp_files(tmp_path: Path) -> None:
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits")
-def test_published_files_are_world_readable(tmp_path: Path) -> None:
-    target = tmp_path / "index.json"
-    write_json(target, {})
-    assert stat.S_IMODE(target.stat().st_mode) == 0o644
+def test_files_get_the_same_mode_as_a_plain_open(tmp_path: Path) -> None:
+    umask = os.umask(0o022)
+    try:
+        target = tmp_path / "index.json"
+        write_json(target, {})
+        assert stat.S_IMODE(target.stat().st_mode) == 0o644  # readable by the web server
+        os.umask(0o077)
+        write_json(target, {})
+        assert stat.S_IMODE(target.stat().st_mode) == 0o600  # a strict umask is respected
+    finally:
+        os.umask(umask)

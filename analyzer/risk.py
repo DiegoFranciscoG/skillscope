@@ -147,7 +147,7 @@ QUOTES = frozenset("\"'“”‘’«»`(")
 OBFUSCATION = [
     re.compile(p, re.I)
     for p in (
-        r"\beval\b[^\n]*(base64|atob|b64decode|fromcharcode|\\x[0-9a-f]{2})",
+        r"\beval\b[^\n]*(base64\s+(-d|-D|--decode)\b|atob\s*\(|b64decode|fromcharcode|\\x[0-9a-f]{2})",
         r"base64\s+(-d|--decode)[^\n]*\|\s*(ba)?sh\b",
         r"\bexec\s*\(\s*(base64\.)?b64decode",
         r"\bexec\s*\(\s*compile\s*\(",
@@ -169,11 +169,23 @@ SKIP_PERMISSIONS = re.compile(
 NPX_LIKE = re.compile(r"\b(npx|bunx|pnpx|uvx|pipx\s+run)\s+([^\n;&|]+)")
 PIP_INSTALL = re.compile(r"\bpip3?\s+install\s+([^\n;&|]+)")
 PACKAGE_SPEC = re.compile(r"^(@[\w.-]+/)?[A-Za-z0-9][\w.-]*(@[\w.^~<>=*-]+)?$")
-TEST_SCRIPT = re.compile(r"(^test_|_test\.|\.test\.|\.spec\.)")
+TEST_SCRIPT = re.compile(r"(^test[_-]|[_-]test\.|\.test\.|\.spec\.)")
 # Script names inside a hook or MCP command (third-party text). Linear on purpose: the match starts
 # at a token boundary and the name is bounded; the old lazy prefix [...]*? overlapped [...]+ and
 # took quadratic time on long tokens, which hung a live build (docs/investigacion.md E13).
 SCRIPT_REF = re.compile(r"(?<![\w.-])([\w.-]{1,128}\.(?:sh|bash|py|js|mjs|cjs|ts|ps1|rb))\b")
+
+
+PACKED_MIN_CHARS = 1000
+PACKED_MAX_SPACE = 0.05  # natural language has ~15-20 % spaces; minified code and blobs ~0-3 %
+
+
+def _packed(line: str) -> bool:
+    """A very long line with almost no spaces: minified or encoded code nobody can review.
+    Long prose (prompts, translations) and long shell one-liners keep their spaces."""
+    if len(line) <= PACKED_MIN_CHARS:
+        return False
+    return line.count(" ") / len(line) < PACKED_MAX_SPACE
 
 
 @dataclass(slots=True)
@@ -402,7 +414,7 @@ def scan(data: RiskInput) -> list[RiskFlag]:
     for path, text in executable_texts.items():
         obfuscated += _code_matches(path.split("#")[0], text, OBFUSCATION)
         for number, line in enumerate(text.splitlines(), 1):
-            if len(line) > 1000:
+            if _packed(line):
                 obfuscated.append(Evidence(path.split("#")[0], number, visible(line)))
     if obfuscated:
         flags.append(_flag("obfuscated-code", _dedupe(obfuscated)))
