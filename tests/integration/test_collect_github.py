@@ -33,10 +33,10 @@ def test_first_build_snapshots_every_sample_with_artifacts(tmp_path: Path) -> No
     result, snapshots, _ = _run(tmp_path, api, clock, env)
 
     ids = {s.id for s in snapshots}
-    assert "nimbus-labs/pr-review-kit" in ids
-    assert "awesome-agentic/awesome-skill-index" in ids  # README-only list is kept
+    assert "demo_nimbus-labs/pr-review-kit" in ids
+    assert "demo_awesome-agentic/awesome-skill-index" in ids  # README-only list is kept
     assert len(ids) == len(api.repos)
-    snap = snapshots.load("nimbus-labs/pr-review-kit")
+    snap = snapshots.load("demo_nimbus-labs/pr-review-kit")
     assert snap is not None
     assert "skills/review-diff/SKILL.md" in snap.files
     assert snap.meta.stars == 8200 and snap.meta.ci_state == "SUCCESS"
@@ -82,10 +82,12 @@ def test_build_never_exceeds_api_limits(tmp_path: Path) -> None:
 
 def test_optout_issue_from_owner_removes_repo(tmp_path: Path) -> None:
     clock = FakeClock(NOW)
-    issues = [{"body": "acme-agents/inbox-zero", "user": {"login": "acme-agents"}, "labels": []}]
+    issues = [
+        {"body": "demo_acme-agents/inbox-zero", "user": {"login": "demo_acme-agents"}, "labels": []}
+    ]
     api = SampleApi(SAMPLES, clock, issues=issues)
     env = ENV | {"SKILLSCOPE_REPOSITORY": "me/skillscope", "SKILLSCOPE_BUDGET_REST": "200"}
     result, snapshots, h = _run(tmp_path, api, clock, env)
-    assert "acme-agents/inbox-zero" in result.excluded
-    assert snapshots.load("acme-agents/inbox-zero") is None
-    assert h.state.known_repo("acme-agents/inbox-zero")["status"] == "opted_out"
+    assert "demo_acme-agents/inbox-zero" in result.excluded
+    assert snapshots.load("demo_acme-agents/inbox-zero") is None
+    assert h.state.known_repo("demo_acme-agents/inbox-zero")["status"] == "opted_out"

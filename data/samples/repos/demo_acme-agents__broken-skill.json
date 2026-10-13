@@ -1,0 +1,42 @@
+{
+ "meta": {
+  "id": "demo_acme-agents/broken-skill",
+  "owner": "demo_acme-agents",
+  "name": "broken-skill",
+  "url": "https://github.com/demo_acme-agents/broken-skill",
+  "description": "Work in progress",
+  "stars": 12,
+  "forks": 1,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-50d",
+  "created_at": "-55d",
+  "last_commit_at": "-50d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-skills"
+  ],
+  "default_branch": "main",
+  "ci_state": null,
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "Broken_Skill/SKILL.md",
+   41
+  ],
+  [
+   "no-frontmatter/SKILL.md",
+   36
+  ]
+ ],
+ "files": {
+  "Broken_Skill/SKILL.md": "---\nname: Broken_Skill\n---\n\nDoes things.\n",
+  "no-frontmatter/SKILL.md": "# Just a heading\n\nNo metadata here.\n"
+ },
+ "sample": true
+}

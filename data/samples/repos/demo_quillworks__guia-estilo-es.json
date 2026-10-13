@@ -1,0 +1,44 @@
+{
+ "meta": {
+  "id": "demo_quillworks/guia-estilo-es",
+  "owner": "demo_quillworks",
+  "name": "guia-estilo-es",
+  "url": "https://github.com/demo_quillworks/guia-estilo-es",
+  "description": "Guía de estilo para textos técnicos en español",
+  "stars": 120,
+  "forks": 9,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-20d",
+  "created_at": "-150d",
+  "last_commit_at": "-20d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "CC-BY-4.0",
+  "topics": [
+   "claude-skills",
+   "spanish",
+   "writing"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "README.md",
+   348
+  ],
+  [
+   "guia-estilo/SKILL.md",
+   374
+  ]
+ ],
+ "files": {
+  "README.md": "# Guía de estilo en español\n\nUna skill para que los textos técnicos en español sean claros y consistentes: voz activa, frases cortas y términos en su idioma.\n\n## Install\n\nCopia la carpeta `guia-estilo` dentro de `~/.claude/skills/`.\n\n## Usage\n\nEjemplo: pide que revise la documentación antes de publicarla.\n\n## License\n\nSee the LICENSE file.\n",
+  "guia-estilo/SKILL.md": "---\nname: guia-estilo\ndescription: Revisa textos técnicos en español y aplica una guía de estilo común. Úsala cuando escribas documentación, correos o informes en español.\n---\n\n# Guia Estilo\n\n## Steps\n1. Detecta frases de más de 30 palabras y divídelas.\n2. Cambia la voz pasiva por activa.\n3. Unifica los términos técnicos.\n4. Revisa tildes y signos de apertura.\n"
+ },
+ "sample": true
+}

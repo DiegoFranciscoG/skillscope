@@ -1,0 +1,53 @@
+{
+ "meta": {
+  "id": "demo_nimbus-labs/jira-bridge",
+  "owner": "demo_nimbus-labs",
+  "name": "jira-bridge",
+  "url": "https://github.com/demo_nimbus-labs/jira-bridge",
+  "description": "MCP server for issue trackers",
+  "stars": 1300,
+  "forks": 101,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-6d",
+  "created_at": "-250d",
+  "last_commit_at": "-6d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "mcp",
+   "claude-code",
+   "jira",
+   "integrations"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "README.md",
+   182
+  ],
+  [
+   "pyproject.toml",
+   101
+  ],
+  [
+   "src/jira_bridge/server.py",
+   2048
+  ],
+  [
+   "tests/test_server.py",
+   2048
+  ]
+ ],
+ "files": {
+  "README.md": "# Jira bridge\n\nAn MCP server that reads and updates issues in your tracker.\n\n## Install\n\n```\nclaude mcp add jira -- uvx jira-bridge-mcp==0.9.1\n```\n\n## License\n\nSee the LICENSE file.\n",
+  "pyproject.toml": "[project]\nname = \"jira-bridge-mcp\"\nversion = \"0.9.1\"\ndependencies = [\"mcp==1.18.0\", \"httpx==0.28.1\"]\n"
+ },
+ "sample": true
+}

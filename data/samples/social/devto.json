@@ -4,13 +4,13 @@
    "id": 5001,
    "published_at": "-4d",
    "public_reactions_count": 60,
-   "body_markdown": "We tried https://github.com/andes-devtools/test-pilot and https://github.com/nimbus-labs/pr-review-kit"
+   "body_markdown": "We tried https://github.com/demo_andes-devtools/test-pilot and https://github.com/demo_nimbus-labs/pr-review-kit"
   },
   {
    "id": 5002,
    "published_at": "-10d",
    "public_reactions_count": 12,
-   "body_markdown": "Notes on https://github.com/harborai/rag-builder"
+   "body_markdown": "Notes on https://github.com/demo_harborai/rag-builder"
   }
  ]
 }

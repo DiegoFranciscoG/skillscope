@@ -12,8 +12,10 @@ from analyzer.text import LEXICON, stem, tokens
 
 MCP_JS_RE = re.compile(r'"@modelcontextprotocol/sdk"\s*:')
 MCP_PY_RE = re.compile(r"""["'](?:mcp|fastmcp)(?:\[[^\]]*\])?\s*(?:[=<>~!]=?[^"']*)?["']""")
+# Owners: GitHub logins use letters, digits and hyphens. The underscore is accepted only so the
+# fictional demo owners (demo_*) parse; GitHub never allows it, so they cannot match a real account.
 GITHUB_LINK_RE = re.compile(
-    r"https?://github\.com/([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))/([A-Za-z0-9._-]{1,100})"
+    r"https?://github\.com/([A-Za-z0-9](?:[A-Za-z0-9_-]{0,38}))/([A-Za-z0-9._-]{1,100})"
 )
 NON_REPO_OWNERS = frozenset(
     {"orgs", "topics", "sponsors", "marketplace", "features", "settings", "apps", "about"}

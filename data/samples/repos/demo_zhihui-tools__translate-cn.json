@@ -1,0 +1,44 @@
+{
+ "meta": {
+  "id": "demo_zhihui-tools/translate-cn",
+  "owner": "demo_zhihui-tools",
+  "name": "translate-cn",
+  "url": "https://github.com/demo_zhihui-tools/translate-cn",
+  "description": "中英文技术翻译技能",
+  "stars": 760,
+  "forks": 58,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-8d",
+  "created_at": "-150d",
+  "last_commit_at": "-8d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-skills",
+   "translation",
+   "chinese"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "README.md",
+   186
+  ],
+  [
+   "translate-cn/SKILL.md",
+   281
+  ]
+ ],
+ "files": {
+  "README.md": "# 技术翻译\n\n这个技能可以把技术文档在中文和英文之间翻译，并保留代码块和术语。\n\n## 安装\n\n把 `translate-cn` 文件夹复制到 `~/.claude/skills/`。\n",
+  "translate-cn/SKILL.md": "---\nname: translate-cn\ndescription: Translates technical documents between Chinese and English and keeps code blocks and terms. Use when the user needs a translation of docs.\n---\n\n# Translate Cn\n\n## Steps\n1. Detect the source language.\n2. Translate paragraphs.\n3. Keep code as is.\n"
+ },
+ "sample": true
+}
