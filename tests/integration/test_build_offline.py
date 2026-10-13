@@ -65,7 +65,11 @@ def test_offline_build_writes_consistent_site_data(tmp_path: Path) -> None:
     gaps = {g["label"] for g in demand["gaps"]}
     assert {"cobol, mainframe, migration", "excel, vba, macros"} <= gaps
     assert all(i["author"] and i["url"] for i in demand["items"])
-    assert "CC BY-SA" in demand["attribution"]
+    # Fictional questions never point at real people or real Stack Overflow posts.
+    assert demand["sample"] is True and "ficticias" in demand["attribution"]
+    for question in demand["items"]:
+        assert question["url"].startswith("https://example.com/")
+        assert (question["author_url"] or "https://example.com/").startswith("https://example.com/")
 
     signals = load(data / "signals.json")
     assert len(signals["days"]) == 30

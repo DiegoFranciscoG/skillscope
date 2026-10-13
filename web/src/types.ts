@@ -174,6 +174,8 @@ export interface DemandTopic {
 export interface DemandData {
   build_id: string;
   attribution: string;
+  /** True in the offline demo: the questions are fictional and link to example.com. */
+  sample?: boolean;
   items: DemandQuestion[];
   topics: DemandTopic[];
   gaps: (DemandTopic & { topic: string })[];

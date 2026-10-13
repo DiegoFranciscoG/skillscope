@@ -129,7 +129,8 @@ test.describe("Skillscope", () => {
     await page.goto("./?tab=gaps");
     await expect(page.locator(".gaps")).toContainText("Huecos del ecosistema");
     await expect(page.locator(".card").first()).toContainText(/cobol|vba/i);
-    await expect(page.locator(".attribution").last()).toContainText("CC BY-SA");
+    // The offline demo says its questions are fictional instead of crediting Stack Overflow.
+    await expect(page.locator(".attribution").last()).toContainText("ficticias");
   });
 
   test("filters live in a bottom sheet on phones", async ({ page, isMobile }) => {

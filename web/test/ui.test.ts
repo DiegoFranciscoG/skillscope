@@ -173,6 +173,30 @@ describe("drawer", () => {
     expect(root.querySelector("svg.spark")?.getAttribute("aria-label")).toContain("de 1 a 3");
   });
 
+  it("never presents the offline demo questions as real Stack Overflow posts", () => {
+    const root = document.createElement("aside");
+    const demand = {
+      build_id: "b",
+      attribution: "Preguntas ficticias de ejemplo",
+      sample: true,
+      items: [{ key: "stackexchange:1", source: "stackexchange", title: "¿Cómo?", url: "https://example.com/q/1", author: "dev_sample_1", author_url: null, created_at: "", answered: false, tags: [], topic: null }],
+      topics: [],
+      gaps: [],
+      categories: [],
+    };
+    renderDrawer(root, item(), detail, demand, {
+      labels: context.labels,
+      siteUrl: "https://example.test/",
+      byId: new Map(),
+      onOpen: vi.fn(),
+      onClose: vi.fn(),
+      announce: vi.fn(),
+    });
+    const text = root.textContent ?? "";
+    expect(text).toContain("Responde a preguntas (ejemplo ficticio)");
+    expect(text).not.toContain("Stack Overflow");
+  });
+
   it("degrades gracefully without detail", () => {
     const root = document.createElement("aside");
     renderDrawer(root, item({ sample: true }), null, null, {
