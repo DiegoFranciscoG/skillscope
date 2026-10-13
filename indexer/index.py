@@ -146,7 +146,8 @@ def build(
     model = embeddings.build_lsa([(a.id, _doc_text(a)) for a in analyses])
     repo_tokens = [set(tokens(_doc_text(a))) | {stem(k) for k in a.keywords} for a in analyses]
 
-    demand_items = signals.demand()
+    # Only questions about working with an AI agent count as demand (indexer/demand.py).
+    demand_items = [item for item in signals.demand() if demand_mod.relevant(item)]
     topics = demand_mod.cluster(demand_items)
     per_category = demand_mod.category_demand(demand_items)
     max_category = max(per_category.values(), default=0.0)
@@ -412,6 +413,7 @@ def write(data: SiteData, out_dir: Path, now: datetime) -> dict[str, str]:
                 "label": t.label,
                 "keywords": t.keywords,
                 "subjects": t.subjects,
+                "specific": t.specific,
                 "category": t.category,
                 "demand": t.demand,
                 "questions": len(t.items),

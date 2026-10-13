@@ -9,7 +9,7 @@ from pathlib import Path
 
 from collector.frontier import Frontier
 from collector.github.client import GitHubBudgets, GitHubClient
-from collector.github.discovery import Discovery
+from collector.github.discovery import FRONTIER_FULL, Discovery
 from collector.github.enrich import Enricher
 from collector.http import DEADLINE_MESSAGE, HttpClient, RequestFailedError
 from collector.snapshots import SnapshotStore
@@ -28,6 +28,7 @@ OFFICIAL_SEEDS = (
     "anthropics/claude-code",
     "anthropics/skills",
 )
+CATCH_UP_MIN_LIMIT = 5000  # calls per hour of a personal token; GITHUB_TOKEN has 1,000
 
 
 @dataclass(slots=True)
@@ -41,6 +42,21 @@ def load_seed(path: Path) -> list[str]:
         return []
     with path.open(encoding="utf-8", newline="") as fh:
         return [row["repo"] for row in csv.DictReader(fh) if row.get("repo")]
+
+
+def catching_up(budgets: GitHubBudgets, queued: int) -> bool:
+    """Run the next build right away while the queue is long and the hourly quota allows it.
+
+    Only with a personal token (5,000 calls/h): the repository GITHUB_TOKEN has 1,000/h,
+    which back-to-back builds would exhaust (docs/fuentes.md).
+    """
+    if queued < FRONTIER_FULL:
+        return False
+    if any(b.closed for b in budgets.all().values()):
+        return False
+    return all(
+        (b.observed_limit or 0) >= CATCH_UP_MIN_LIMIT for b in (budgets.core, budgets.graphql)
+    )
 
 
 def collect_github(
@@ -110,6 +126,7 @@ def collect_github(
             "gone": enrich.gone,
         },
         "frontier": len(frontier),
+        "catch_up": catching_up(budgets, len(frontier)),
     }
     # Running out of build time is the normal end of a build, not a failure: the queue waits.
     errors = [e for e in discovery.errors + enrich.errors if DEADLINE_MESSAGE not in e]

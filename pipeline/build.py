@@ -110,6 +110,12 @@ def run_build(ctx: Context, out_dir: Path, root: Path) -> BuildResult:
     duration = round(ctx.clock.monotonic() - started, 1)
     log.info("build %s: %d repos published in %.1fs", site.build_id, len(site.entries), duration)
     _step_summary(site.build_id, len(site.entries), site.catalog_size, duration, reports)
+    details = reports[0].get("details") or {}
+    _job_outputs(
+        published=len(site.entries),
+        queue=int(details.get("frontier", 0)),
+        catch_up="true" if details.get("catch_up") else "false",
+    )
     return BuildResult(
         build_id=site.build_id,
         built_at=iso(now),
@@ -119,6 +125,15 @@ def run_build(ctx: Context, out_dir: Path, root: Path) -> BuildResult:
         sources=reports,
         files=files,
     )
+
+
+def _job_outputs(**values: object) -> None:
+    """Expose values to later jobs of the workflow (GITHUB_OUTPUT); no-op outside Actions."""
+    path = os.environ.get("GITHUB_OUTPUT")
+    if not path:
+        return
+    with open(path, "a", encoding="utf-8") as fh:
+        fh.writelines(f"{key}={value}\n" for key, value in values.items())
 
 
 def _step_summary(

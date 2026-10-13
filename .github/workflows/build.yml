@@ -1,8 +1,9 @@
 name: Build and deploy
 
-# Layer 1 of the self-update: GitHub's own cron. It runs off the hour because scheduled runs
-# are delayed or dropped at the start of each hour (docs/investigacion.md #16). Layer 2 is an
-# external workflow_dispatch every 30 min and layer 3 is keepalive.yml (docs/despliegue.md).
+# Layer 1 of the self-update: GitHub's own cron, off the hour because scheduled runs are
+# delayed or dropped at the start of each hour (docs/investigacion.md #16). Layer 2: every run
+# queues the next one (jobs next-now / next-later below), so updates continue even when GitHub
+# never fires the cron. Layer 3 is keepalive.yml (docs/despliegue.md).
 on:
   schedule:
     - cron: "7,22,37,52 * * * *"
@@ -28,6 +29,8 @@ jobs:
     permissions:
       contents: read
       pages: read
+    outputs:
+      catch_up: ${{ steps.collect.outputs.catch_up }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -50,6 +53,7 @@ jobs:
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
       - name: Collect, analyze and index
+        id: collect
         env:
           # A fine-grained token raises the REST/GraphQL budget from 1,000 to 5,000 per hour;
           # without it the job uses the repository GITHUB_TOKEN (docs/fuentes.md).
@@ -109,3 +113,47 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  # Layer 2. While the queue is long and a personal token gives 5,000 calls/h, the next build
+  # starts right away; otherwise it waits in the "cadence" environment (wait timer of 20 min,
+  # no runner minutes used while waiting), so the site refreshes about every 30 minutes.
+  next-now:
+    needs: [build, deploy]
+    if: always() && needs.build.outputs.catch_up == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Queue the next build (catching up with the queue)
+        run: |
+          busy=$(gh run list --workflow build.yml --limit 20 --json databaseId,status \
+            --jq "[.[] | select(.databaseId != $GITHUB_RUN_ID and .status != \"completed\")] | length")
+          if [ "$busy" -gt 0 ]; then echo "Another build is already queued or running."; exit 0; fi
+          gh workflow run build.yml --ref "$GITHUB_REF_NAME"
+
+  next-later:
+    needs: [build, deploy]
+    if: always() && needs.build.result != 'cancelled' && needs.build.outputs.catch_up != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: cadence
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Queue the next build unless GitHub's cron or another run already will
+        run: |
+          busy=$(gh run list --workflow build.yml --limit 20 --json databaseId,status \
+            --jq "[.[] | select(.databaseId != $GITHUB_RUN_ID and .status != \"completed\")] | length")
+          if [ "$busy" -gt 0 ]; then echo "Another build is already queued or running."; exit 0; fi
+          last=$(gh run list --workflow build.yml --event schedule --limit 1 --json createdAt --jq '.[0].createdAt // empty')
+          if [ -n "$last" ] && [ $(( $(date -u +%s) - $(date -u -d "$last" +%s) )) -lt 1200 ]; then
+            echo "GitHub's own cron ran in the last 20 minutes; it keeps the cadence."; exit 0
+          fi
+          gh workflow run build.yml --ref "$GITHUB_REF_NAME"

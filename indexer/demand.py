@@ -8,6 +8,7 @@ cannot represent it.
 from __future__ import annotations
 
 import math
+import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 
@@ -23,6 +24,20 @@ TOPIC_THRESHOLD = 0.3
 MATCH_THRESHOLD = 0.35
 SUPPLY_MIN_SCORE = 40
 GAP_MIN_DEMAND = 2.0
+# Both shares are measured on the live data of each build, never on a fixed list:
+GENERIC_SHARE = (
+    0.25  # a tag a quarter of the repos cover ("python", "vs-code") says nothing specific
+)
+CONTEXT_SHARE = (
+    0.10  # a tag present in a tenth of the topics is context (IDE, language), not the need
+)
+MIN_CORPUS = 20  # below this many repos/topics the shares are not meaningful and are not applied
+AGENT_CONTEXT = re.compile(
+    r"\b(claude|anthropic|mcp|model context protocol|llms?|copilot|chatgpt|openai|gpt-?\d"
+    r"|agentic|codex|gemini|sub-?agents?)\b"
+    r"|(?<!user )(?<!user-)(?<!ssh )(?<!ssh-)(?<!build )\bagents?\b",  # not user/ssh/CI agents
+    re.IGNORECASE,
+)
 GENERIC_TAGS = frozenset(
     {
         "claude-code",
@@ -62,7 +77,8 @@ class Topic:
     items: list[DemandItem] = field(default_factory=list)
     demand: float = 0.0
     supply: list[str] = field(default_factory=list)
-    subjects: list[str] = field(default_factory=list)  # stems that define what is asked
+    subjects: list[str] = field(default_factory=list)  # question tags that define what is asked
+    specific: list[str] = field(default_factory=list)  # subjects that are not generic context
 
 
 def _vectors(items: list[DemandItem]) -> NDArray[np.float64]:
@@ -131,20 +147,29 @@ def cluster(items: list[DemandItem]) -> list[Topic]:
     return sorted(topics, key=lambda t: (-t.demand, t.id))
 
 
+def relevant(item: DemandItem) -> bool:
+    """Demand must be about working with an AI agent. Free-text search also returns questions
+    that never mention one, so keep those with an agent tag or an agent term in the title."""
+    if any(tag.lower() in GENERIC_TAGS for tag in item.tags):
+        return True
+    return bool(AGENT_CONTEXT.search(item.title or item.text))
+
+
 def subjects_of(items: list[DemandItem], fallback: list[str]) -> list[str]:
-    """What a topic is about: the question tags (curated by the community), minus tags that
-    only say the question involves an AI agent. Topics without tags use their keywords."""
+    """What a topic is about: the question tags (curated by the community), whole and in order,
+    minus tags that only say the question involves an AI agent. Without tags, its keywords."""
     found: list[str] = []
     for item in items:
         for tag in item.tags:
-            if tag.lower() in GENERIC_TAGS:
-                continue
-            for token in tokens(tag.replace("-", " ")):
-                if token not in found:
-                    found.append(token)
-    if not found:
-        found = [stem(w) for w in fallback]
-    return found
+            tag = tag.lower()
+            if tag not in GENERIC_TAGS and tag not in found:
+                found.append(tag)
+    return found or [stem(w) for w in fallback]
+
+
+def _terms(subject: str) -> frozenset[str]:
+    """Stems a repository must contain to cover a tag ("spring-ai" needs "spring" and "ai")."""
+    return frozenset(tokens(subject.replace("-", " "))) or frozenset({subject})
 
 
 def category_demand(items: list[DemandItem]) -> dict[str, float]:
@@ -185,23 +210,45 @@ def attach_supply(
     repo_tokens: list[set[str]],
     scores: list[int],
 ) -> None:
-    """Supply of a topic: repos with score ≥ 40 that cover at least half of its subjects.
+    """Supply of a topic: repos with score ≥ 40 that cover at least half of its specific subjects.
 
     "Code review in ABAP" is not covered by a generic code-review skill: it needs ``abap`` too.
+    A subject is specific unless the data says it is context: a tag that a quarter of the repos
+    cover or that appears in a tenth of the topics. A topic with no specific subject is too
+    vague to be a gap.
     """
+    total = len(model.ids)
+    covered: dict[str, set[int]] = {}
+
+    def covering(subject: str) -> set[int]:
+        if subject not in covered:
+            terms = _terms(subject)
+            covered[subject] = {i for i, have in enumerate(repo_tokens) if terms <= have}
+        return covered[subject]
+
+    in_topics = Counter(s for topic in topics for s in set(topic.subjects))
+
+    def specific(subject: str) -> bool:
+        if total >= MIN_CORPUS and len(covering(subject)) > GENERIC_SHARE * total:
+            return False
+        return not (len(topics) >= MIN_CORPUS and in_topics[subject] > CONTEXT_SHARE * len(topics))
+
     for topic in topics:
-        subjects = set(topic.subjects)
-        if not subjects:
+        topic.specific = [s for s in topic.subjects if specific(s)]
+        if topic.specific:
+            topic.label = ", ".join(topic.specific[:3])
+        else:
             topic.supply = []
             continue
-        needed = max(1, math.ceil(len(subjects) / 2))
-        covering = [
-            (len(subjects & repo_tokens[index]), scores[index], repo_id)
-            for index, repo_id in enumerate(model.ids)
-            if scores[index] >= SUPPLY_MIN_SCORE and len(subjects & repo_tokens[index]) >= needed
+        needed = max(1, math.ceil(len(topic.specific) / 2))
+        hits: Counter[int] = Counter(i for s in topic.specific for i in covering(s))
+        ranked = [
+            (count, scores[i], model.ids[i])
+            for i, count in hits.items()
+            if count >= needed and scores[i] >= SUPPLY_MIN_SCORE
         ]
-        topic.supply = [r for _, _, r in sorted(covering, key=lambda c: (-c[0], -c[1], c[2]))]
+        topic.supply = [r for _, _, r in sorted(ranked, key=lambda c: (-c[0], -c[1], c[2]))]
 
 
 def gaps(topics: list[Topic]) -> list[Topic]:
-    return [t for t in topics if t.demand >= GAP_MIN_DEMAND and not t.supply]
+    return [t for t in topics if t.demand >= GAP_MIN_DEMAND and t.specific and not t.supply]

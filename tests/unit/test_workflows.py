@@ -61,3 +61,14 @@ def test_build_finishes_within_ten_minutes_and_deploys_with_minimal_rights() -> 
     assert data["concurrency"]["cancel-in-progress"] is False
     crons = [entry["cron"] for entry in data["on"]["schedule"]]
     assert crons and all(not c.startswith("0 ") for c in crons)  # never at the top of the hour
+
+
+def test_every_build_queues_the_next_one_with_minimal_rights() -> None:
+    data = _load(next(p for p in WORKFLOWS if p.name == "build.yml"))
+    now, later = data["jobs"]["next-now"], data["jobs"]["next-later"]
+    for job in (now, later):
+        assert job["permissions"] == {"actions": "write"}
+        assert job["needs"] == ["build", "deploy"]
+        assert "gh workflow run build.yml" in job["steps"][-1]["run"]
+    assert later["environment"] == "cadence"  # wait timer lives in the environment, not a runner
+    assert "catch_up" in data["jobs"]["build"]["outputs"]

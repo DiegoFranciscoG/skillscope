@@ -38,13 +38,26 @@ log de `httpx` está silenciado.
 | Capa | Dónde | Frecuencia | Qué cubre |
 |---|---|---|---|
 | 1. Cron interno | `build.yml` | Minutos 7, 22, 37 y 52 de cada hora | Caso normal. Fuera del minuto 0 porque GitHub retrasa o descarta trabajos al inicio de la hora (#16). |
-| 2. Disparo externo | cron-job.org (#47) | Cada 30 min | Ejecuciones de cron descartadas por GitHub. |
+| 2. Encadenado | jobs `next-now` / `next-later` de `build.yml` | Al terminar cada build | Cada build agenda el siguiente con `workflow_dispatch` (#18). Con cola larga (≥ 300) y token propio (5.000/h) el siguiente arranca de inmediato; si no, espera 20 min en el entorno `cadence` (#58: la espera no consume minutos). No depende de que GitHub dispare su cron. |
 | 3. Vigilante | `keepalive.yml` | Cada hora y el día 1 de cada mes | Si pasan 90 min sin build exitoso lo relanza y abre un issue `keepalive`. Cada mes reactiva los workflows y empuja un commit vacío a la rama `keepalive` (nunca a `main`) para no llegar a los 60 días sin actividad (S1). También borra cachés viejas del estado. |
 
 Peor caso de presupuesto con `GITHUB_TOKEN`: 6 builds/h × 140 llamadas REST = 840 de 1.000 (#12);
 GraphQL 6 × 120 = 720 de 1.000 puntos (#15). El cálculo completo está en [fuentes.md](fuentes.md).
 
-### Configurar la capa 2 (cron-job.org)
+### Configurar la capa 2 (una sola vez)
+
+El job `next-later` espera en el entorno `cadence`. Su temporizador se define en *Settings →
+Environments → cadence → Wait timer* (20 minutos) o con:
+
+```bash
+gh api -X PUT repos/<usuario>/skillscope/environments/cadence -F wait_timer=20
+```
+
+Antes de lanzar otro build, el job revisa que no haya uno en cola o en curso y que el cron de
+GitHub no haya corrido en los últimos 20 minutos, así que nunca hay dos cadenas en paralelo.
+Cancelar un build a mano corta la cadena; el vigilante (capa 3) la reanuda.
+
+### Respaldo externo opcional (cron-job.org)
 
 1. Crear un token *fine-grained* limitado a **este** repositorio con un único permiso:
    **Actions: Read and write** (#20). Ponerle vencimiento (90 días) y anotar la fecha de rotación.
