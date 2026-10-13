@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -21,12 +22,16 @@ class AnalyzeReport:
     failed: int = 0
 
 
+SLOW_ANALYSIS_S = 10.0
+
+
 def analyze_pending(
     snapshots: SnapshotStore, catalog: CatalogStore, state: StateStore, now: datetime
 ) -> AnalyzeReport:
     """Analyze the snapshots fetched in this build and cache the result by commit."""
     report = AnalyzeReport()
     for snapshot in list(snapshots):
+        started = time.perf_counter()
         try:
             analysis = analyze_snapshot(snapshot, now)
         except Exception:  # one malformed repository must never break the build
@@ -34,6 +39,9 @@ def analyze_pending(
             report.failed += 1
             snapshots.delete(snapshot.id)
             continue
+        spent = time.perf_counter() - started
+        if spent > SLOW_ANALYSIS_S:
+            log.warning("analysis of %s took %.1f s", snapshot.id, spent)
         if analysis is None:
             catalog.delete(snapshot.id)
             state.repo(snapshot.id)["status"] = "opted_out"

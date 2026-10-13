@@ -54,13 +54,15 @@ jobs:
 
       - name: Collect, analyze and index
         id: collect
+        # A step timeout fails the job (the chain below continues); a job timeout would cancel it.
+        timeout-minutes: 8
         env:
           # A fine-grained token raises the REST/GraphQL budget from 1,000 to 5,000 per hour;
           # without it the job uses the repository GITHUB_TOKEN (docs/fuentes.md).
           SKILLSCOPE_GITHUB_TOKEN: ${{ secrets.SKILLSCOPE_GH_TOKEN || github.token }}
           SKILLSCOPE_SITE_URL: ${{ vars.SKILLSCOPE_SITE_URL || steps.pages.outputs.base_url }}
           SKILLSCOPE_REPOSITORY: ${{ github.repository }}
-          SKILLSCOPE_MAX_SECONDS: "360"
+          SKILLSCOPE_MAX_SECONDS: "420"
           # Optional repository variables; empty means the defaults in pipeline/config.py.
           SKILLSCOPE_BUDGET_REST: ${{ vars.SKILLSCOPE_BUDGET_REST }}
           SKILLSCOPE_BUDGET_GRAPHQL: ${{ vars.SKILLSCOPE_BUDGET_GRAPHQL }}
@@ -68,8 +70,6 @@ jobs:
           SKILLSCOPE_REDDIT_CLIENT_ID: ${{ secrets.SKILLSCOPE_REDDIT_CLIENT_ID }}
           SKILLSCOPE_REDDIT_CLIENT_SECRET: ${{ secrets.SKILLSCOPE_REDDIT_CLIENT_SECRET }}
           SKILLSCOPE_REDDIT_USER_AGENT: ${{ vars.SKILLSCOPE_REDDIT_USER_AGENT }}
-          SKILLSCOPE_BLUESKY_HANDLE: ${{ vars.SKILLSCOPE_BLUESKY_HANDLE }}
-          SKILLSCOPE_BLUESKY_APP_PASSWORD: ${{ secrets.SKILLSCOPE_BLUESKY_APP_PASSWORD }}
           SKILLSCOPE_YOUTUBE_API_KEY: ${{ secrets.SKILLSCOPE_YOUTUBE_API_KEY }}
         run: |
           uv sync --locked --no-dev
@@ -137,7 +137,9 @@ jobs:
 
   next-later:
     needs: [build, deploy]
-    if: always() && needs.build.result != 'cancelled' && needs.build.outputs.catch_up != 'true'
+    # Also after a failure or cancellation: updates never stop by accident. To stop them on
+    # purpose: gh workflow disable build.yml
+    if: always() && needs.build.outputs.catch_up != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     environment: cadence
