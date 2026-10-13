@@ -193,9 +193,8 @@ en [.env.example](.env.example); en Actions van como *secrets* o *variables* ([d
 | `SKILLSCOPE_GITHUB_TOKEN` | Sí (en línea) | Token de GitHub de solo lectura de repos públicos. |
 | `SKILLSCOPE_SITE_URL` | Sí (en línea) | URL pública del sitio, para feeds, sitemap y páginas. |
 | `SKILLSCOPE_REPOSITORY` | No | `owner/repo` donde se leen los issues de retiro. |
-| `SKILLSCOPE_MAX_SECONDS` | No | Tiempo máximo de recolección (360 s por defecto). |
+| `SKILLSCOPE_MAX_SECONDS` | No | Tiempo máximo de recolección (360 s por defecto; Actions usa 420). |
 | `SKILLSCOPE_STACKEXCHANGE_KEY` | No | Cuota de la app de Stack Exchange. |
-| `SKILLSCOPE_BLUESKY_HANDLE`, `SKILLSCOPE_BLUESKY_APP_PASSWORD` | No | Menciones en Bluesky. |
 | `SKILLSCOPE_YOUTUBE_API_KEY` | No | Menciones en YouTube. |
 | `SKILLSCOPE_REDDIT_CLIENT_ID`, `SKILLSCOPE_REDDIT_CLIENT_SECRET`, `SKILLSCOPE_REDDIT_USER_AGENT` | No | Apagado salvo acceso aprobado por Reddit. |
 
@@ -315,12 +314,13 @@ Paso a paso, presupuesto de llamadas y verificación: [docs/despliegue.md](docs/
 | Stack Exchange API | Demanda y huecos | Contenido **CC BY-SA 4.0**: se muestran título, autor y enlace al original. |
 | Hacker News (Algolia) | Menciones | API pública. |
 | DEV (Forem) | Menciones | Solo conteos y enlaces. |
-| Mastodon (mastodon.social, hachyderm.io, fosstodon.org) | Menciones | Timelines públicas por etiqueta; su robots.txt lo permite. |
+| Mastodon (mastodon.social, hachyderm.io, fosstodon.org, infosec.exchange, mas.to) | Menciones | Timelines públicas por etiqueta; su robots.txt lo permite. |
 | Lemmy (programming.dev, lemmy.world) | Menciones | API pública; una petición por instancia y hora, como pide su `Crawl-delay: 60`. |
 | GitHub, historial de estrellas | Tendencias | Conteos agregados por día, sin datos de personas. |
-| Bluesky, YouTube | Menciones (opcionales) | Con credenciales propias y dentro de sus cuotas. |
+| Bluesky | Menciones | Búsqueda pública sin cuenta en `api.bsky.app`, permitida por su robots.txt. |
+| YouTube | Menciones (opcional) | Solo con una clave de API propia (`SKILLSCOPE_YOUTUBE_API_KEY`); sus términos no permiten otra vía. |
 
-Investigación completa con 62 fuentes, verificaciones propias y supuestos:
+Investigación completa con 64 fuentes, verificaciones propias y supuestos:
 [docs/investigacion.md](docs/investigacion.md) · límites y presupuesto por fuente:
 [docs/fuentes.md](docs/fuentes.md). Los datos de `data/samples` son **ficticios**: todos los dueños
 llevan el prefijo `demo_` (GitHub no admite `_` en nombres de usuario ni de organización, así que
