@@ -3,7 +3,7 @@
 # Usage: docker compose up --build   ->   http://localhost:8080
 
 # ---- 1. Pipeline: collect (sample API), analyze and index -------------------------------------
-FROM python:3.14.8-slim-trixie AS data
+FROM python:3.15.0rc3-slim-trixie AS data
 COPY --from=ghcr.io/astral-sh/uv:0.13.0 /uv /bin/uv
 ENV UV_LINK_MODE=copy \
     UV_PYTHON_DOWNLOADS=never \
