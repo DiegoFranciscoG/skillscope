@@ -2,9 +2,11 @@ import "./styles.css";
 import { DataCache, type UpdateEvent, Updater } from "./data";
 import { clear, h } from "./dom";
 import { ago, clockTime, SOURCE_LABELS } from "./format";
+import { searchGitHub } from "./github-live";
 import { SearchEngine } from "./search/hybrid";
 import { initialState, Store, TABS, type State, type Tab, toSearch, visibleItems } from "./store";
 import type { IndexData, Item } from "./types";
+import { renderBeyond } from "./ui/beyond";
 import { renderDrawer } from "./ui/drawer";
 import { PAGE, renderList, rowButtons, type RowContext } from "./ui/list";
 import { renderError, renderGaps, renderSearch } from "./ui/views";
@@ -119,6 +121,8 @@ function selectTab(tab: Tab): void {
 }
 
 // ---- main view -----------------------------------------------------------------------------------
+const BEYOND_BELOW = 3; // fewer good matches than this: also search beyond the index
+
 function rowContext(state: State): RowContext {
   return {
     labels: state.data!.labels,
@@ -162,6 +166,17 @@ function renderView(state: State): void {
   if (searching) {
     const result = ensureEngine(state)!.search(state.query);
     renderSearch(ui.view, result, rowContext(state), () => selectTab("gaps"));
+    // Never stop at the index: with few good matches, look in the queue and offer GitHub.
+    if (result.exact.length + result.similar.length < BEYOND_BELOW) {
+      const analyzed = new Set(data.items.map((item) => item.id.toLowerCase()));
+      renderBeyond(ui.view, state.query, {
+        loadCandidates: () => cache.loadCandidates(),
+        searchGitHub: (query) => searchGitHub(query, (input, init) => fetch(input, init)),
+        inIndex: (id) => analyzed.has(id.toLowerCase()),
+        onOpen: (id) => openItem(state.byId.get(id) ? id : data.items.find((i) => i.id.toLowerCase() === id.toLowerCase())?.id ?? id),
+        now: Date.now(),
+      });
+    }
     ui.count.textContent = "";
     return;
   }

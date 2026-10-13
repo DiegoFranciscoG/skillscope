@@ -1,7 +1,7 @@
 // Loading and live updates. index.json is polled every 5 minutes with If-None-Match: an
 // unchanged build costs a 304 with no body. A new build_id is applied in place (no reload).
 import { Embeddings, type EmbeddingsMeta } from "./search/embeddings";
-import type { DemandData, Detail, IndexData } from "./types";
+import type { Candidate, DemandData, Detail, IndexData } from "./types";
 
 export const INDEX_URL = "data/index.json";
 export const POLL_MS = 5 * 60 * 1000;
@@ -107,6 +107,7 @@ export class DataCache {
   private details = new Map<string, Promise<Record<string, Detail>>>();
   private embeddings: Promise<Embeddings | null> | null = null;
   private demand: Promise<DemandData | null> | null = null;
+  private candidates: Promise<Candidate[] | null> | null = null;
 
   constructor(
     private files: Record<string, string>,
@@ -118,6 +119,7 @@ export class DataCache {
     this.details.clear();
     this.embeddings = null;
     this.demand = null;
+    this.candidates = null;
   }
 
   async detail(category: string, id: string): Promise<Detail | null> {
@@ -162,5 +164,18 @@ export class DataCache {
         : Promise.resolve(null);
     }
     return this.demand;
+  }
+
+  /** Repositories queued for analysis; loaded only when a search finds little in the index. */
+  loadCandidates(): Promise<Candidate[] | null> {
+    if (!this.candidates) {
+      const url = this.files.candidates;
+      this.candidates = url
+        ? this.fetcher(url)
+            .then(async (r) => (r.ok ? ((await r.json()) as { items: Candidate[] }).items : null))
+            .catch(() => null)
+        : Promise.resolve(null);
+    }
+    return this.candidates;
   }
 }

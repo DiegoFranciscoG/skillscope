@@ -144,3 +144,35 @@ test.describe("Skillscope", () => {
     await expect(page).toHaveURL(/risk=3/);
   });
 });
+
+test.describe("beyond the index", () => {
+  test("a search with no good match offers the queue and a live GitHub search on click", async ({ page }) => {
+    let calls = 0;
+    await page.route("https://api.github.com/search/repositories**", async (route) => {
+      calls += 1;
+      expect(route.request().headers()["authorization"]).toBeUndefined();
+      await route.fulfill({
+        contentType: "application/json",
+        headers: { "access-control-allow-origin": "*" },
+        body: JSON.stringify({
+          items: [
+            {
+              full_name: "example-org/cobol-migrator",
+              html_url: "https://github.com/example-org/cobol-migrator",
+              description: "Migrate COBOL jobs",
+              stargazers_count: 42,
+              pushed_at: "2026-10-01T00:00:00Z",
+            },
+          ],
+        }),
+      });
+    });
+    await page.goto("./?q=" + encodeURIComponent("migrar trabajos COBOL a Java"));
+    await expect(page.getByRole("heading", { name: "Encontrados por Skillscope, aún sin analizar" })).toBeVisible();
+    expect(calls).toBe(0); // nothing leaves the site until the reader asks
+    await page.getByRole("button", { name: "Buscar en GitHub ahora" }).click();
+    const request = page.getByRole("link", { name: "Pedir análisis prioritario" });
+    await expect(request).toHaveAttribute("href", /repository=example-org%2Fcobol-migrator/);
+    expect(calls).toBe(1);
+  });
+});

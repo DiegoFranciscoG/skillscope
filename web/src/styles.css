@@ -22,6 +22,7 @@
   --border: #e2e2e7;
   --accent: #2b55c9;
   --accent-soft: #e8eefc;
+  --rise: #1a7f37;
   --risk-0: #55555f;
   --risk-1: #7a5c00;
   --risk-2: #a8460a;
@@ -40,6 +41,7 @@
     --border: #2f2f37;
     --accent: #8aa9ff;
     --accent-soft: #1f2a47;
+    --rise: #57d38c;
     --risk-0: #a8a8b3;
     --risk-1: #e2b84c;
     --risk-2: #f59e5b;
@@ -445,6 +447,39 @@ select,
 }
 
 .empty,
+.rise {
+  color: var(--rise);
+  font-weight: 600;
+}
+
+.found-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.found {
+  display: grid;
+  gap: var(--s1);
+  padding: var(--s3) var(--s4);
+}
+
+.found + .found {
+  border-top: 1px solid var(--border);
+}
+
+.found-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.beyond .button {
+  margin-bottom: var(--s3);
+}
+
 .notice {
   padding: var(--s6);
   border: 1px dashed var(--border);

@@ -42,6 +42,10 @@ export interface Item {
   first_seen: string;
   mentions_30d: number;
   trend: number;
+  /** Stars gained in the last 7 days (GitHub star history), when measured recently. */
+  stars_7d?: number | null;
+  /** More than half of the stars arrived this week. */
+  star_spike?: boolean;
   co: string[];
   sample: boolean;
 }
@@ -77,6 +81,7 @@ export interface IndexData {
   labels: { types: Record<string, string>; categories: Record<string, string> };
   files: Record<string, string>;
   lists: {
+    newest?: string[];
     most_used: string[];
     most_mentioned: string[];
     trending: string[];
@@ -180,4 +185,14 @@ export interface DemandData {
   topics: DemandTopic[];
   gaps: (DemandTopic & { topic: string })[];
   categories: { category: string; label: string; demand: number }[];
+}
+
+/** A repository found by discovery and not analyzed yet (data/candidates.json). */
+export interface Candidate {
+  id: string;
+  d: string; // description, untrusted text
+  t: string[]; // topics
+  l: string; // language
+  s: number; // stars
+  p: string | null; // last push
 }

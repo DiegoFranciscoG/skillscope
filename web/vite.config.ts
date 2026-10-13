@@ -16,7 +16,7 @@ export const CSP = [
   "style-src 'self'",
   "img-src 'self' data:",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://api.github.com", // live GitHub search, only on click
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

@@ -49,6 +49,8 @@ export function row(item: Item, context: RowContext, index: number, prefix = "ro
       "span",
       { class: "meta", id: metaId },
       h("span", {}, `★ ${compact(item.stars)}`),
+      item.stars_7d ? h("span", { class: "rise" }, `▲ ${compact(item.stars_7d)} esta semana`) : null,
+      item.star_spike ? h("span", { class: "risk risk-1" }, "más de la mitad de sus estrellas llegó esta semana") : null,
       h("span", { class: `risk risk-${item.risk.level}` }, RISK_LABELS[item.risk.level]),
       item.pushed_at ? h("span", {}, `actividad ${ago(item.pushed_at, context.now)}`) : null,
       item.sample ? h("span", {}, "ejemplo ficticio") : null,

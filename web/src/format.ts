@@ -50,6 +50,7 @@ export const SOURCE_LABELS: Record<string, string> = {
   reddit: "Reddit",
   devto: "DEV",
   mastodon: "Mastodon",
+  lemmy: "Lemmy",
   bluesky: "Bluesky",
   youtube: "YouTube",
   npm: "npm",
