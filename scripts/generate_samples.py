@@ -1836,6 +1836,26 @@ def social() -> dict[str, Any]:
                 },
             ]
         },
+        "bluesky": {
+            "posts": [
+                {
+                    "uri": "at://example.com/app.bsky.feed.post/1",
+                    "indexedAt": "-1d",
+                    "likeCount": 6,
+                    "repostCount": 2,
+                    "record": {
+                        "text": "Trying demo_andes-devtools/test-pilot for flaky tests",
+                        "facets": [
+                            {
+                                "features": [
+                                    {"uri": "https://github.com/demo_andes-devtools/test-pilot"}
+                                ]
+                            }
+                        ],
+                    },
+                }
+            ]
+        },
         "lemmy": {
             "posts": [
                 {

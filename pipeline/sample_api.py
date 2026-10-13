@@ -127,7 +127,10 @@ class SampleApi:
             "mastodon.social": self._mastodon,
             "hachyderm.io": self._mastodon,
             "fosstodon.org": self._mastodon,
+            "infosec.exchange": self._mastodon,
+            "mas.to": self._mastodon,
             "programming.dev": self._lemmy,
+            "api.bsky.app": self._bluesky,
             "lemmy.world": self._lemmy,
             "api.npmjs.org": self._npm,
         }
@@ -342,6 +345,11 @@ class SampleApi:
             return httpx.Response(404, json={"error": "not found"})
         statuses = self.social.get("mastodon", {}).get("statuses", [])
         return httpx.Response(200, json=statuses, headers={"x-ratelimit-remaining": "299"})
+
+    def _bluesky(self, request: httpx.Request) -> httpx.Response:
+        if request.url.path != "/xrpc/app.bsky.feed.searchPosts":
+            return httpx.Response(404, json={"error": "not found"})
+        return httpx.Response(200, json=self.social.get("bluesky", {"posts": []}))
 
     def _lemmy(self, request: httpx.Request) -> httpx.Response:
         if request.url.path != "/api/v3/search":

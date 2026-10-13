@@ -109,7 +109,7 @@ def test_stackexchange_builds_attributed_demand_and_honours_backoff(tmp_path: Pa
 
 def test_missing_credentials_skip_optional_sources(tmp_path: Path) -> None:
     h = harness(tmp_path, {})
-    for source in (Reddit(), Bluesky(), YouTube()):
+    for source in (Reddit(), YouTube()):  # Bluesky search needs no account (#63)
         result = run_source(source, http=h.http, state=h.state, settings=SETTINGS, clock=h.clock)
         assert result.report.status == "skipped"
         assert result.report.calls == 0
@@ -244,8 +244,7 @@ def test_bluesky_and_youtube_parse_links(tmp_path: Path) -> None:
     }
     seen: list[httpx.Request] = []
     routes = {
-        "https://bsky.social/xrpc/com.atproto.server.createSession": {"accessJwt": "jwt"},
-        "https://bsky.social/xrpc/app.bsky.feed.searchPosts": {"posts": [post]},
+        "https://api.bsky.app/xrpc/app.bsky.feed.searchPosts": {"posts": [post]},
         "https://www.googleapis.com/youtube/v3/search": {"items": [{"id": {"videoId": "v1"}}]},
         "https://www.googleapis.com/youtube/v3/videos": {
             "items": [
@@ -261,11 +260,10 @@ def test_bluesky_and_youtube_parse_links(tmp_path: Path) -> None:
         },
     }
     h = harness(tmp_path, routes, seen)
-    settings = _settings(
-        bluesky_handle="me.bsky.social", bluesky_app_password="app-pass", youtube_api_key="yt-key"
-    )
-    sky = run_source(Bluesky(), http=h.http, state=h.state, settings=settings, clock=h.clock)
-    assert sky.mentions[0].engagement == 3
+    settings = _settings(youtube_api_key="yt-key")
+    sky = run_source(Bluesky(), http=h.http, state=h.state, settings=SETTINGS, clock=h.clock)
+    assert sky.mentions[0].engagement == 3  # no account needed (api.bsky.app, #63)
+    assert all("authorization" not in r.headers for r in seen if r.url.host == "api.bsky.app")
     tube = run_source(YouTube(), http=h.http, state=h.state, settings=settings, clock=h.clock)
     assert tube.mentions[0].repo_id == "acme/yt"
     youtube_calls = [r for r in seen if "googleapis" in str(r.url)]

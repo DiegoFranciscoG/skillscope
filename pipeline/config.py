@@ -30,8 +30,6 @@ class SocialCredentials:
     reddit_client_id: str | None = field(default=None, repr=False)
     reddit_client_secret: str | None = field(default=None, repr=False)
     reddit_user_agent: str | None = None
-    bluesky_handle: str | None = None
-    bluesky_app_password: str | None = field(default=None, repr=False)
     youtube_api_key: str | None = field(default=None, repr=False)
 
 
@@ -130,8 +128,6 @@ def load_settings(
             reddit_client_id=_opt(env, "SKILLSCOPE_REDDIT_CLIENT_ID"),
             reddit_client_secret=_opt(env, "SKILLSCOPE_REDDIT_CLIENT_SECRET"),
             reddit_user_agent=_opt(env, "SKILLSCOPE_REDDIT_USER_AGENT"),
-            bluesky_handle=_opt(env, "SKILLSCOPE_BLUESKY_HANDLE"),
-            bluesky_app_password=_opt(env, "SKILLSCOPE_BLUESKY_APP_PASSWORD"),
             youtube_api_key=_opt(env, "SKILLSCOPE_YOUTUBE_API_KEY"),
         )
     )

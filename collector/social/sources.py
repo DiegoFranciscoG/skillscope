@@ -93,7 +93,7 @@ class StackExchange(SocialSource):
 
     id = "stackexchange"
     cadence_minutes = 120
-    budget = 6
+    budget = 7
     URL = "https://api.stackexchange.com/2.3/search/advanced"
     QUERIES: tuple[dict[str, str], ...] = (
         {"tagged": "claude-code"},
@@ -101,6 +101,7 @@ class StackExchange(SocialSource):
         {"q": "agent skill"},
         {"q": "claude plugin"},
         {"tagged": "model-context-protocol"},
+        {"site": "ai", "q": "coding agent"},
     )
 
     def fetch(
@@ -306,7 +307,7 @@ class DevTo(SocialSource):
 
 # ---------------------------------------------------------------------------------------------
 class Mastodon(SocialSource):
-    """Public hashtag timelines on several instances, 300 requests / 5 min each (#40, #41, #60).
+    """Public hashtag timelines on five instances, 300 requests / 5 min each (#40, #41, #60, #64).
 
     The same post reaches many instances through federation, so it is identified by its
     canonical ``uri`` and counted once. An instance that fails does not stop the others.
@@ -314,8 +315,14 @@ class Mastodon(SocialSource):
 
     id = "mastodon"
     cadence_minutes = 30
-    budget = 9
-    INSTANCES = ("mastodon.social", "hachyderm.io", "fosstodon.org")
+    budget = 15
+    INSTANCES = (
+        "mastodon.social",
+        "hachyderm.io",
+        "fosstodon.org",
+        "infosec.exchange",
+        "mas.to",
+    )
     TAGS = ("claudecode", "claude", "mcp")
 
     def fetch(
@@ -424,39 +431,21 @@ class Lemmy(SocialSource):
 
 # ---------------------------------------------------------------------------------------------
 class Bluesky(SocialSource):
-    """Bluesky search needs an account session (public AppView answers 403, E2) (#38, #39)."""
+    """Public post search on the Bluesky AppView, no account (#38, #39, #63).
+
+    api.bsky.app states in its robots.txt that crawling the public API is allowed and that
+    HTTP 429 is its rate-limit signal; public.api.bsky.app (the cached mirror) refuses search.
+    """
 
     id = "bluesky"
-    cadence_minutes = 120
-    budget = 4
-    SESSION_URL = "https://bsky.social/xrpc/com.atproto.server.createSession"
-    SEARCH_URL = "https://bsky.social/xrpc/app.bsky.feed.searchPosts"
+    cadence_minutes = 60
+    budget = 3
+    SEARCH_URL = "https://api.bsky.app/xrpc/app.bsky.feed.searchPosts"
     QUERIES = ("github.com claude skill", "github.com claude plugin", "github.com agent skills")
-
-    def unavailable(self, settings: Settings) -> str | None:
-        if not (settings.social.bluesky_handle and settings.social.bluesky_app_password):
-            return "sin cuenta configurada (la búsqueda pública responde 403)"
-        return None
 
     def fetch(
         self, http: HttpClient, budget: Budget, state: StateStore, settings: Settings, now: datetime
     ) -> tuple[list[Mention], list[DemandItem]]:
-        session = (
-            http.post(
-                self.SESSION_URL,
-                source=self.id,
-                budget=budget,
-                json_body={
-                    "identifier": settings.social.bluesky_handle,
-                    "password": settings.social.bluesky_app_password,
-                },
-                store_raw=False,
-            ).data
-            or {}
-        )
-        token = session.get("accessJwt")
-        if not token:
-            raise RequestFailedError(self.id, None, "session not created")
         cursor = state.cursor(self.id)
         since = parse_iso(cursor.get("since")) or now - timedelta(days=30)
         mentions: list[Mention] = []
@@ -467,8 +456,7 @@ class Bluesky(SocialSource):
                 self.SEARCH_URL,
                 source=self.id,
                 budget=budget,
-                params={"q": query, "limit": 100, "since": iso(since)},
-                headers={"Authorization": f"Bearer {token}"},
+                params={"q": query, "limit": 100, "since": iso(since), "sort": "latest"},
                 conditional=False,
             )
             for post in (result.data or {}).get("posts", []):
