@@ -25,7 +25,6 @@ sociales que no piden clave (Hacker News, Stack Exchange sin clave, DEV, Mastodo
 | `SKILLSCOPE_GH_TOKEN` | Secreto | Sube el presupuesto de 1.000 a 5.000 llamadas REST/h (#12). | Token *fine-grained* con acceso **Public repositories (read-only)** y **ningún** permiso adicional. |
 | `SKILLSCOPE_SITE_URL` | Variable | Solo si usas dominio propio; si no, se toma de `configure-pages`. | — |
 | `SKILLSCOPE_STACKEXCHANGE_KEY` | Secreto | Cuota diaria de la app en vez de 300 por IP (#32). | Registrar la app en Stack Apps (#33). |
-| `SKILLSCOPE_BLUESKY_HANDLE` / `SKILLSCOPE_BLUESKY_APP_PASSWORD` | Variable / Secreto | Búsqueda de menciones en Bluesky (#38). | *App password* de una cuenta dedicada, nunca la contraseña principal. |
 | `SKILLSCOPE_YOUTUBE_API_KEY` | Secreto | Menciones en YouTube (#37). | Clave de API restringida a *YouTube Data API v3*. |
 | `SKILLSCOPE_REDDIT_*` | Secreto / Variable | Apagado por defecto (S5). | Solo con acceso aprobado por Reddit (#36). |
 

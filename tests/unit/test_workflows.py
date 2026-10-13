@@ -72,3 +72,7 @@ def test_every_build_queues_the_next_one_with_minimal_rights() -> None:
         assert "gh workflow run build.yml" in job["steps"][-1]["run"]
     assert later["environment"] == "cadence"  # wait timer lives in the environment, not a runner
     assert "catch_up" in data["jobs"]["build"]["outputs"]
+    # A hung pipeline must fail its step (not cancel the job) and the chain must go on anyway.
+    collect = next(s for s in data["jobs"]["build"]["steps"] if s.get("id") == "collect")
+    assert collect["timeout-minutes"] < data["jobs"]["build"]["timeout-minutes"]
+    assert "cancelled" not in later["if"]

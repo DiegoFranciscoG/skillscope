@@ -74,7 +74,7 @@ erDiagram
 
 | Archivo | Dónde vive | Publicado | Contenido |
 |---|---|---|---|
-| `data/index.json` | sitio | Sí | Build, totales, estado de fuentes, lista ligera y listas derivadas. Es también la **API pública**. |
+| `data/index.json` | sitio | Sí | Build, totales, estado de fuentes, lista ligera y listas derivadas. Es también la **API pública**. `totals.queue` = repos descubiertos que esperan análisis. |
 | `data/detail/<categoria>.json` | sitio | Sí | Ficha completa de cada repo de esa categoría (shards para no descargar todo). |
 | `data/embeddings.bin` + `data/embeddings.json` | sitio | Sí | Vectores int8 de documentos y términos + mapa de ids, vocabulario e idf. |
 | `data/demand.json` | sitio | Sí | Preguntas de demanda (con atribución), temas y huecos. |

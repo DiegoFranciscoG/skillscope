@@ -48,6 +48,7 @@ def run_build(ctx: Context, out_dir: Path, root: Path) -> BuildResult:
     # GitHub can always use more time; keep a slice for the social sources and npm after it.
     full_deadline = ctx.http.deadline
     ctx.http.deadline = full_deadline - min(SOURCES_RESERVE_S, 0.2 * settings.max_seconds)
+    log.info("stage github: start")
     try:
         github = collect_github(
             settings, ctx.clock, ctx.http, ctx.state, ctx.snapshots, root, ctx.catalog
@@ -56,6 +57,7 @@ def run_build(ctx: Context, out_dir: Path, root: Path) -> BuildResult:
         ctx.http.deadline = full_deadline
     reports.append(github.report.to_dict())
 
+    log.info("stage social: start at %.0f s", ctx.clock.monotonic() - started)
     for source_class in ALL_SOURCES:
         result = run_source(
             source_class(), http=ctx.http, state=ctx.state, settings=settings, clock=ctx.clock
@@ -64,6 +66,7 @@ def run_build(ctx: Context, out_dir: Path, root: Path) -> BuildResult:
         signals.add_demand(result.demand)
         reports.append(result.report.to_dict())
 
+    log.info("stage analysis: start at %.0f s", ctx.clock.monotonic() - started)
     analyzed = analyze_pending(ctx.snapshots, ctx.catalog, ctx.state, ctx.clock.now())
     reports[0].setdefault("details", {})["analysis"] = asdict(analyzed)
     for line in github_digest(reports[0]):
@@ -87,6 +90,7 @@ def run_build(ctx: Context, out_dir: Path, root: Path) -> BuildResult:
     reports.append(npm.to_dict())
     signals.prune(now, keep_repos={r.meta.id.lower() for r in records})
 
+    log.info("stage index: start at %.0f s", ctx.clock.monotonic() - started)
     site = index.build(
         records,
         signals,

@@ -116,5 +116,5 @@ def test_long_queue_defers_the_wide_crawl(tmp_path: Path) -> None:
     report = Discovery(gh, h.state, frontier, NOW, excluded=set()).run()
 
     assert report.crawl_deferred
-    assert budgets.search.used <= 5  # a quarter of the search budget, for fresh repos only
+    assert budgets.search.used <= 10  # a quarter for fresh repos and a quarter of wide crawl
     assert budgets.code_search.used == 0

@@ -116,9 +116,10 @@ export function renderBeyond(container: HTMLElement, query: string, deps: Beyond
             append(live, h("p", { class: "notice", role: "status" }, "GitHub tampoco tiene repositorios para esta búsqueda."));
             return;
           }
+          const origin = result.cached ? " (guardado de tu búsqueda anterior)" : "";
           append(
             live,
-            h("p", { class: "notice", role: "status" }, `${result.repos.length} repositorios en GitHub. Revísalos antes de instalarlos: no están analizados.`),
+            h("p", { class: "notice", role: "status" }, `${result.repos.length} repositorios en GitHub${origin}. Revísalos antes de instalarlos: no están analizados.`),
             h(
               "ul",
               { class: "found-list" },

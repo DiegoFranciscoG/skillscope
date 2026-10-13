@@ -410,6 +410,7 @@ def _totals(data: SiteData) -> dict[str, Any]:
     return {
         "repos": len(data.entries),
         "catalog": data.catalog_size,
+        "queue": len(data.candidates),
         "artifacts": dict(artifacts),
         "by_type": dict(by_type),
         "by_category": dict(by_category),

@@ -16,6 +16,7 @@ workflow regenera. Los riesgos relevantes y cómo se cubren:
 | Texto de terceros (README, SKILL.md, preguntas) inyectando HTML o scripts | La web nunca usa `innerHTML`; CSP con `require-trusted-types-for 'script'` hace fallar cualquier regresión. Las páginas estáticas escapan todo y el JSON-LD escapa `<`, `>` y `&`. |
 | Rutas manipuladas con nombres de repo | Solo se escriben carpetas cuyo `owner/name` cumple el juego de caracteres de GitHub (`indexer/pages.py`). |
 | YAML malicioso en frontmatter | `yaml.safe_load`, sin alias, tamaño acotado. |
+| Expresiones regulares lentas (ReDoS) con archivos de terceros | Todas las expresiones de los módulos que leen texto ajeno pasan una prueba con entradas hostiles en un proceso con límite de tiempo (`tests/unit/test_regex_safety.py`). Si aun así algo se colgara, el paso del pipeline falla a los 8 minutos, el sitio conserva la versión anterior y la cadena de builds continúa. |
 | Secretos publicados por un repo analizado | Las evidencias que parecen credenciales se redactan antes de publicarse. |
 | Claves de API en el front | No existen: `npm run scan:bundle` falla el build si aparece un token, una cabecera `Authorization` o `process.env` en lo publicado. |
 | Búsqueda en vivo en GitHub | Solo al pulsar el botón; sin credenciales (`credentials: "omit"`), sin referrer; la CSP abre `connect-src` únicamente a `https://api.github.com`; se aceptan solo ids `owner/repo` válidos y enlaces `https://github.com/<id>`; el texto llega por `textContent`. |

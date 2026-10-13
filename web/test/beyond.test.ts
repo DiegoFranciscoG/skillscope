@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { liveQuery, searchGitHub } from "../src/github-live";
+import { LiveSearch, liveQuery } from "../src/github-live";
 import { CandidateIndex } from "../src/search/candidates";
 import type { Candidate } from "../src/types";
 import { renderBeyond, requestUrl } from "../src/ui/beyond";
@@ -42,7 +42,7 @@ describe("live GitHub search", () => {
         { status: 200 },
       ),
     );
-    const result = await searchGitHub("notion mcp", fetcher);
+    const result = await new LiveSearch(fetcher, null).search("notion mcp");
     const init = fetcher.mock.calls[0]![1]!;
     expect(init.credentials).toBe("omit");
     expect(init.referrerPolicy).toBe("no-referrer");
@@ -53,9 +53,36 @@ describe("live GitHub search", () => {
   });
 
   it("explains the unauthenticated rate limit", async () => {
-    const result = await searchGitHub("x", async () => new Response("{}", { status: 403 }));
+    const result = await new LiveSearch(async () => new Response("{}", { status: 403 }), null).search("x");
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toContain("10 búsquedas por minuto");
+  });
+
+  it("caches answers for the session and counts down when the quota is spent", async () => {
+    const memory = new Map<string, string>();
+    const storage = {
+      getItem: (key: string) => memory.get(key) ?? null,
+      setItem: (key: string, value: string) => void memory.set(key, value),
+    } as unknown as Storage;
+    let now = Date.parse("2026-10-13T12:00:00Z");
+    const resetAt = Math.floor(now / 1000) + 45;
+    const fetcher = vi.fn(async () =>
+      new Response(
+        JSON.stringify({ items: [{ full_name: "a/b", html_url: "https://github.com/a/b" }] }),
+        { status: 200, headers: { "x-ratelimit-remaining": "0", "x-ratelimit-reset": String(resetAt) } },
+      ),
+    );
+    const live = new LiveSearch(fetcher, storage, () => now);
+    expect((await live.search("notion")).ok).toBe(true);
+    const again = await live.search("Notion");
+    expect(again.ok && again.cached).toBe(true); // same words: no second request
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    const other = await live.search("figma");
+    expect(other.ok).toBe(false);
+    if (!other.ok) expect(other.retryInSeconds).toBe(45);
+    expect(fetcher).toHaveBeenCalledTimes(1); // quota spent: GitHub is not asked again
+    now += 46_000;
+    expect(live.waitSeconds()).toBe(0);
   });
 });
 
