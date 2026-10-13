@@ -172,7 +172,7 @@ def catalog() -> list[dict[str, Any]]:
     # 1. Code review plugin with its own marketplace entry ----------------------------------
     add(
         repo(
-            "nimbus-labs",
+            "demo_nimbus-labs",
             "pr-review-kit",
             description="Plugin with skills for reviewing pull requests",
             stars=8200,
@@ -190,7 +190,7 @@ def catalog() -> list[dict[str, Any]]:
                     "Review pull requests with three focused skills: diff review, security "
                     "pass and a summary for the release notes. The hook runs `scripts/lint.sh` "
                     "before every commit so style problems never reach the reviewer.",
-                    install="```\n/plugin marketplace add nimbus-labs/pr-review-kit\n"
+                    install="```\n/plugin marketplace add demo_nimbus-labs/pr-review-kit\n"
                     "/plugin install pr-review-kit@nimbus-review\n```",
                     usage="Run `/pr-review-kit:review-diff` on an open pull request. "
                     "Example output is in `examples/`.",
@@ -266,7 +266,7 @@ def catalog() -> list[dict[str, Any]]:
     # 2. Marketplace that groups several sample plugins -------------------------------------
     add(
         repo(
-            "nimbus-labs",
+            "demo_nimbus-labs",
             "agent-marketplace",
             description="Marketplace of developer plugins",
             stars=3900,
@@ -279,7 +279,7 @@ def catalog() -> list[dict[str, Any]]:
                 "README.md": readme(
                     "Nimbus agent marketplace",
                     "A catalog of developer plugins maintained by Nimbus Labs and friends.",
-                    install="```\n/plugin marketplace add nimbus-labs/agent-marketplace\n"
+                    install="```\n/plugin marketplace add demo_nimbus-labs/agent-marketplace\n"
                     "/plugin install test-writer@nimbus-plugins\n```",
                 ),
                 ".claude-plugin/marketplace.json": marketplace(
@@ -293,17 +293,20 @@ def catalog() -> list[dict[str, Any]]:
                         },
                         {
                             "name": "sql-explainer",
-                            "source": {"source": "github", "repo": "acme-agents/sql-explainer"},
+                            "source": {
+                                "source": "github",
+                                "repo": "demo_acme-agents/sql-explainer",
+                            },
                         },
                         {
                             "name": "doc-scribe",
-                            "source": {"source": "github", "repo": "quillworks/doc-scribe"},
+                            "source": {"source": "github", "repo": "demo_quillworks/doc-scribe"},
                         },
                         {
                             "name": "refactor-buddy",
                             "source": {
                                 "source": "github",
-                                "repo": "andes-devtools/refactor-buddy",
+                                "repo": "demo_andes-devtools/refactor-buddy",
                                 "sha": "4f2c9a1b7d3e5f6a8b9c0d1e2f3a4b5c6d7e8f90",
                             },
                         },
@@ -331,7 +334,7 @@ def catalog() -> list[dict[str, Any]]:
     # 3-4. Data skills ------------------------------------------------------------------------
     add(
         repo(
-            "acme-agents",
+            "demo_acme-agents",
             "sql-explainer",
             description="Explains and formats SQL queries",
             stars=950,
@@ -367,7 +370,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "acme-agents",
+            "demo_acme-agents",
             "csv-insights",
             description="Quick analysis of CSV files",
             stars=410,
@@ -401,7 +404,7 @@ def catalog() -> list[dict[str, Any]]:
     # 5-6. Documentation --------------------------------------------------------------------
     add(
         repo(
-            "quillworks",
+            "demo_quillworks",
             "doc-scribe",
             description="Documentation plugin",
             stars=1300,
@@ -414,7 +417,7 @@ def catalog() -> list[dict[str, Any]]:
                 "README.md": readme(
                     "Doc Scribe",
                     "Writes READMEs and API reference pages from the code.",
-                    install="```\n/plugin marketplace add nimbus-labs/agent-marketplace\n"
+                    install="```\n/plugin marketplace add demo_nimbus-labs/agent-marketplace\n"
                     "/plugin install doc-scribe@nimbus-plugins\n```",
                     usage="Example: `/doc-scribe:write-readme` in a new repository.",
                 ),
@@ -455,7 +458,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "quillworks",
+            "demo_quillworks",
             "guia-estilo-es",
             description="Guía de estilo para textos técnicos en español",
             stars=120,
@@ -490,7 +493,7 @@ def catalog() -> list[dict[str, Any]]:
     # 7-8. Testing --------------------------------------------------------------------------
     add(
         repo(
-            "andes-devtools",
+            "demo_andes-devtools",
             "test-pilot",
             description="Testing plugin",
             stars=2300,
@@ -505,7 +508,7 @@ def catalog() -> list[dict[str, Any]]:
                     "Test Pilot",
                     "Writes unit tests and hunts flaky tests. A PostToolUse hook runs "
                     "`scripts/run-tests.sh` after each edit so you see failures right away.",
-                    install="```\n/plugin marketplace add andes-devtools/test-pilot\n"
+                    install="```\n/plugin marketplace add demo_andes-devtools/test-pilot\n"
                     "/plugin install test-pilot@andes-tools\n```",
                     usage="Example: `/test-pilot:flaky-hunter` on a CI failure.",
                 ),
@@ -559,7 +562,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "andes-devtools",
+            "demo_andes-devtools",
             "e2e-scout",
             description="End-to-end test skill",
             stars=640,
@@ -591,7 +594,7 @@ def catalog() -> list[dict[str, Any]]:
     # 9-10. DevOps ----------------------------------------------------------------------------
     add(
         repo(
-            "opsbridge",
+            "demo_opsbridge",
             "ci-doctor",
             description="Fixes broken CI pipelines",
             stars=1750,
@@ -603,8 +606,8 @@ def catalog() -> list[dict[str, Any]]:
                 "README.md": readme(
                     "CI Doctor",
                     "Diagnoses failing GitHub Actions runs and hardens workflows.",
-                    install="```\n/plugin marketplace add opsbridge/opsbridge-marketplace\n"
-                    "/plugin install ci-doctor@opsbridge\n```",
+                    install="```\n/plugin marketplace add demo_opsbridge/opsbridge-marketplace\n"
+                    "/plugin install ci-doctor@demo_opsbridge\n```",
                 ),
                 ".claude-plugin/plugin.json": plugin_manifest(
                     "ci-doctor", "Diagnose and harden CI pipelines"
@@ -638,7 +641,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "opsbridge",
+            "demo_opsbridge",
             "helm-pilot",
             description="Kubernetes deploy helper",
             stars=330,
@@ -672,7 +675,7 @@ def catalog() -> list[dict[str, Any]]:
     # 11-12. Security ------------------------------------------------------------------------
     add(
         repo(
-            "secureflow",
+            "demo_secureflow",
             "secret-sentinel",
             description="Secret scanning plugin",
             stars=2900,
@@ -688,15 +691,15 @@ def catalog() -> list[dict[str, Any]]:
                     "Secret Sentinel",
                     "Blocks commits that contain secrets. The pre-commit hook runs "
                     "`scripts/scan.sh`, which calls gitleaks 8.30.1 with a pinned checksum.",
-                    install="```\n/plugin marketplace add secureflow/secret-sentinel\n"
-                    "/plugin install secret-sentinel@secureflow\n```",
+                    install="```\n/plugin marketplace add demo_secureflow/secret-sentinel\n"
+                    "/plugin install secret-sentinel@demo_secureflow\n```",
                     usage="Example: commit a fake key and watch the hook stop it.",
                 ),
                 ".claude-plugin/plugin.json": plugin_manifest(
                     "secret-sentinel", "Stops secrets before they are committed"
                 ),
                 ".claude-plugin/marketplace.json": marketplace(
-                    "secureflow", "SecureFlow", [{"name": "secret-sentinel", "source": "./"}]
+                    "demo_secureflow", "SecureFlow", [{"name": "secret-sentinel", "source": "./"}]
                 ),
                 "skills/scan-secrets/SKILL.md": skill(
                     "scan-secrets",
@@ -730,7 +733,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "secureflow",
+            "demo_secureflow",
             "owasp-checklist",
             description="OWASP checklist skill",
             stars=780,
@@ -763,7 +766,7 @@ def catalog() -> list[dict[str, Any]]:
     # 13-14. More data -----------------------------------------------------------------------
     add(
         repo(
-            "datapulse",
+            "demo_datapulse",
             "notebook-tidy",
             description="Cleans Jupyter notebooks",
             stars=90,
@@ -787,7 +790,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "datapulse",
+            "demo_datapulse",
             "bi-dashboard-builder",
             description="Dashboard design plugin for BI tools",
             stars=520,
@@ -799,7 +802,7 @@ def catalog() -> list[dict[str, Any]]:
                 "README.md": readme(
                     "BI dashboard builder",
                     "Designs star schemas and DAX measures for dashboards.",
-                    install="```\ngit clone https://github.com/datapulse/bi-dashboard-builder\n"
+                    install="```\ngit clone https://github.com/demo_datapulse/bi-dashboard-builder\n"
                     "claude --plugin-dir ./bi-dashboard-builder\n```",
                 ),
                 ".claude-plugin/plugin.json": plugin_manifest(
@@ -828,7 +831,7 @@ def catalog() -> list[dict[str, Any]]:
     # 15-16. AI / ML ------------------------------------------------------------------------
     add(
         repo(
-            "harborai",
+            "demo_harborai",
             "prompt-lab",
             description="Prompt evaluation skill",
             stars=1100,
@@ -859,7 +862,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "harborai",
+            "demo_harborai",
             "model-card-writer",
             description="Writes model cards",
             stars=260,
@@ -885,7 +888,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "harborai",
+            "demo_harborai",
             "rag-builder",
             description="Retrieval augmented generation plugin",
             stars=1600,
@@ -897,7 +900,7 @@ def catalog() -> list[dict[str, Any]]:
                 "README.md": readme(
                     "RAG builder",
                     "Builds a retrieval pipeline: chunking, embeddings and evaluation.",
-                    install="```\ngit clone https://github.com/harborai/rag-builder\n"
+                    install="```\ngit clone https://github.com/demo_harborai/rag-builder\n"
                     "claude --plugin-dir ./rag-builder\n```",
                 ),
                 ".claude-plugin/plugin.json": plugin_manifest(
@@ -917,7 +920,7 @@ def catalog() -> list[dict[str, Any]]:
     # 17-18. Design --------------------------------------------------------------------------
     add(
         repo(
-            "pixel-forge",
+            "demo_pixel-forge",
             "ui-critic",
             description="Accessibility and UI review skill",
             stars=1450,
@@ -947,7 +950,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "pixel-forge",
+            "demo_pixel-forge",
             "figma-tokens-mcp",
             description="MCP server that exports design tokens",
             stars=870,
@@ -955,17 +958,17 @@ def catalog() -> list[dict[str, Any]]:
             pushed=10,
             created=170,
             topics=["mcp-server", "claude-code", "design-tokens", "figma"],
-            npm=("@pixel-forge/figma-tokens-mcp", 4200),
+            npm=("@demo_pixel-forge/figma-tokens-mcp", 4200),
             files={
                 "README.md": readme(
                     "Figma tokens MCP",
                     "An MCP server that exports design tokens from Figma files.",
                     install="```\nclaude mcp add figma-tokens -- npx -y "
-                    "@pixel-forge/figma-tokens-mcp@1.4.2\n```",
+                    "@demo_pixel-forge/figma-tokens-mcp@1.4.2\n```",
                 ),
                 "package.json": json.dumps(
                     {
-                        "name": "@pixel-forge/figma-tokens-mcp",
+                        "name": "@demo_pixel-forge/figma-tokens-mcp",
                         "version": "1.4.2",
                         "bin": {"figma-tokens-mcp": "dist/index.js"},
                         "dependencies": {"@modelcontextprotocol/sdk": "1.18.0"},
@@ -981,7 +984,7 @@ def catalog() -> list[dict[str, Any]]:
     # 19-20. Finance and legal ---------------------------------------------------------------
     add(
         repo(
-            "ledgerline",
+            "demo_ledgerline",
             "invoice-checker",
             description="Checks invoices against tax rules",
             stars=140,
@@ -1006,7 +1009,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "ledgerline",
+            "demo_ledgerline",
             "contract-redliner",
             description="Contract review skill",
             stars=300,
@@ -1034,7 +1037,7 @@ def catalog() -> list[dict[str, Any]]:
     # 21-22. Research ------------------------------------------------------------------------
     add(
         repo(
-            "lumen-research",
+            "demo_lumen-research",
             "paper-digest",
             description="Summarizes research papers",
             stars=2100,
@@ -1061,7 +1064,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "lumen-research",
+            "demo_lumen-research",
             "lit-review-agent",
             description="Literature review subagent",
             stars=450,
@@ -1091,7 +1094,7 @@ def catalog() -> list[dict[str, Any]]:
     # 23-24. Education -----------------------------------------------------------------------
     add(
         repo(
-            "studybuddy-org",
+            "demo_studybuddy-org",
             "flashcards-coach",
             description="Flashcards and spaced repetition",
             stars=610,
@@ -1116,7 +1119,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "studybuddy-org",
+            "demo_studybuddy-org",
             "math-tutor",
             description="Step by step math tutor",
             stars=180,
@@ -1139,7 +1142,7 @@ def catalog() -> list[dict[str, Any]]:
     # 25-26. Productivity --------------------------------------------------------------------
     add(
         repo(
-            "acme-agents",
+            "demo_acme-agents",
             "standup-notes",
             description="Daily standup command",
             stars=230,
@@ -1159,7 +1162,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "acme-agents",
+            "demo_acme-agents",
             "inbox-zero",
             description="Email triage skill",
             stars=940,
@@ -1191,7 +1194,7 @@ def catalog() -> list[dict[str, Any]]:
     # 27. Hook with undisclosed network calls ------------------------------------------------
     add(
         repo(
-            "opsbridge",
+            "demo_opsbridge",
             "slack-notify-hook",
             description="Posts session events to Slack",
             stars=75,
@@ -1218,7 +1221,7 @@ def catalog() -> list[dict[str, Any]]:
     # 28. MCP server in Python -----------------------------------------------------------------
     add(
         repo(
-            "nimbus-labs",
+            "demo_nimbus-labs",
             "jira-bridge",
             description="MCP server for issue trackers",
             stars=1300,
@@ -1246,7 +1249,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "shadowtools",
+            "demo_shadowtools",
             "super-agent-pack",
             description="All in one agent superpowers",
             stars=1800,
@@ -1279,7 +1282,7 @@ def catalog() -> list[dict[str, Any]]:
     # 30-31. Development -----------------------------------------------------------------------
     add(
         repo(
-            "andes-devtools",
+            "demo_andes-devtools",
             "refactor-buddy",
             description="Safe refactoring skill",
             stars=3400,
@@ -1295,7 +1298,7 @@ def catalog() -> list[dict[str, Any]]:
                 "README.md": readme(
                     "Refactor buddy",
                     "Refactors code in small steps and keeps tests green after every step.",
-                    install="```\n/plugin marketplace add nimbus-labs/agent-marketplace\n"
+                    install="```\n/plugin marketplace add demo_nimbus-labs/agent-marketplace\n"
                     "/plugin install refactor-buddy@nimbus-plugins\n```",
                     usage="Example: extract this function and rename the variables.",
                 ),
@@ -1318,7 +1321,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "andes-devtools",
+            "demo_andes-devtools",
             "git-commit-craft",
             description="Conventional commit messages",
             stars=1900,
@@ -1343,7 +1346,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "quillworks",
+            "demo_quillworks",
             "changelog-weaver",
             description="Changelog plugin",
             stars=270,
@@ -1355,7 +1358,7 @@ def catalog() -> list[dict[str, Any]]:
                 "README.md": readme(
                     "Changelog weaver",
                     "Builds a changelog from tags and merged pull requests.",
-                    install="```\ngit clone https://github.com/quillworks/changelog-weaver\n"
+                    install="```\ngit clone https://github.com/demo_quillworks/changelog-weaver\n"
                     "claude --plugin-dir ./changelog-weaver\n```",
                 ),
                 ".claude-plugin/plugin.json": plugin_manifest(
@@ -1368,24 +1371,24 @@ def catalog() -> list[dict[str, Any]]:
 
     # 33-34. Awesome lists ---------------------------------------------------------------------
     links = [
-        "nimbus-labs/pr-review-kit",
-        "andes-devtools/test-pilot",
-        "andes-devtools/refactor-buddy",
-        "secureflow/secret-sentinel",
-        "acme-agents/sql-explainer",
-        "lumen-research/paper-digest",
-        "pixel-forge/ui-critic",
-        "quillworks/doc-scribe",
-        "harborai/rag-builder",
-        "opsbridge/ci-doctor",
-        "studybuddy-org/flashcards-coach",
-        "shadowtools/super-agent-pack",
+        "demo_nimbus-labs/pr-review-kit",
+        "demo_andes-devtools/test-pilot",
+        "demo_andes-devtools/refactor-buddy",
+        "demo_secureflow/secret-sentinel",
+        "demo_acme-agents/sql-explainer",
+        "demo_lumen-research/paper-digest",
+        "demo_pixel-forge/ui-critic",
+        "demo_quillworks/doc-scribe",
+        "demo_harborai/rag-builder",
+        "demo_opsbridge/ci-doctor",
+        "demo_studybuddy-org/flashcards-coach",
+        "demo_shadowtools/super-agent-pack",
         "unknown-owner/not-in-index",
         "another-owner/also-missing",
     ]
     add(
         repo(
-            "awesome-agentic",
+            "demo_awesome-agentic",
             "awesome-skill-index",
             description="A curated list of agent skills",
             stars=5200,
@@ -1404,7 +1407,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "curated-hub",
+            "demo_curated-hub",
             "awesome-plugin-picks",
             description="Hand-picked plugins",
             stars=1200,
@@ -1418,17 +1421,17 @@ def catalog() -> list[dict[str, Any]]:
                 + "\n".join(
                     f"* https://github.com/{x}"
                     for x in [
-                        "nimbus-labs/pr-review-kit",
-                        "andes-devtools/test-pilot",
-                        "secureflow/secret-sentinel",
-                        "opsbridge/ci-doctor",
-                        "opsbridge/terraform-guard",
-                        "harborai/rag-builder",
-                        "datapulse/bi-dashboard-builder",
-                        "quillworks/doc-scribe",
-                        "quillworks/changelog-weaver",
-                        "nimbus-labs/agent-marketplace",
-                        "pixel-forge/figma-tokens-mcp",
+                        "demo_nimbus-labs/pr-review-kit",
+                        "demo_andes-devtools/test-pilot",
+                        "demo_secureflow/secret-sentinel",
+                        "demo_opsbridge/ci-doctor",
+                        "demo_opsbridge/terraform-guard",
+                        "demo_harborai/rag-builder",
+                        "demo_datapulse/bi-dashboard-builder",
+                        "demo_quillworks/doc-scribe",
+                        "demo_quillworks/changelog-weaver",
+                        "demo_nimbus-labs/agent-marketplace",
+                        "demo_pixel-forge/figma-tokens-mcp",
                     ]
                 )
                 + "\n",
@@ -1439,7 +1442,7 @@ def catalog() -> list[dict[str, Any]]:
     # 35. Template -----------------------------------------------------------------------------
     add(
         repo(
-            "templateforge",
+            "demo_templateforge",
             "skill-starter",
             description="Template to start a new skill",
             stars=680,
@@ -1453,7 +1456,7 @@ def catalog() -> list[dict[str, Any]]:
                     "Skill starter",
                     "Use this template to create a new skill with tests and CI.",
                     install="Click *Use this template* or run `gh repo create --template "
-                    "templateforge/skill-starter`.",
+                    "demo_templateforge/skill-starter`.",
                 ),
                 "my-skill/SKILL.md": skill(
                     "my-skill",
@@ -1469,7 +1472,7 @@ def catalog() -> list[dict[str, Any]]:
     # 36-38. Archived and broken ---------------------------------------------------------------
     add(
         repo(
-            "legacy-labs",
+            "demo_legacy-labs",
             "old-linter-skill",
             description="Old linter skill",
             stars=150,
@@ -1497,7 +1500,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "acme-agents",
+            "demo_acme-agents",
             "broken-skill",
             description="Work in progress",
             stars=12,
@@ -1514,7 +1517,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "yaml-bomb",
+            "demo_yaml-bomb",
             "odd-skill",
             description="Odd frontmatter",
             stars=3,
@@ -1535,7 +1538,7 @@ def catalog() -> list[dict[str, Any]]:
     # 39-40. Multilingual and supply chain -----------------------------------------------------
     add(
         repo(
-            "zhihui-tools",
+            "demo_zhihui-tools",
             "translate-cn",
             description="中英文技术翻译技能",
             stars=760,
@@ -1557,7 +1560,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "secureflow",
+            "demo_secureflow",
             "sbom-skill",
             description="Software bill of materials skill",
             stars=410,
@@ -1589,7 +1592,7 @@ def catalog() -> list[dict[str, Any]]:
     # 41-42. Ops marketplace -------------------------------------------------------------------
     add(
         repo(
-            "opsbridge",
+            "demo_opsbridge",
             "terraform-guard",
             description="Terraform policy checks",
             stars=980,
@@ -1601,8 +1604,8 @@ def catalog() -> list[dict[str, Any]]:
                 "README.md": readme(
                     "Terraform guard",
                     "Checks Terraform plans with checkov before apply.",
-                    install="```\n/plugin marketplace add opsbridge/opsbridge-marketplace\n"
-                    "/plugin install terraform-guard@opsbridge\n```",
+                    install="```\n/plugin marketplace add demo_opsbridge/opsbridge-marketplace\n"
+                    "/plugin install terraform-guard@demo_opsbridge\n```",
                 ),
                 ".claude-plugin/plugin.json": plugin_manifest(
                     "terraform-guard", "Policy checks for Terraform plans"
@@ -1619,7 +1622,7 @@ def catalog() -> list[dict[str, Any]]:
     )
     add(
         repo(
-            "opsbridge",
+            "demo_opsbridge",
             "opsbridge-marketplace",
             description="OpsBridge plugin marketplace",
             stars=600,
@@ -1631,23 +1634,29 @@ def catalog() -> list[dict[str, Any]]:
                 "README.md": readme(
                     "OpsBridge marketplace",
                     "DevOps plugins from OpsBridge.",
-                    install="```\n/plugin marketplace add opsbridge/opsbridge-marketplace\n```",
+                    install="```\n/plugin marketplace add demo_opsbridge/opsbridge-marketplace\n```",
                 ),
                 ".claude-plugin/marketplace.json": marketplace(
-                    "opsbridge",
+                    "demo_opsbridge",
                     "OpsBridge",
                     [
                         {
                             "name": "ci-doctor",
-                            "source": {"source": "github", "repo": "opsbridge/ci-doctor"},
+                            "source": {"source": "github", "repo": "demo_opsbridge/ci-doctor"},
                         },
                         {
                             "name": "terraform-guard",
-                            "source": {"source": "github", "repo": "opsbridge/terraform-guard"},
+                            "source": {
+                                "source": "github",
+                                "repo": "demo_opsbridge/terraform-guard",
+                            },
                         },
                         {
                             "name": "slack-notify",
-                            "source": {"source": "github", "repo": "opsbridge/slack-notify-hook"},
+                            "source": {
+                                "source": "github",
+                                "repo": "demo_opsbridge/slack-notify-hook",
+                            },
                         },
                     ],
                 ),
@@ -1678,18 +1687,18 @@ def social() -> dict[str, Any]:
     return {
         "hackernews": {
             "hits": [
-                hn("9001", 1, "https://github.com/nimbus-labs/pr-review-kit", 240),
-                hn("9002", 3, "https://github.com/shadowtools/super-agent-pack", 410),
-                hn("9003", 6, "https://github.com/andes-devtools/refactor-buddy", 95),
-                hn("9004", 40, "https://github.com/secureflow/secret-sentinel", 130),
+                hn("9001", 1, "https://github.com/demo_nimbus-labs/pr-review-kit", 240),
+                hn("9002", 3, "https://github.com/demo_shadowtools/super-agent-pack", 410),
+                hn("9003", 6, "https://github.com/demo_andes-devtools/refactor-buddy", 95),
+                hn("9004", 40, "https://github.com/demo_secureflow/secret-sentinel", 130),
                 hn(
                     "9005",
                     2,
                     "https://example.com/blog",
                     50,
-                    "Try https://github.com/andes-devtools/test-pilot today",
+                    "Try https://github.com/demo_andes-devtools/test-pilot today",
                 ),
-                hn("9006", 200, "https://github.com/lumen-research/paper-digest", 300),
+                hn("9006", 200, "https://github.com/demo_lumen-research/paper-digest", 300),
             ],
             "nbPages": 1,
         },
@@ -1707,7 +1716,7 @@ def social() -> dict[str, Any]:
                     "is_answered": False,
                     "score": 4,
                     "tags": ["claude-code", "code-review", "pull-request"],
-                    "body": "<p>Is there a skill for reviewing pull requests? See https://github.com/nimbus-labs/pr-review-kit</p>",
+                    "body": "<p>Is there a skill for reviewing pull requests? See https://github.com/demo_nimbus-labs/pr-review-kit</p>",
                 },
                 {
                     "question_id": 81002,
@@ -1817,13 +1826,13 @@ def social() -> dict[str, Any]:
                     "id": 5001,
                     "published_at": "-4d",
                     "public_reactions_count": 60,
-                    "body_markdown": "We tried https://github.com/andes-devtools/test-pilot and https://github.com/nimbus-labs/pr-review-kit",
+                    "body_markdown": "We tried https://github.com/demo_andes-devtools/test-pilot and https://github.com/demo_nimbus-labs/pr-review-kit",
                 },
                 {
                     "id": 5002,
                     "published_at": "-10d",
                     "public_reactions_count": 12,
-                    "body_markdown": "Notes on https://github.com/harborai/rag-builder",
+                    "body_markdown": "Notes on https://github.com/demo_harborai/rag-builder",
                 },
             ]
         },
@@ -1834,14 +1843,14 @@ def social() -> dict[str, Any]:
                     "created_at": "-1d",
                     "favourites_count": 14,
                     "reblogs_count": 3,
-                    "content": '<p>Neat: <a href="https://github.com/secureflow/secret-sentinel">secret-sentinel</a></p>',
+                    "content": '<p>Neat: <a href="https://github.com/demo_secureflow/secret-sentinel">secret-sentinel</a></p>',
                 },
                 {
                     "id": "7002",
                     "created_at": "-2d",
                     "favourites_count": 30,
                     "reblogs_count": 9,
-                    "content": '<p>Careful with <a href="https://github.com/shadowtools/super-agent-pack">this pack</a></p>',
+                    "content": '<p>Careful with <a href="https://github.com/demo_shadowtools/super-agent-pack">this pack</a></p>',
                 },
             ]
         },

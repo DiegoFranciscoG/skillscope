@@ -1,0 +1,44 @@
+{
+ "meta": {
+  "id": "demo_andes-devtools/git-commit-craft",
+  "owner": "demo_andes-devtools",
+  "name": "git-commit-craft",
+  "url": "https://github.com/demo_andes-devtools/git-commit-craft",
+  "description": "Conventional commit messages",
+  "stars": 1900,
+  "forks": 140,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-5d",
+  "created_at": "-300d",
+  "last_commit_at": "-5d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-skills",
+   "git",
+   "conventional-commits"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "README.md",
+   173
+  ],
+  [
+   "commit-craft/SKILL.md",
+   273
+  ]
+ ],
+ "files": {
+  "README.md": "# Git commit craft\n\nWrites Conventional Commits messages from the staged diff.\n\n## Install\n\nCopy `commit-craft` into `~/.claude/skills/`.\n\n## License\n\nSee the LICENSE file.\n",
+  "commit-craft/SKILL.md": "---\nname: commit-craft\ndescription: Writes commit messages that follow Conventional Commits from the staged diff. Use when the user is about to commit or asks for a message.\n---\n\n# Commit Craft\n\n## Steps\n1. Read the staged diff.\n2. Pick the type.\n3. Write a short subject.\n"
+ },
+ "sample": true
+}

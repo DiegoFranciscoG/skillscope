@@ -26,6 +26,10 @@ ejemplo (marcados como «ejemplo ficticio») en `http://localhost:8080`, sin red
 |---|---|---|
 | ![Búsqueda y ficha](docs/img/busqueda-ficha.png) | ![Huecos](docs/img/huecos.png) | ![Móvil](docs/img/movil.png) |
 
+| Riesgos con evidencia (archivo, línea y fragmento) | Página estática por repo (schema.org) |
+|---|---|
+| ![Banderas de riesgo de un paquete ficticio malicioso](docs/img/riesgos.png) | ![Página estática indexable](docs/img/pagina-estatica.png) |
+
 ## Problema que resuelve
 
 Las skills, plugins, marketplaces y servidores MCP para Claude Code se publican a diario en
@@ -61,7 +65,8 @@ interés y demanda; nunca son la fuente del catálogo.
 - **Actualización en vivo sin recargar**: la web consulta el índice cada 5 min con `ETag`; si hay un
   build nuevo reemplaza el contenido en su sitio y conserva el scroll y el texto de búsqueda.
 - **Publicación abierta**: API JSON estática, RSS 2.0, JSON Feed 1.1, página estática por repo con
-  schema.org, `sitemap.xml` e insignia SVG para el README de cada repo.
+  schema.org, `sitemap.xml` e insignia SVG para el README de cada repo:
+  ![Insignia de ejemplo con puntaje 78](docs/img/insignia-ejemplo.svg)
 - **Retiro inmediato**: el dueño de un repo lo excluye con el topic `skillscope-optout` o un issue.
 
 ## Arquitectura
@@ -303,8 +308,9 @@ Paso a paso, presupuesto de llamadas y verificación: [docs/despliegue.md](docs/
 
 Investigación completa con 57 fuentes, verificaciones propias y supuestos:
 [docs/investigacion.md](docs/investigacion.md) · límites y presupuesto por fuente:
-[docs/fuentes.md](docs/fuentes.md). Los datos de `data/samples` son **ficticios**: los nombres de
-repos y autores no corresponden a personas reales y sus enlaces apuntan a `example.com`.
+[docs/fuentes.md](docs/fuentes.md). Los datos de `data/samples` son **ficticios**: todos los dueños
+llevan el prefijo `demo_` (GitHub no admite `_` en nombres de usuario ni de organización, así que
+nunca coinciden con una cuenta real), los autores son inventados y sus enlaces apuntan a `example.com`.
 
 Código bajo licencia [MIT](LICENSE).
 

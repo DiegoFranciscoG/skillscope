@@ -73,7 +73,7 @@ def test_offline_build_writes_consistent_site_data(tmp_path: Path) -> None:
 
     signals = load(data / "signals.json")
     assert len(signals["days"]) == 30
-    assert signals["repos"]["nimbus-labs/pr-review-kit"]["stars"][-1] == 8200
+    assert signals["repos"]["demo_nimbus-labs/pr-review-kit"]["stars"][-1] == 8200
 
 
 def test_published_files_hold_no_emails_or_tokens(tmp_path: Path) -> None:

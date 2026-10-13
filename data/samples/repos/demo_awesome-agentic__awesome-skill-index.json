@@ -1,0 +1,39 @@
+{
+ "meta": {
+  "id": "demo_awesome-agentic/awesome-skill-index",
+  "owner": "demo_awesome-agentic",
+  "name": "awesome-skill-index",
+  "url": "https://github.com/demo_awesome-agentic/awesome-skill-index",
+  "description": "A curated list of agent skills",
+  "stars": 5200,
+  "forks": 500,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-3d",
+  "created_at": "-420d",
+  "last_commit_at": "-3d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "CC0-1.0",
+  "topics": [
+   "awesome",
+   "awesome-list",
+   "claude-skills"
+  ],
+  "default_branch": "main",
+  "ci_state": null,
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "README.md",
+   991
+  ]
+ ],
+ "files": {
+  "README.md": "# Awesome skill index\n\nCurated agent skills.\n\n- [pr-review-kit](https://github.com/demo_nimbus-labs/pr-review-kit)\n- [test-pilot](https://github.com/demo_andes-devtools/test-pilot)\n- [refactor-buddy](https://github.com/demo_andes-devtools/refactor-buddy)\n- [secret-sentinel](https://github.com/demo_secureflow/secret-sentinel)\n- [sql-explainer](https://github.com/demo_acme-agents/sql-explainer)\n- [paper-digest](https://github.com/demo_lumen-research/paper-digest)\n- [ui-critic](https://github.com/demo_pixel-forge/ui-critic)\n- [doc-scribe](https://github.com/demo_quillworks/doc-scribe)\n- [rag-builder](https://github.com/demo_harborai/rag-builder)\n- [ci-doctor](https://github.com/demo_opsbridge/ci-doctor)\n- [flashcards-coach](https://github.com/demo_studybuddy-org/flashcards-coach)\n- [super-agent-pack](https://github.com/demo_shadowtools/super-agent-pack)\n- [not-in-index](https://github.com/unknown-owner/not-in-index)\n- [also-missing](https://github.com/another-owner/also-missing)\n"
+ },
+ "sample": true
+}

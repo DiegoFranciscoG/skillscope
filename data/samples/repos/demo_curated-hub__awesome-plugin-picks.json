@@ -1,0 +1,38 @@
+{
+ "meta": {
+  "id": "demo_curated-hub/awesome-plugin-picks",
+  "owner": "demo_curated-hub",
+  "name": "awesome-plugin-picks",
+  "url": "https://github.com/demo_curated-hub/awesome-plugin-picks",
+  "description": "Hand-picked plugins",
+  "stars": 1200,
+  "forks": 90,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-12d",
+  "created_at": "-300d",
+  "last_commit_at": "-12d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "awesome",
+   "claude-code-plugin"
+  ],
+  "default_branch": "main",
+  "ci_state": null,
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "README.md",
+   596
+  ]
+ ],
+ "files": {
+  "README.md": "# Awesome plugin picks\n\n* https://github.com/demo_nimbus-labs/pr-review-kit\n* https://github.com/demo_andes-devtools/test-pilot\n* https://github.com/demo_secureflow/secret-sentinel\n* https://github.com/demo_opsbridge/ci-doctor\n* https://github.com/demo_opsbridge/terraform-guard\n* https://github.com/demo_harborai/rag-builder\n* https://github.com/demo_datapulse/bi-dashboard-builder\n* https://github.com/demo_quillworks/doc-scribe\n* https://github.com/demo_quillworks/changelog-weaver\n* https://github.com/demo_nimbus-labs/agent-marketplace\n* https://github.com/demo_pixel-forge/figma-tokens-mcp\n"
+ },
+ "sample": true
+}

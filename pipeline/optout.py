@@ -10,8 +10,10 @@ OPTOUT_TOPIC = "skillscope-optout"
 OPTOUT_LABEL = "opt-out"
 APPROVED_LABEL = "opt-out-approved"
 
+# Owners: GitHub logins use letters, digits and hyphens. The underscore is accepted only so the
+# fictional demo owners (demo_*) parse; GitHub never allows it, so they cannot match a real account.
 _REPO_IN_TEXT = re.compile(
-    r"(?:https?://github\.com/)?\b([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))/([A-Za-z0-9._-]{1,100})\b"
+    r"(?:https?://github\.com/)?\b([A-Za-z0-9](?:[A-Za-z0-9_-]{0,38}))/([A-Za-z0-9._-]{1,100})\b"
 )
 
 

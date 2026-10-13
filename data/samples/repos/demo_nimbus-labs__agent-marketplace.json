@@ -1,0 +1,57 @@
+{
+ "meta": {
+  "id": "demo_nimbus-labs/agent-marketplace",
+  "owner": "demo_nimbus-labs",
+  "name": "agent-marketplace",
+  "url": "https://github.com/demo_nimbus-labs/agent-marketplace",
+  "description": "Marketplace of developer plugins",
+  "stars": 3900,
+  "forks": 310,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-4d",
+  "created_at": "-380d",
+  "last_commit_at": "-4d",
+  "commits_30d": 18,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-code-marketplace",
+   "claude-plugins"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   ".claude-plugin/marketplace.json",
+   824
+  ],
+  [
+   ".github/workflows/validate.yml",
+   2048
+  ],
+  [
+   "README.md",
+   256
+  ],
+  [
+   "plugins/test-writer/.claude-plugin/plugin.json",
+   220
+  ],
+  [
+   "plugins/test-writer/skills/write-tests/SKILL.md",
+   393
+  ]
+ ],
+ "files": {
+  "README.md": "# Nimbus agent marketplace\n\nA catalog of developer plugins maintained by Nimbus Labs and friends.\n\n## Install\n\n```\n/plugin marketplace add demo_nimbus-labs/agent-marketplace\n/plugin install test-writer@nimbus-plugins\n```\n\n## License\n\nSee the LICENSE file.\n",
+  ".claude-plugin/marketplace.json": "{\n  \"name\": \"nimbus-plugins\",\n  \"owner\": {\n    \"name\": \"Nimbus Labs\",\n    \"email\": \"maintainers@example.com\"\n  },\n  \"description\": \"Plugins curated by Nimbus Labs\",\n  \"plugins\": [\n    {\n      \"name\": \"test-writer\",\n      \"source\": \"./plugins/test-writer\",\n      \"description\": \"Writes unit tests for changed code\"\n    },\n    {\n      \"name\": \"sql-explainer\",\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"demo_acme-agents/sql-explainer\"\n      }\n    },\n    {\n      \"name\": \"doc-scribe\",\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"demo_quillworks/doc-scribe\"\n      }\n    },\n    {\n      \"name\": \"refactor-buddy\",\n      \"source\": {\n        \"source\": \"github\",\n        \"repo\": \"demo_andes-devtools/refactor-buddy\",\n        \"sha\": \"4f2c9a1b7d3e5f6a8b9c0d1e2f3a4b5c6d7e8f90\"\n      }\n    }\n  ]\n}\n",
+  "plugins/test-writer/.claude-plugin/plugin.json": "{\n  \"name\": \"test-writer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Writes unit tests for the code you just changed\",\n  \"author\": {\n    \"name\": \"Sample Author\",\n    \"email\": \"author@example.com\"\n  },\n  \"license\": \"MIT\"\n}\n",
+  "plugins/test-writer/skills/write-tests/SKILL.md": "---\nname: write-tests\ndescription: Writes unit tests for recently changed functions. Use when the user asks for tests or coverage drops below the target.\n---\n\n# Write Tests\n\n## Steps\n1. Find the functions changed in the working tree.\n2. Detect the test framework from the project files.\n3. Write one test per behavior, including edge cases.\n4. Run the tests and fix failures before finishing.\n"
+ },
+ "sample": true
+}

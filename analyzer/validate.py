@@ -18,8 +18,10 @@ from analyzer.text import fold
 SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 KEBAB_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 ID_PART_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
-REPO_RE = re.compile(r"^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$")
-GITHUB_URL_RE = re.compile(r"github\.com[/:]([A-Za-z0-9-]+)/([A-Za-z0-9._-]+?)(?:\.git)?/?$")
+# Owners: GitHub logins use letters, digits and hyphens. The underscore is accepted only so the
+# fictional demo owners (demo_*) parse; GitHub never allows it, so they cannot match a real account.
+REPO_RE = re.compile(r"^[A-Za-z0-9_-]+/[A-Za-z0-9._-]+$")
+GITHUB_URL_RE = re.compile(r"github\.com[/:]([A-Za-z0-9_-]+)/([A-Za-z0-9._-]+?)(?:\.git)?/?$")
 TOOL_RE = re.compile(r"[A-Za-z_][\w.-]*(?:\([^)]*\))?")
 
 MAX_SKILL_NAME = 64

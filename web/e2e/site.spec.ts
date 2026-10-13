@@ -68,7 +68,7 @@ test.describe("Skillscope", () => {
   test("detail answers the four questions and copies the install command", async ({ page, context, browserName, isMobile }) => {
     test.skip(browserName !== "chromium", "clipboard permissions are chromium-only");
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-    await page.goto("./?r=nimbus-labs%2Fpr-review-kit");
+    await page.goto("./?r=demo_nimbus-labs%2Fpr-review-kit");
     const drawer = page.locator("#drawer");
     for (const heading of ["Qué hace", "Cuándo usarla", "Cómo se instala", "Qué riesgos tiene"]) {
       await expect(drawer.getByRole("heading", { name: heading })).toBeVisible();
@@ -76,7 +76,7 @@ test.describe("Skillscope", () => {
     await drawer.getByRole("button", { name: /Copiar: Agregar el marketplace/ }).click();
     await expect(drawer.getByRole("button", { name: /Copiar: Agregar/ })).toHaveText("Copiado");
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-      "/plugin marketplace add nimbus-labs/pr-review-kit",
+      "/plugin marketplace add demo_nimbus-labs/pr-review-kit",
     );
     if (isMobile) {
       const box = await drawer.boundingBox();

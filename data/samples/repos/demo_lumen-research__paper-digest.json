@@ -1,0 +1,44 @@
+{
+ "meta": {
+  "id": "demo_lumen-research/paper-digest",
+  "owner": "demo_lumen-research",
+  "name": "paper-digest",
+  "url": "https://github.com/demo_lumen-research/paper-digest",
+  "description": "Summarizes research papers",
+  "stars": 2100,
+  "forks": 170,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-3d",
+  "created_at": "-280d",
+  "last_commit_at": "-3d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-skills",
+   "research",
+   "arxiv"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": "-30d"
+ },
+ "tree": [
+  [
+   "README.md",
+   220
+  ],
+  [
+   "paper-digest/SKILL.md",
+   262
+  ]
+ ],
+ "files": {
+  "README.md": "# Paper digest\n\nSummarizes research papers with method, results and limitations.\n\n## Install\n\nCopy `paper-digest` into `~/.claude/skills/`.\n\n## Usage\n\nExample: digest this arXiv paper.\n\n## License\n\nSee the LICENSE file.\n",
+  "paper-digest/SKILL.md": "---\nname: paper-digest\ndescription: \"Summarizes a research paper: question, method, results and limitations. Use when the user shares a PDF or an arXiv link.\"\n---\n\n# Paper Digest\n\n## Steps\n1. Read the abstract.\n2. Extract the method.\n3. List results and limits.\n"
+ },
+ "sample": true
+}

@@ -31,13 +31,13 @@ GET {{base}}/feed.json
 GET {{base}}/feed.xml
 
 ### Static page per repository (schema.org SoftwareSourceCode) and the sitemap.
-GET {{base}}/s/nimbus-labs/pr-review-kit/
+GET {{base}}/s/demo_nimbus-labs/pr-review-kit/
 
 ###
 GET {{base}}/sitemap.xml
 
 ### Score badge for a README.
-GET {{base}}/badge/nimbus-labs/pr-review-kit.svg
+GET {{base}}/badge/demo_nimbus-labs/pr-review-kit.svg
 
 ### Health check of the local container (not present on GitHub Pages).
 GET {{base}}/healthz

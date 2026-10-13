@@ -1,0 +1,44 @@
+{
+ "meta": {
+  "id": "demo_secureflow/sbom-skill",
+  "owner": "demo_secureflow",
+  "name": "sbom-skill",
+  "url": "https://github.com/demo_secureflow/sbom-skill",
+  "description": "Software bill of materials skill",
+  "stars": 410,
+  "forks": 27,
+  "open_issues": 3,
+  "closed_issues": 12,
+  "pushed_at": "-10d",
+  "created_at": "-150d",
+  "last_commit_at": "-10d",
+  "commits_30d": 8,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "Apache-2.0",
+  "topics": [
+   "claude-skills",
+   "sbom",
+   "supply-chain"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": null
+ },
+ "tree": [
+  [
+   "README.md",
+   169
+  ],
+  [
+   "sbom/SKILL.md",
+   282
+  ]
+ ],
+ "files": {
+  "README.md": "# SBOM skill\n\nGenerates an SBOM with syft 1.33.0 and checks it with grype 0.100.0.\n\n## Install\n\nCopy `sbom` into `~/.claude/skills/`.\n\n## License\n\nSee the LICENSE file.\n",
+  "sbom/SKILL.md": "---\nname: sbom\ndescription: Generates a software bill of materials and lists vulnerable dependencies. Use before a release or when an audit asks for an SBOM.\n---\n\n# Sbom\n\n## Steps\n1. Run syft on the project directory.\n2. Scan the SBOM with grype.\n3. Report critical findings first.\n"
+ },
+ "sample": true
+}

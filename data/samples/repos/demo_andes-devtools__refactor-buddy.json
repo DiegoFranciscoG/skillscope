@@ -1,0 +1,60 @@
+{
+ "meta": {
+  "id": "demo_andes-devtools/refactor-buddy",
+  "owner": "demo_andes-devtools",
+  "name": "refactor-buddy",
+  "url": "https://github.com/demo_andes-devtools/refactor-buddy",
+  "description": "Safe refactoring skill",
+  "stars": 3400,
+  "forks": 260,
+  "open_issues": 8,
+  "closed_issues": 190,
+  "pushed_at": "-1d",
+  "created_at": "-340d",
+  "last_commit_at": "-1d",
+  "commits_30d": 35,
+  "archived": false,
+  "is_fork": false,
+  "is_template": false,
+  "license": "MIT",
+  "topics": [
+   "claude-skills",
+   "refactoring"
+  ],
+  "default_branch": "main",
+  "ci_state": "SUCCESS",
+  "latest_release_at": "-10d"
+ },
+ "tree": [
+  [
+   ".github/workflows/ci.yml",
+   2048
+  ],
+  [
+   "README.md",
+   317
+  ],
+  [
+   "examples/before.py",
+   2048
+  ],
+  [
+   "refactor-buddy/SKILL.md",
+   387
+  ],
+  [
+   "refactor-buddy/references/catalog.md",
+   58
+  ],
+  [
+   "tests/test_steps.py",
+   2048
+  ]
+ ],
+ "files": {
+  "README.md": "# Refactor buddy\n\nRefactors code in small steps and keeps tests green after every step.\n\n## Install\n\n```\n/plugin marketplace add demo_nimbus-labs/agent-marketplace\n/plugin install refactor-buddy@nimbus-plugins\n```\n\n## Usage\n\nExample: extract this function and rename the variables.\n\n## License\n\nSee the LICENSE file.\n",
+  "refactor-buddy/SKILL.md": "---\nname: refactor-buddy\ndescription: \"Refactors code in small, tested steps: extract function, rename, remove duplication. Use when the user asks to clean up or simplify code.\"\n---\n\n# Refactor Buddy\n\n## Steps\n1. Run the tests first.\n2. Make one small change.\n3. Run the tests again.\n4. Commit and repeat.\n\n## References\n- See [references/catalog.md](references/catalog.md) for details.\n",
+  "refactor-buddy/references/catalog.md": "# Refactoring catalog\n\nExtract function, inline variable.\n"
+ },
+ "sample": true
+}
