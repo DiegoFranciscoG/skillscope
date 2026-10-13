@@ -88,6 +88,15 @@ Fecha de consulta de todas las fuentes: **2026-10-12** (salvo que se indique otr
 | 52 | Robertson y Zaragoza (2009), *The Probabilistic Relevance Framework: BM25 and Beyond*, FnTIR — revisado por pares | https://doi.org/10.1561/1500000019 | Fórmula BM25 y valores típicos `k1 = 1,2`, `b = 0,75` del índice de texto. |
 | 53 | Halko, Martinsson y Tropp (2011), *Finding structure with randomness*, SIAM Review 53(2) — revisado por pares | https://doi.org/10.1137/090771806 | SVD aleatorizada (sobremuestreo e iteraciones de potencia) para calcular LSA rápido en CI con numpy. |
 
+### 1.7 Formatos de publicación (consultados el 2026-10-12)
+
+| # | Fuente | URL | Qué se tomó de aquí |
+|---|---|---|---|
+| 54 | JSON Feed 1.1 | https://www.jsonfeed.org/version/1.1/ | `version` = `https://jsonfeed.org/version/1.1`; obligatorios `version`, `title`, `items`; cada ítem exige `id` estable y al menos `content_text` o `content_html`; `language` es campo válido desde 1.1. Base de `feed.json`. |
+| 55 | RSS 2.0 Specification (RSS Advisory Board) | https://www.rssboard.org/rss-specification | Canal con `title`, `link`, `description`; ítem con `title` o `description`; `pubDate` en RFC 822; `guid isPermaLink="false"` es solo identificador; `ttl` = minutos de caché. Base de `feed.xml` (`ttl` 60). |
+| 56 | Sitemaps XML protocol | https://www.sitemaps.org/protocol.html | Máximo **50.000 URL y 50 MB** por archivo; espacio de nombres `http://www.sitemaps.org/schemas/sitemap/0.9`; `lastmod` en W3C Datetime (`AAAA-MM-DD` válido); escapar `&`, comillas y `<>`; línea `Sitemap:` en `robots.txt`. |
+| 57 | schema.org — SoftwareSourceCode | https://schema.org/SoftwareSourceCode | `codeRepository` y `programmingLanguage` son propios del tipo; `license`, `dateModified`, `keywords`, `author`, `isPartOf` se heredan de CreativeWork. Base del JSON-LD de cada página estática. |
+
 ## 2. Verificaciones empíricas propias (2026-10-12)
 
 | # | Qué se probó | Resultado | Decisión |

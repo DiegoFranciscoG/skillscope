@@ -16,7 +16,7 @@ from collector.npm import collect_npm
 from collector.run import collect_github
 from collector.social.base import run_source
 from collector.social.sources import ALL_SOURCES
-from indexer import index
+from indexer import badges, feeds, index, pages
 from pipeline.clock import iso
 from pipeline.context import Context
 from pipeline.optout import has_optout_topic
@@ -88,6 +88,10 @@ def run_build(ctx: Context, out_dir: Path, root: Path) -> BuildResult:
         sample_mode=settings.offline,
     )
     files = index.write(site, out_dir, now)
+    feeds.write(site, out_dir, now)
+    pages_written = pages.write(site, out_dir, now)
+    badges.write(site, out_dir)
+    log.info("static pages: %d", pages_written)
 
     signals.save()
     ctx.state.data["last_build"] = {"build_id": site.build_id, "built_at": site.built_at}
