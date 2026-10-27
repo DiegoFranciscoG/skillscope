@@ -21,7 +21,7 @@ COPY data/samples/ data/samples/
 RUN uv run --no-sync python -m pipeline build --offline --out /app/site
 
 # ---- 2. Front: type-check, bundle with SRI and scan the result for credentials ---------------
-FROM node:24.21.0-trixie-slim AS web
+FROM node:24.22.1-trixie-slim AS web
 WORKDIR /app/web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci --ignore-scripts --no-audit --no-fund
