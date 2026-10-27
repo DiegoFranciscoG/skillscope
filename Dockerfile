@@ -30,7 +30,7 @@ COPY --from=data /app/site /app/site
 RUN npm run build && npm run scan:bundle
 
 # ---- 3. Runtime: static files only, unprivileged nginx --------------------------------------
-FROM nginxinc/nginx-unprivileged:1.30.5-alpine3.24 AS runtime
+FROM nginxinc/nginx-unprivileged:1.30.6-alpine3.24 AS runtime
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY docker/nginx/security-headers.conf /etc/nginx/security-headers.conf
 COPY --from=web /app/site /usr/share/nginx/html
